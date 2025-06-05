@@ -81,12 +81,12 @@ const ProductCategories = () => {
                       </div>
                       <p className="text-blue-700 font-semibold">{product.weight}</p>
                     </div>
-                    <div className="bg-green-50 p-3 rounded-lg">
+                    <div className="bg-cyan-50 p-3 rounded-lg">
                       <div className="flex items-center space-x-2 mb-1">
-                        <Battery className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-900">Battery</span>
+                        <Battery className="h-4 w-4 text-cyan-600" />
+                        <span className="text-sm font-medium text-cyan-900">Battery</span>
                       </div>
-                      <p className="text-green-700 font-semibold">{product.batteryLife}</p>
+                      <p className="text-cyan-700 font-semibold">{product.batteryLife}</p>
                     </div>
                   </div>
 
@@ -113,7 +113,7 @@ const ProductCategories = () => {
                   </div>
 
                   <Button 
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
                     onClick={() => setIsCostingOpen(true)}
                   >
                     View Specifications & Pricing

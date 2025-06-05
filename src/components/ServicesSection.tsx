@@ -61,8 +61,8 @@ const ServicesSection = () => {
             return (
               <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
                 <CardHeader className="text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <IconComponent className="h-6 w-6 text-green-600" />
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <IconComponent className="h-6 w-6 text-blue-600" />
                   </div>
                   <CardTitle className="text-xl font-bold">{service.title}</CardTitle>
                   <CardDescription className="text-gray-600">
@@ -73,7 +73,7 @@ const ServicesSection = () => {
                   <ul className="space-y-2">
                     {service.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-center text-sm text-gray-700">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-3"></div>
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3"></div>
                         {feature}
                       </li>
                     ))}

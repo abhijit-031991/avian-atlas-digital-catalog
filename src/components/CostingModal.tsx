@@ -17,8 +17,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Small (150-250g)",
       animals: "Small carnivores, cats",
       technologies: {
-        lora: { price: "₹68,000", icon: Radio, color: "text-blue-600" },
-        gsm: { price: "₹96,000", icon: Satellite, color: "text-green-600" },
+        lora: { price: "₹68,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹96,000", icon: Satellite, color: "text-blue-600" },
         satellite: { price: "₹1,32,000", icon: Globe, color: "text-purple-600" }
       },
       features: ["2-year battery", "Drop-off mechanism", "Waterproof IP67"]
@@ -27,8 +27,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Medium (300-500g)",
       animals: "Wolves, deer, medium ungulates",
       technologies: {
-        lora: { price: "₹96,000", icon: Radio, color: "text-blue-600" },
-        gsm: { price: "₹1,20,000", icon: Satellite, color: "text-green-600" },
+        lora: { price: "₹96,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹1,20,000", icon: Satellite, color: "text-blue-600" },
         satellite: { price: "₹1,65,000", icon: Globe, color: "text-purple-600" }
       },
       features: ["3-year battery", "Enhanced durability", "Custom fit sizing"]
@@ -37,8 +37,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Large (600-800g)",
       animals: "Bears, elk, large ungulates",
       technologies: {
-        lora: { price: "₹1,32,000", icon: Radio, color: "text-blue-600" },
-        gsm: { price: "₹1,65,000", icon: Satellite, color: "text-green-600" },
+        lora: { price: "₹1,32,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹1,65,000", icon: Satellite, color: "text-blue-600" },
         satellite: { price: "₹2,20,000", icon: Globe, color: "text-purple-600" }
       },
       features: ["5-year battery", "Heavy-duty construction", "Satellite ready"]
@@ -50,8 +50,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Ultra-light (3-8g)",
       animals: "Small songbirds, warblers",
       technologies: {
-        lora: { price: "₹36,000", icon: Radio, color: "text-blue-600" },
-        gsm: { price: "₹45,000", icon: Satellite, color: "text-green-600" },
+        lora: { price: "₹36,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹45,000", icon: Satellite, color: "text-blue-600" },
         satellite: { price: "₹68,000", icon: Globe, color: "text-purple-600" }
       },
       features: ["Solar charging", "1-year battery backup", "Harness attachment"]
@@ -60,8 +60,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Standard (10-15g)",
       animals: "Raptors, seabirds",
       technologies: {
-        lora: { price: "₹52,000", icon: Radio, color: "text-blue-600" },
-        gsm: { price: "₹65,000", icon: Satellite, color: "text-green-600" },
+        lora: { price: "₹52,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹65,000", icon: Satellite, color: "text-blue-600" },
         satellite: { price: "₹85,000", icon: Globe, color: "text-purple-600" }
       },
       features: ["Enhanced solar panel", "2-year battery", "Weather resistant"]
@@ -70,8 +70,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Heavy-duty (18-25g)",
       animals: "Large raptors, waterfowl",
       technologies: {
-        lora: { price: "₹68,000", icon: Radio, color: "text-blue-600" },
-        gsm: { price: "₹85,000", icon: Satellite, color: "text-green-600" },
+        lora: { price: "₹68,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹85,000", icon: Satellite, color: "text-blue-600" },
         satellite: { price: "₹1,10,000", icon: Globe, color: "text-purple-600" }
       },
       features: ["Extended range", "3-year battery", "Advanced GPS chipset"]
@@ -92,7 +92,7 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
           {/* GPS Collars Section */}
           <div>
             <div className="flex items-center space-x-2 mb-6">
-              <Crown className="h-6 w-6 text-green-600" />
+              <Crown className="h-6 w-6 text-blue-600" />
               <h3 className="text-xl font-semibold text-gray-900">GPS Tracking Collars</h3>
             </div>
             <div className="space-y-6">
@@ -139,7 +139,7 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
           {/* Bird Tags Section */}
           <div>
             <div className="flex items-center space-x-2 mb-6">
-              <Bird className="h-6 w-6 text-blue-600" />
+              <Bird className="h-6 w-6 text-cyan-600" />
               <h3 className="text-xl font-semibold text-gray-900">GPS Bird Tags</h3>
             </div>
             <div className="space-y-6">
@@ -203,7 +203,7 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          <Button className="bg-green-600 hover:bg-green-700">
+          <Button className="bg-blue-600 hover:bg-blue-700">
             Request Custom Quote
           </Button>
         </div>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X, Mail, Phone, User, Building } from "lucide-react";
@@ -145,9 +144,9 @@ const RequestDemoModal = ({ isOpen, onClose }: RequestDemoModalProps) => {
             />
           </div>
 
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-green-900 mb-2">What's included in your demo:</h4>
-            <ul className="text-sm text-green-700 space-y-1">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-blue-900 mb-2">What's included in your demo:</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
               <li>• Live demonstration of tracking hardware</li>
               <li>• Walk-through of our mobile and web applications</li>
               <li>• Data analytics and reporting capabilities</li>
@@ -160,7 +159,7 @@ const RequestDemoModal = ({ isOpen, onClose }: RequestDemoModalProps) => {
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-green-600 hover:bg-green-700">
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
               Request Demo
             </Button>
           </div>

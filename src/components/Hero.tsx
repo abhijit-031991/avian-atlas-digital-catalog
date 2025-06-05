@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Satellite, Radio, Globe } from "lucide-react";
@@ -16,17 +17,17 @@ const Hero = () => {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-green-50 to-blue-50 py-20">
+      <section className="bg-gradient-to-br from-blue-50 to-cyan-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
                   Wildlife Conservation Technology
                 </Badge>
                 <h1 className="text-5xl font-bold text-gray-900 leading-tight">
                   Advanced GPS Telemetry for 
-                  <span className="text-green-600"> Wildlife Tracking</span>
+                  <span className="text-blue-600"> Wildlife Tracking</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
                   Complete tracking solutions with GPS-GSM, GPS-LoRa, and GPS-Satellite technologies. 
@@ -37,7 +38,7 @@ const Hero = () => {
               <div className="flex flex-wrap gap-4">
                 <Button 
                   size="lg" 
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-blue-600 hover:bg-blue-700"
                   onClick={handleExploreProducts}
                 >
                   Explore Products
@@ -53,11 +54,11 @@ const Hero = () => {
 
               <div className="flex items-center space-x-6 pt-4">
                 <div className="flex items-center space-x-2">
-                  <Satellite className="h-5 w-5 text-green-600" />
+                  <Satellite className="h-5 w-5 text-blue-600" />
                   <span className="text-sm text-gray-600">GPS-GSM</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Radio className="h-5 w-5 text-blue-600" />
+                  <Radio className="h-5 w-5 text-cyan-600" />
                   <span className="text-sm text-gray-600">GPS-LoRa</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -74,7 +75,7 @@ const Hero = () => {
                   alt="Wildlife tracking technology in action"
                   className="w-full h-80 object-cover rounded-lg"
                 />
-                <div className="absolute -bottom-4 -right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg">
+                <div className="absolute -bottom-4 -right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg">
                   <MapPin className="h-6 w-6" />
                 </div>
               </div>

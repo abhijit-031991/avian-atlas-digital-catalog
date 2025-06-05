@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -74,7 +73,7 @@ const ContactSection = () => {
                 />
               </div>
               
-              <Button className="w-full bg-green-600 hover:bg-green-700 text-lg py-3">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3">
                 Send Inquiry
               </Button>
             </CardContent>
@@ -87,7 +86,7 @@ const ContactSection = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <Mail className="h-5 w-5 text-green-600" />
+                  <Mail className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Email</p>
                     <p className="text-gray-600">sales@wildtrackgps.com</p>
@@ -95,7 +94,7 @@ const ContactSection = () => {
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <Phone className="h-5 w-5 text-green-600" />
+                  <Phone className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Phone</p>
                     <p className="text-gray-600">+1 (555) 123-4567</p>
@@ -103,7 +102,7 @@ const ContactSection = () => {
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <MapPin className="h-5 w-5 text-green-600" />
+                  <MapPin className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Address</p>
                     <p className="text-gray-600">123 Wildlife Research Blvd<br />Conservation City, CA 94000</p>
@@ -111,7 +110,7 @@ const ContactSection = () => {
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <Clock className="h-5 w-5 text-green-600" />
+                  <Clock className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Business Hours</p>
                     <p className="text-gray-600">Mon-Fri: 8AM - 6PM PST<br />Emergency support 24/7</p>
@@ -120,26 +119,26 @@ const ContactSection = () => {
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg border-0 bg-green-50">
+            <Card className="shadow-lg border-0 bg-blue-50">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-green-900 mb-2">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">
                   Why Choose WildTrack GPS?
                 </h3>
-                <ul className="space-y-2 text-green-800">
+                <ul className="space-y-2 text-blue-800">
                   <li className="flex items-center">
-                    <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
                     15+ years in wildlife telemetry
                   </li>
                   <li className="flex items-center">
-                    <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
                     Used by 200+ research institutions
                   </li>
                   <li className="flex items-center">
-                    <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
                     50,000+ animals tracked worldwide
                   </li>
                   <li className="flex items-center">
-                    <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
                     Award-winning customer support
                   </li>
                 </ul>
