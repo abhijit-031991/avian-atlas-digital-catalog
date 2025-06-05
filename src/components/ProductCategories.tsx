@@ -3,8 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Bird, Shield, Battery } from "lucide-react";
+import { useState } from "react";
+import CostingModal from "./CostingModal";
 
 const ProductCategories = () => {
+  const [isCostingOpen, setIsCostingOpen] = useState(false);
+
   const products = [
     {
       id: "gps-collars",
@@ -22,7 +26,7 @@ const ProductCategories = () => {
       title: "GPS Bird Tags",
       description: "Ultra-lightweight tracking devices specifically designed for avian species.",
       icon: Bird,
-      image: "https://images.unsplash.com/photo-1493962853295-0fd70327578a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      image: "https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
       features: ["Ultra-lightweight", "Solar charging", "Harness attachment", "Weather resistant"],
       applications: ["Migration studies", "Breeding behavior", "Habitat use", "Conservation efforts"],
       weight: "3-25g",
@@ -108,8 +112,11 @@ const ProductCategories = () => {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
-                    View Specifications
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => setIsCostingOpen(true)}
+                  >
+                    View Specifications & Pricing
                   </Button>
                 </CardContent>
               </Card>
@@ -117,6 +124,11 @@ const ProductCategories = () => {
           })}
         </div>
       </div>
+
+      <CostingModal 
+        isOpen={isCostingOpen} 
+        onClose={() => setIsCostingOpen(false)} 
+      />
     </section>
   );
 };
