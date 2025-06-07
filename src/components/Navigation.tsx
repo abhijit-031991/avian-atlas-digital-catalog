@@ -21,8 +21,8 @@ const Navigation = () => {
             <a href="#products" className="text-gray-700 hover:text-blue-600 transition-colors">Products</a>
             <a href="#services" className="text-gray-700 hover:text-blue-600 transition-colors">Services</a>
             <a href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
-            <Button className="bg-blue-600 hover:bg-blue-700">Tracking</Button>
             <Button className="bg-blue-600 hover:bg-blue-700">Get Quote</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">Tracking</Button>
           </div>
 
           {/* Mobile menu button */}
@@ -44,8 +44,8 @@ const Navigation = () => {
             <a href="#products" className="block text-gray-700 hover:text-blue-600 transition-colors">Products</a>
             <a href="#services" className="block text-gray-700 hover:text-blue-600 transition-colors">Services</a>
             <a href="#contact" className="block text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2">Tracking</Button>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">Get Quote</Button>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2">Get Quote</Button>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700">Tracking</Button>
           </div>
         )}
       </div>
