@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Satellite, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const Navigation = () => {
@@ -11,8 +11,12 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <Satellite className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">WildTrack GPS</span>
+            <img 
+              src="/lovable-uploads/3a979d5e-bf07-4f11-917a-0f75296cb8e2.png" 
+              alt="Arcturus Inc. Logo" 
+              className="h-8 w-auto"
+            />
+            <span className="text-xl font-bold text-gray-900">Arcturus Inc.</span>
           </div>
           
           {/* Desktop Navigation */}

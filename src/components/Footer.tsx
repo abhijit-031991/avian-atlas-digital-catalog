@@ -1,5 +1,5 @@
 
-import { Satellite, Mail, Phone, MapPin, Linkedin, Twitter, Youtube } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Twitter, Youtube } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -8,8 +8,12 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Satellite className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">WildTrack GPS</span>
+              <img 
+                src="/lovable-uploads/3a979d5e-bf07-4f11-917a-0f75296cb8e2.png" 
+                alt="Arcturus Inc. Logo" 
+                className="h-8 w-auto"
+              />
+              <span className="text-xl font-bold">Arcturus Inc.</span>
             </div>
             <p className="text-gray-400">
               Leading provider of GPS telemetry solutions for wildlife conservation and research.
@@ -62,7 +66,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 WildTrack GPS. All rights reserved. | Privacy Policy | Terms of Service</p>
+          <p>&copy; 2024 Arcturus Inc. All rights reserved. | Privacy Policy | Terms of Service</p>
         </div>
       </div>
     </footer>
