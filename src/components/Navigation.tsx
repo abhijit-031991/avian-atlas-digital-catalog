@@ -12,7 +12,7 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
             <Satellite className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">WildTrack GPS</span>
+            <span className="text-xl font-bold text-gray-900">ArcTrack Telemetry</span>
           </div>
           
           {/* Desktop Navigation */}

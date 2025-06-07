@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Satellite className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">WildTrack GPS</span>
+              <span className="text-xl font-bold">ArcTrack Telemetry</span>
             </div>
             <p className="text-gray-400">
               Leading provider of GPS telemetry solutions for wildlife conservation and research.
@@ -47,7 +47,7 @@ const Footer = () => {
             <div className="space-y-2 text-gray-400">
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>sales@wildtrackgps.com</span>
+                <span>sales@arctracktelemetry.com</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
@@ -62,7 +62,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 WildTrack GPS. All rights reserved. | Privacy Policy | Terms of Service</p>
+          <p>&copy; 2024 ArcTrack Telemetry. All rights reserved. | Privacy Policy | Terms of Service</p>
         </div>
       </div>
     </footer>

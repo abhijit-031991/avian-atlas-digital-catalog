@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -89,7 +90,7 @@ const ContactSection = () => {
                   <Mail className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-gray-600">sales@wildtrackgps.com</p>
+                    <p className="text-gray-600">sales@arctracktelemetry.com</p>
                   </div>
                 </div>
                 
@@ -116,32 +117,6 @@ const ContactSection = () => {
                     <p className="text-gray-600">Mon-Fri: 8AM - 6PM PST<br />Emergency support 24/7</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-lg border-0 bg-blue-50">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                  Why Choose WildTrack GPS?
-                </h3>
-                <ul className="space-y-2 text-blue-800">
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-                    15+ years in wildlife telemetry
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-                    Used by 200+ research institutions
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-                    50,000+ animals tracked worldwide
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-                    Award-winning customer support
-                  </li>
-                </ul>
               </CardContent>
             </Card>
           </div>
