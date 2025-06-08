@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Bird, Shield, Battery } from "lucide-react";
+import { Crown, Bird, Shield, Battery, HardDrive } from "lucide-react";
 import { useState } from "react";
 import CostingModal from "./CostingModal";
 
@@ -31,6 +31,17 @@ const ProductCategories = () => {
       applications: ["Migration studies", "Breeding behavior", "Habitat use", "Conservation efforts"],
       weight: "3-25g",
       batteryLife: "1-3 years"
+    },
+    {
+      id: "gps-loggers",
+      title: "GPS Data Loggers",
+      description: "Autonomous data logging devices for long-term studies with high-capacity storage and extended battery life.",
+      icon: HardDrive,
+      image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      features: ["High-capacity storage", "Extended battery life", "Weatherproof design", "Data retrieval options"],
+      applications: ["Long-term studies", "Remote monitoring", "Data archiving", "Research analysis"],
+      weight: "50-300g",
+      batteryLife: "3-7 years"
     }
   ];
 
@@ -46,7 +57,7 @@ const ProductCategories = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-3 gap-12">
           {products.map((product) => {
             const IconComponent = product.icon;
             return (

@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X, Crown, Bird, IndianRupee, Satellite, Radio, Globe } from "lucide-react";
+import { X, Crown, Bird, IndianRupee, Globe, Radio, Satellite, HardDrive } from "lucide-react";
 
 interface CostingModalProps {
   isOpen: boolean;
@@ -18,8 +18,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       animals: "Small carnivores, cats",
       technologies: {
         lora: { price: "₹68,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹96,000", icon: Satellite, color: "text-blue-600" },
-        satellite: { price: "₹1,32,000", icon: Globe, color: "text-purple-600" }
+        gsm: { price: "₹96,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹1,32,000", icon: Satellite, color: "text-purple-600" }
       },
       features: ["2-year battery", "Drop-off mechanism", "Waterproof IP67"]
     },
@@ -28,8 +28,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       animals: "Wolves, deer, medium ungulates",
       technologies: {
         lora: { price: "₹96,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹1,20,000", icon: Satellite, color: "text-blue-600" },
-        satellite: { price: "₹1,65,000", icon: Globe, color: "text-purple-600" }
+        gsm: { price: "₹1,20,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹1,65,000", icon: Satellite, color: "text-purple-600" }
       },
       features: ["3-year battery", "Enhanced durability", "Custom fit sizing"]
     },
@@ -38,8 +38,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       animals: "Bears, elk, large ungulates",
       technologies: {
         lora: { price: "₹1,32,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹1,65,000", icon: Satellite, color: "text-blue-600" },
-        satellite: { price: "₹2,20,000", icon: Globe, color: "text-purple-600" }
+        gsm: { price: "₹1,65,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹2,20,000", icon: Satellite, color: "text-purple-600" }
       },
       features: ["5-year battery", "Heavy-duty construction", "Satellite ready"]
     }
@@ -51,8 +51,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       animals: "Small songbirds, warblers",
       technologies: {
         lora: { price: "₹36,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹45,000", icon: Satellite, color: "text-blue-600" },
-        satellite: { price: "₹68,000", icon: Globe, color: "text-purple-600" }
+        gsm: { price: "₹45,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹68,000", icon: Satellite, color: "text-purple-600" }
       },
       features: ["Solar charging", "1-year battery backup", "Harness attachment"]
     },
@@ -61,8 +61,8 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       animals: "Raptors, seabirds",
       technologies: {
         lora: { price: "₹52,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹65,000", icon: Satellite, color: "text-blue-600" },
-        satellite: { price: "₹85,000", icon: Globe, color: "text-purple-600" }
+        gsm: { price: "₹65,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹85,000", icon: Satellite, color: "text-purple-600" }
       },
       features: ["Enhanced solar panel", "2-year battery", "Weather resistant"]
     },
@@ -71,10 +71,43 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       animals: "Large raptors, waterfowl",
       technologies: {
         lora: { price: "₹68,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹85,000", icon: Satellite, color: "text-blue-600" },
-        satellite: { price: "₹1,10,000", icon: Globe, color: "text-purple-600" }
+        gsm: { price: "₹85,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹1,10,000", icon: Satellite, color: "text-purple-600" }
       },
       features: ["Extended range", "3-year battery", "Advanced GPS chipset"]
+    }
+  ];
+
+  const loggerPricing = [
+    {
+      size: "Compact (50-120g)",
+      animals: "Small to medium mammals",
+      technologies: {
+        lora: { price: "₹42,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹58,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹78,000", icon: Satellite, color: "text-purple-600" }
+      },
+      features: ["32GB storage", "3-year battery", "USB data retrieval"]
+    },
+    {
+      size: "Standard (150-200g)",
+      animals: "Medium to large mammals",
+      technologies: {
+        lora: { price: "₹65,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹85,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹1,15,000", icon: Satellite, color: "text-purple-600" }
+      },
+      features: ["64GB storage", "5-year battery", "Wireless data transfer"]
+    },
+    {
+      size: "Extended (250-300g)",
+      animals: "Large mammals, long-term studies",
+      technologies: {
+        lora: { price: "₹85,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹1,15,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹1,50,000", icon: Satellite, color: "text-purple-600" }
+      },
+      features: ["128GB storage", "7-year battery", "Remote data access"]
     }
   ];
 
@@ -171,6 +204,53 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
                       <h5 className="font-medium text-gray-900">Features:</h5>
                       <div className="flex flex-wrap gap-1">
                         {tag.features.map((feature, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* GPS Loggers Section */}
+          <div>
+            <div className="flex items-center space-x-2 mb-6">
+              <HardDrive className="h-6 w-6 text-green-600" />
+              <h3 className="text-xl font-semibold text-gray-900">GPS Data Loggers</h3>
+            </div>
+            <div className="space-y-6">
+              {loggerPricing.map((logger, index) => (
+                <Card key={index} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{logger.size}</CardTitle>
+                    <CardDescription>{logger.animals}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-3 gap-4 mb-4">
+                      {Object.entries(logger.technologies).map(([tech, details]) => {
+                        const IconComponent = details.icon;
+                        return (
+                          <div key={tech} className="border rounded-lg p-4 text-center">
+                            <div className="flex items-center justify-center space-x-2 mb-2">
+                              <IconComponent className={`h-5 w-5 ${details.color}`} />
+                              <span className="font-medium text-sm uppercase">{tech}</span>
+                            </div>
+                            <div className="flex items-center justify-center space-x-1">
+                              <IndianRupee className={`h-5 w-5 ${details.color}`} />
+                              <span className={`text-xl font-bold ${details.color}`}>{details.price.replace('₹', '')}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="space-y-2">
+                      <h5 className="font-medium text-gray-900">Features:</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {logger.features.map((feature, idx) => (
                           <Badge key={idx} variant="secondary" className="text-xs">
                             {feature}
                           </Badge>

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Satellite, Radio, Globe } from "lucide-react";
+import { MapPin, Satellite, Radio, Globe, HardDrive } from "lucide-react";
 import { useState } from "react";
 import RequestDemoModal from "./RequestDemoModal";
 
@@ -30,8 +30,8 @@ const Hero = () => {
                   <span className="text-blue-600"> Wildlife Tracking</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Complete tracking solutions with GPS-GSM, GPS-LoRa, and GPS-Satellite technologies. 
-                  From collars to bird tags, we provide the tools researchers need for wildlife conservation.
+                  Complete tracking solutions with GPS-GSM, GPS-LoRa, GPS-Satellite, and GPS-Logger technologies. 
+                  From collars to bird tags and data loggers, we provide the tools researchers need for wildlife conservation.
                 </p>
               </div>
               
@@ -54,7 +54,7 @@ const Hero = () => {
 
               <div className="flex items-center space-x-6 pt-4">
                 <div className="flex items-center space-x-2">
-                  <Satellite className="h-5 w-5 text-blue-600" />
+                  <Globe className="h-5 w-5 text-blue-600" />
                   <span className="text-sm text-gray-600">GPS-GSM</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -62,8 +62,12 @@ const Hero = () => {
                   <span className="text-sm text-gray-600">GPS-LoRa</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Globe className="h-5 w-5 text-purple-600" />
+                  <Satellite className="h-5 w-5 text-purple-600" />
                   <span className="text-sm text-gray-600">GPS-Satellite</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <HardDrive className="h-5 w-5 text-green-600" />
+                  <span className="text-sm text-gray-600">GPS-Loggers</span>
                 </div>
               </div>
             </div>

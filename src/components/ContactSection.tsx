@@ -60,6 +60,7 @@ const ContactSection = () => {
                     <SelectItem value="gps-gsm">GPS-GSM</SelectItem>
                     <SelectItem value="gps-lora">GPS-LoRa</SelectItem>
                     <SelectItem value="gps-satellite">GPS-Satellite (Coming Soon)</SelectItem>
+                    <SelectItem value="gps-loggers">GPS-Loggers</SelectItem>
                     <SelectItem value="complete-solution">Complete Solution</SelectItem>
                   </SelectContent>
                 </Select>
