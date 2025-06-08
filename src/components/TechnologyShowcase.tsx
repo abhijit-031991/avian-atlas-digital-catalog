@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Satellite, Radio, Globe, Signal, Battery, MapPin } from "lucide-react";
+import { Satellite, Radio, Globe, Signal, Battery, MapPin, HardDrive } from "lucide-react";
 
 const TechnologyShowcase = () => {
   const technologies = [
@@ -37,6 +37,17 @@ const TechnologyShowcase = () => {
       features: ["Global coverage", "No infrastructure needed", "Emergency alerts", "Weather resistant"],
       status: "Coming Soon",
       statusColor: "bg-orange-100 text-orange-800"
+    },
+    {
+      id: "gps-loggers",
+      title: "GPS-Loggers",
+      description: "Autonomous data logging technology for long-term studies with high-capacity storage and extended battery life.",
+      icon: HardDrive,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      features: ["High-capacity storage", "Extended battery life", "Offline data logging", "Data retrieval options"],
+      status: "Available",
+      statusColor: "bg-blue-100 text-blue-800"
     }
   ];
 
@@ -53,7 +64,7 @@ const TechnologyShowcase = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {technologies.map((tech) => {
             const IconComponent = tech.icon;
             return (
@@ -63,20 +74,20 @@ const TechnologyShowcase = () => {
                     <IconComponent className={`h-8 w-8 ${tech.color}`} />
                   </div>
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <CardTitle className="text-2xl font-bold">{tech.title}</CardTitle>
+                    <CardTitle className="text-xl font-bold">{tech.title}</CardTitle>
                     <Badge className={tech.statusColor}>{tech.status}</Badge>
                   </div>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription className="text-gray-600 text-sm">
                     {tech.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-900 mb-2">Key Features:</h4>
+                    <h4 className="font-semibold text-gray-900 mb-2 text-sm">Key Features:</h4>
                     {tech.features.map((feature, index) => (
                       <div key={index} className="flex items-center space-x-2">
-                        <Signal className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm text-gray-700">{feature}</span>
+                        <Signal className="h-3 w-3 text-blue-500" />
+                        <span className="text-xs text-gray-700">{feature}</span>
                       </div>
                     ))}
                   </div>
