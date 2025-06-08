@@ -91,7 +91,7 @@ const ContactSection = () => {
                   <Mail className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-gray-600">sales@arctracktelemetry.com</p>
+                    <p className="text-gray-600">info@arcturus-telemetry.in</p>
                   </div>
                 </div>
                 
@@ -99,7 +99,7 @@ const ContactSection = () => {
                   <Phone className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Phone</p>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+91 9740997229</p>
                   </div>
                 </div>
                 
@@ -107,7 +107,7 @@ const ContactSection = () => {
                   <MapPin className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Address</p>
-                    <p className="text-gray-600">123 Wildlife Research Blvd<br />Conservation City, CA 94000</p>
+                    <p className="text-gray-600">29, 1st Main, 4th Cross, Nethajinagar,<br />Mathikere - Bangalore -560054</p>
                   </div>
                 </div>
                 
@@ -115,7 +115,7 @@ const ContactSection = () => {
                   <Clock className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Business Hours</p>
-                    <p className="text-gray-600">Mon-Fri: 8AM - 6PM PST<br />Emergency support 24/7</p>
+                    <p className="text-gray-600">Mon-Fri: 8AM - 6PM IST<br />Emergency support 24/7</p>
                   </div>
                 </div>
               </CardContent>

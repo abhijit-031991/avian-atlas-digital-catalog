@@ -48,15 +48,15 @@ const Footer = () => {
             <div className="space-y-2 text-gray-400">
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>sales@arctracktelemetry.com</span>
+                <span>info@arcturus-telemetry.in</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
+                <span>+91 9740997229</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
-                <span>Conservation City, CA</span>
+                <span>29, 1st Main, 4th Cross, Nethajinagar, Mathikere - Bangalore -560054</span>
               </div>
             </div>
           </div>
