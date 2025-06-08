@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Bird, Shield, Battery } from "lucide-react";
+import { Crown, Bird, Shield, Battery, Fish } from "lucide-react";
 import { useState } from "react";
 import CostingModal from "./CostingModal";
 
@@ -33,6 +33,18 @@ const ProductCategories = () => {
       weight: "3-25g",
       batteryLife: "1-3 years",
       technologies: ["GPS-GSM", "GPS-LoRa", "GPS-Satellite", "GPS-Loggers"]
+    },
+    {
+      id: "aquatic-tags",
+      title: "Aquatic Tags",
+      description: "Specialized tracking devices designed for marine and freshwater species. Available with GPS-GSM, GPS-LoRa, GPS-Satellite, and GPS-Logger technologies.",
+      icon: Fish,
+      image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      features: ["Waterproof to 200m", "Salt water resistant", "Pressure sensors", "Buoyancy control"],
+      applications: ["Marine research", "Fish migration", "Diving behavior", "Habitat mapping"],
+      weight: "5-40g",
+      batteryLife: "6 months - 2 years",
+      technologies: ["GPS-GSM", "GPS-LoRa", "GPS-Satellite", "GPS-Loggers"]
     }
   ];
 
@@ -49,7 +61,7 @@ const ProductCategories = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {products.map((product) => {
             const IconComponent = product.icon;
             return (

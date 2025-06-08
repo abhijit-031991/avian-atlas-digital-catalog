@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X, Crown, Bird, IndianRupee, Globe, Radio, Satellite, HardDrive } from "lucide-react";
+import { X, Crown, Bird, Fish, IndianRupee, Globe, Radio, Satellite, HardDrive } from "lucide-react";
 
 interface CostingModalProps {
   isOpen: boolean;
@@ -84,6 +83,42 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
     }
   ];
 
+  const aquaticTagPricing = [
+    {
+      size: "Small (5-12g)",
+      animals: "Small fish, amphibians",
+      technologies: {
+        lora: { price: "₹42,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹55,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹78,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹38,000", icon: HardDrive, color: "text-green-600" }
+      },
+      features: ["Waterproof to 200m", "6-month battery", "Pressure sensors"]
+    },
+    {
+      size: "Medium (15-25g)",
+      animals: "Medium fish, marine mammals",
+      technologies: {
+        lora: { price: "₹58,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹72,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹95,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹52,000", icon: HardDrive, color: "text-green-600" }
+      },
+      features: ["Salt water resistant", "1-year battery", "Enhanced sensors"]
+    },
+    {
+      size: "Large (30-40g)",
+      animals: "Large fish, marine predators",
+      technologies: {
+        lora: { price: "₹75,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹92,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹1,18,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹68,000", icon: HardDrive, color: "text-green-600" }
+      },
+      features: ["Deep water rated", "2-year battery", "Buoyancy control"]
+    }
+  ];
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto">
@@ -151,6 +186,54 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
             </div>
             <div className="space-y-6">
               {birdTagPricing.map((tag, index) => (
+                <Card key={index} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{tag.size}</CardTitle>
+                    <CardDescription>{tag.animals}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-4 gap-4 mb-4">
+                      {Object.entries(tag.technologies).map(([tech, details]) => {
+                        const IconComponent = details.icon;
+                        const techName = tech === 'loggers' ? 'GPS-Loggers' : tech.toUpperCase();
+                        return (
+                          <div key={tech} className="border rounded-lg p-4 text-center">
+                            <div className="flex items-center justify-center space-x-2 mb-2">
+                              <IconComponent className={`h-5 w-5 ${details.color}`} />
+                              <span className="font-medium text-sm">{techName}</span>
+                            </div>
+                            <div className="flex items-center justify-center space-x-1">
+                              <IndianRupee className={`h-5 w-5 ${details.color}`} />
+                              <span className={`text-xl font-bold ${details.color}`}>{details.price.replace('₹', '')}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="space-y-2">
+                      <h5 className="font-medium text-gray-900">Features:</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {tag.features.map((feature, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Aquatic Tags Section */}
+          <div>
+            <div className="flex items-center space-x-2 mb-6">
+              <Fish className="h-6 w-6 text-teal-600" />
+              <h3 className="text-xl font-semibold text-gray-900">Aquatic Tags</h3>
+            </div>
+            <div className="space-y-6">
+              {aquaticTagPricing.map((tag, index) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <CardTitle className="text-lg">{tag.size}</CardTitle>
