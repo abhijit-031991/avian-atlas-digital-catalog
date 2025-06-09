@@ -1,0 +1,57 @@
+<div style="width: 400px; font-family: Roboto, Arial, sans-serif; margin: 0; padding: 0;">
+  <!-- Header Section -->
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 2px solid #0463c9; border-radius: 5px;">
+    <h3 style="margin: 0; color: #007bff; font-weight: bold; font-size: 18px;">Device ID: {{deviceId}}</h3>
+    <div style="display: flex; gap: 10px;">
+      <div style="text-align: center; padding: 5px; width: 60px;">
+        <span class="material-icons" style="font-size: 20px; color: #007bff;">battery_full</span>
+        <p style="margin: 5px 0; font-size: 12px; font-weight: bold;">{{Battery}}%</p>
+      </div>
+      <div style="text-align: center; padding: 5px; width: 60px;">
+        <span class="material-icons" style="font-size: 20px; color: #007bff;">signal_cellular_alt</span>
+        <p style="margin: 5px 0; font-size: 12px; font-weight: bold;">{{Signal}}</p>
+      </div>
+      <div style="text-align: center; padding: 5px; width: 60px;">
+        <span class="material-icons" style="font-size: 20px; color: #007bff;">my_location</span>
+        <p style="margin: 5px 0; font-size: 12px; font-weight: bold;">{{DataCount}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last Server Contact Section -->
+  <div style="text-align: center; margin-top: 15px; padding: 10px; border: 2px solid #0463c9; border-radius: 5px; margin-left: 10px; margin-right: 10px;">
+    <p style="margin: 0; font-size: 14px; font-weight: bold;">Last Server Contact: {{LastServerContact}}</p>
+  </div>
+
+  <!-- Action Buttons -->
+  <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center; padding: 10px;">
+    <button 
+      style="
+        background-color: #007bff; 
+        color: white; 
+        border: none; 
+        padding: 8px 16px; 
+        border-radius: 5px; 
+        cursor: pointer;
+        flex: 1;
+      "
+      onclick="handleDetails('{{deviceId}}')"
+    >
+      Details
+    </button>
+    <button 
+      style="
+        background-color: #007bff; 
+        color: white; 
+        border: none; 
+        padding: 8px 16px; 
+        border-radius: 5px; 
+        cursor: pointer;
+        flex: 1;
+      "
+      onclick="handleDownloadData('{{deviceId}}')"
+    >
+      Download
+    </button>
+  </div>
+</div>

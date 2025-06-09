@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device Details</title>
+  <script type="module" src="deviceDetails.js" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-300">
+
+  <!-- Header Section -->
+  <header class="bg-blue-500 text-white py-4 px-6">
+    <h1 class="text-2xl font-semibold text-center">Device ID: <span id="device-id">Loading...</span></h1>
+  </header>
+
+  <!-- Main Content Section -->
+  <main class="p-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Map Component -->
+    <div class="col-span-1 bg-white rounded-lg shadow-md p-4">
+      <div id="map" class="w-full h-64 rounded-lg bg-gray-200"></div>
+    </div>
+
+    <!-- Device Details Panel -->
+    <div class="col-span-1 bg-white rounded-lg shadow-md p-4">
+    <h2 class="text-xl font-semibold mb-4">Device Details</h2>
+    <div>
+      <p class="text-sm font-medium mb-2">
+        <strong>Last Seen:</strong> <span id="last-seen">Loading...</span>
+      </p>
+      <p class="text-sm font-medium mb-2">
+        <strong>Last Fix:</strong> <span id="last-fix">Loading...</span>
+      </p>
+      <p class="text-sm font-medium mb-2">
+        <strong>Accuracy:</strong> <span id="accuracy">Loading...</span>
+      </p>
+      <p class="text-sm font-medium mb-4">
+        <strong>Time to Fix:</strong> <span id="time-to-fix">Loading...</span>
+      </p>
+    </div>
+    <div class="flex justify-around p-4 border-2 border-blue-500 rounded-md">
+      <!-- Battery -->
+      <div class="text-center">
+        <span class="material-icons text-blue-500 text-2xl">battery_full</span>
+        <p id="battery" class="text-sm font-medium">0%</p>
+      </div>
+      <!-- Signal -->
+      <div class="text-center">
+        <span class="material-icons text-blue-500 text-2xl">signal_cellular_alt</span>
+        <p id="signal" class="text-sm font-medium">0</p>
+      </div>
+      <!-- Data -->
+      <div class="text-center">
+        <span class="material-icons text-blue-500 text-2xl">my_location</span>
+        <p id="data-count" class="text-sm font-medium">0</p>
+      </div>
+    </div>
+  </div>
+  
+  
+
+    <!-- Settings Panel -->
+    <div class="col-span-1 bg-white rounded-lg shadow-md p-4">
+      <h2 class="text-xl font-semibold mb-4">Settings</h2>
+      <form id="settings-form" class="space-y-4">
+        <div class="flex items-center space-x-4">
+          <label for="gps-frequency" class="block text-sm font-medium text-gray-700 w-full">GPS Frequency</label>
+          <select id="gps-frequency" class="w-full border-gray-300 rounded-md shadow-sm">
+            <option>10</option>
+            <option>15</option>
+            <option>30</option>
+            <option>60</option>
+            <option>120</option>
+            <option>180</option>
+            <option>360</option>
+            <option>720</option>
+            <option>1440</option>
+            <option>2880</option>
+          </select>
+        </div>
+        <div class="flex items-center space-x-4">
+          <label for="gps-timeout" class="block text-sm font-medium text-gray-700 w-full">GPS Timeout</label>
+          <select id="gps-timeout" class="w-full border-gray-300 rounded-md shadow-sm">
+            <option>60</option>
+            <option>120</option>
+            <option>180</option>
+            <option>240</option>
+            <option>300</option>
+            <option>360</option>
+            <option>420</option>
+            <option>480</option>
+            <option>540</option>
+            <option>600</option>
+          </select>
+        </div>
+        <div class="flex items-center space-x-4">
+          <label for="hdop" class="block text-sm font-medium text-gray-700 w-full">HDOP</label>
+          <select id="hdop" class="w-full border-gray-300 rounded-md shadow-sm">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>    
+          </select>
+        </div>
+        <div class="flex items-center space-x-4">
+            <label for="transmission-frequency" class="block text-sm font-medium text-gray-700 w-full">Transmission Frequency</label>
+            <select id="transmission-frequency" class="w-full border-gray-300 rounded-md shadow-sm">
+                <option>60</option>
+                <option>120</option>
+                <option>180</option>
+                <option>360</option>
+                <option>720</option>
+                <option>1440</option>
+                <option>2880</option>
+            </select>
+          </div>
+        <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded shadow w-full">Update Settings</button>
+      </form>
+    </div>
+
+    <!-- User Actions Panel -->
+    <div class="col-span-1 bg-white rounded-lg shadow-md p-4">
+      <h2 class="text-xl font-semibold mb-4">User Actions</h2>
+      <div class="space-y-4">
+        <button type="button" id="activate-sleep" class="bg-blue-500 text-white w-full py-2 rounded-lg shadow">Activate | Sleep</button>
+        <button type="button" id="downloadData" class="bg-blue-500 text-white w-full py-2 rounded-lg shadow">Download Data</button>
+        <button type="button" id="deviceSecrets" class="bg-blue-500 text-white w-full py-2 rounded-lg shadow">Device Secrets</button>
+        <button type="button" id="changeIcon" class="bg-blue-500 text-white w-full py-2 rounded-lg shadow">Change Map Icon</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Time Series Data Section -->
+  <div class="p-2 grid grid-cols-2 lg:grid-cols-4 gap-4 h-full">
+    <section class="bg-white rounded-lg shadow-md p-4 col-span-2"> <!-- Reduced margin -->
+      <h2 class="text-xl font-semibold mb-4">Data Preview</h2>
+      <p class="text-gray-500 text-center">Data Preview will be available soon.</p>
+    </section>
+    <section class="bg-white rounded-lg shadow-md p-4 col-span-2"> <!-- Reduced margin -->
+      <h2 class="text-xl font-semibold mb-4">Statistics</h2>
+      <p class="text-gray-500 text-center">Statistics will be avaiable soon.</p>
+    </section>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="activatePopup" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80">
+      <h3 class="text-lg font-semibold mb-4">Select an Option</h3>
+      <form id="activateForm" class="space-y-4">
+        <div>
+          <label>
+            <input type="radio" name="activationOption" value="1" class="mr-2">
+            Activate without memory wipe
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="radio" name="activationOption" value="2" class="mr-2">
+            Activate and wipe memory
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="radio" name="activationOption" value="3" class="mr-2">
+            Sleep Mode
+          </label>
+        </div>
+      </form>
+      <div class="flex justify-end space-x-4 mt-4">
+        <button id="cancelButton" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+        <button id="confirmButton" class="bg-blue-600 text-white px-4 py-2 rounded">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
