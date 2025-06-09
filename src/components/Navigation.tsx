@@ -6,6 +6,13 @@ import { useState } from "react";
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const handleGetQuote = () => {
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,7 +28,7 @@ const Navigation = () => {
             <a href="#products" className="text-gray-700 hover:text-blue-600 transition-colors">Products</a>
             <a href="#services" className="text-gray-700 hover:text-blue-600 transition-colors">Services</a>
             <a href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
-            <Button className="bg-blue-600 hover:bg-blue-700">Get Quote</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleGetQuote}>Get Quote</Button>
             <Button className="bg-blue-600 hover:bg-blue-700">Tracking</Button>
           </div>
 
@@ -44,7 +51,7 @@ const Navigation = () => {
             <a href="#products" className="block text-gray-700 hover:text-blue-600 transition-colors">Products</a>
             <a href="#services" className="block text-gray-700 hover:text-blue-600 transition-colors">Services</a>
             <a href="#contact" className="block text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2">Get Quote</Button>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleGetQuote}>Get Quote</Button>
             <Button className="w-full bg-blue-600 hover:bg-blue-700">Tracking</Button>
           </div>
         )}
