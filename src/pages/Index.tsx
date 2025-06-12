@@ -6,6 +6,7 @@ import ServicesSection from "@/components/ServicesSection";
 import ContactSection from "@/components/ContactSection";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import FloatingChatBox from "@/components/FloatingChatBox";
 
 const Index = () => {
   return (
@@ -17,6 +18,7 @@ const Index = () => {
       <ServicesSection />
       <ContactSection />
       <Footer />
+      <FloatingChatBox />
     </div>
   );
 };
