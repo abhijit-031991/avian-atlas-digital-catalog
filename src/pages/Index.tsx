@@ -6,7 +6,7 @@ import ServicesSection from "@/components/ServicesSection";
 import ContactSection from "@/components/ContactSection";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import FloatingChatBox from "@/components/FloatingChatBox";
+import AIChatSection from "@/components/AIChatSection";
 
 const Index = () => {
   return (
@@ -16,9 +16,9 @@ const Index = () => {
       <TechnologyShowcase />
       <ProductCategories />
       <ServicesSection />
+      <AIChatSection />
       <ContactSection />
       <Footer />
-      <FloatingChatBox />
     </div>
   );
 };
