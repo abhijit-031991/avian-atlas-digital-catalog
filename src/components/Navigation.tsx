@@ -1,17 +1,21 @@
 
 import { Button } from "@/components/ui/button";
-import { Satellite, Menu, X } from "lucide-react";
+import { Satellite, Menu, X, User } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleGetQuote = () => {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
       contactSection.scrollIntoView({ behavior: 'smooth' });
     }
-    setIsMenuOpen(false); // Close mobile menu after clicking
+    setIsMenuOpen(false);
   };
 
   const handleContactClick = () => {
@@ -19,7 +23,7 @@ const Navigation = () => {
     if (contactSection) {
       contactSection.scrollIntoView({ behavior: 'smooth' });
     }
-    setIsMenuOpen(false); // Close mobile menu after clicking
+    setIsMenuOpen(false);
   };
 
   const handleTrackingClick = () => {
@@ -31,7 +35,26 @@ const Navigation = () => {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
-    setIsMenuOpen(false); // Close mobile menu after clicking
+    setIsMenuOpen(false);
+  };
+
+  const handleAuthClick = () => {
+    navigate('/auth');
+    setIsMenuOpen(false);
+  };
+
+  const handleMyAccountClick = () => {
+    navigate('/my-account');
+    setIsMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error('Failed to log out', error);
+    }
   };
 
   return (
@@ -71,6 +94,27 @@ const Navigation = () => {
             </button>
             <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleGetQuote}>Get Quote</Button>
             <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleTrackingClick}>Tracking</Button>
+            
+            {/* Authentication buttons */}
+            {currentUser ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={handleMyAccountClick}
+                  className="flex items-center gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  {currentUser.displayName || 'My Account'}
+                </Button>
+                <Button variant="ghost" onClick={handleLogout}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Button onClick={handleAuthClick}>
+                Sign In
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -116,9 +160,30 @@ const Navigation = () => {
             <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleGetQuote}>
               Get Quote
             </Button>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={handleTrackingClick}>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleTrackingClick}>
               Tracking
             </Button>
+            
+            {/* Mobile Authentication buttons */}
+            {currentUser ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="w-full mb-2 flex items-center justify-center gap-2"
+                  onClick={handleMyAccountClick}
+                >
+                  <User className="h-4 w-4" />
+                  {currentUser.displayName || 'My Account'}
+                </Button>
+                <Button variant="ghost" className="w-full" onClick={handleLogout}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Button className="w-full" onClick={handleAuthClick}>
+                Sign In
+              </Button>
+            )}
           </div>
         )}
       </div>
