@@ -40,14 +40,6 @@ const Navigation = () => {
     setIsMenuOpen(false);
   };
 
-  const handleAIChatClick = () => {
-    const aiChatSection = document.getElementById('ai-chat');
-    if (aiChatSection) {
-      aiChatSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMenuOpen(false);
-  };
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -91,17 +83,6 @@ const Navigation = () => {
               className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
             >
               Contact
-            </button>
-            <button 
-              onClick={handleAIChatClick} 
-              className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer flex items-center gap-2"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" fill="currentColor"/>
-                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(-5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
-                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
-              </svg>
-              AI Assistant
             </button>
             <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleTrackingClick}>Tracking</Button>
             
@@ -161,17 +142,6 @@ const Navigation = () => {
               className="block w-full text-left text-gray-700 hover:text-blue-600 transition-colors py-2"
             >
               Contact
-            </button>
-            <button 
-              onClick={handleAIChatClick} 
-              className="block w-full text-left text-gray-700 hover:text-blue-600 transition-colors py-2 flex items-center gap-2"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" fill="currentColor"/>
-                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(-5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
-                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
-              </svg>
-              AI Assistant
             </button>
             <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleTrackingClick}>
               Tracking
