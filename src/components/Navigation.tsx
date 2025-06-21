@@ -10,14 +10,6 @@ const Navigation = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleGetQuote = () => {
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMenuOpen(false);
-  };
-
   const handleContactClick = () => {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
@@ -45,6 +37,14 @@ const Navigation = () => {
 
   const handleMyAccountClick = () => {
     navigate('/my-account');
+    setIsMenuOpen(false);
+  };
+
+  const handleAIChatClick = () => {
+    const aiChatSection = document.getElementById('ai-chat');
+    if (aiChatSection) {
+      aiChatSection.scrollIntoView({ behavior: 'smooth' });
+    }
     setIsMenuOpen(false);
   };
 
@@ -92,24 +92,29 @@ const Navigation = () => {
             >
               Contact
             </button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleGetQuote}>Get Quote</Button>
+            <button 
+              onClick={handleAIChatClick} 
+              className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer flex items-center gap-2"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" fill="currentColor"/>
+                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(-5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
+                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
+              </svg>
+              AI Assistant
+            </button>
             <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleTrackingClick}>Tracking</Button>
             
             {/* Authentication buttons */}
             {currentUser ? (
-              <>
-                <Button 
-                  variant="outline" 
-                  onClick={handleMyAccountClick}
-                  className="flex items-center gap-2"
-                >
-                  <User className="h-4 w-4" />
-                  {currentUser.displayName || 'My Account'}
-                </Button>
-                <Button variant="ghost" onClick={handleLogout}>
-                  Sign Out
-                </Button>
-              </>
+              <Button 
+                variant="outline" 
+                onClick={handleMyAccountClick}
+                className="flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                {currentUser.displayName || 'My Account'}
+              </Button>
             ) : (
               <Button onClick={handleAuthClick}>
                 Sign In
@@ -157,28 +162,31 @@ const Navigation = () => {
             >
               Contact
             </button>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleGetQuote}>
-              Get Quote
-            </Button>
+            <button 
+              onClick={handleAIChatClick} 
+              className="block w-full text-left text-gray-700 hover:text-blue-600 transition-colors py-2 flex items-center gap-2"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" fill="currentColor"/>
+                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(-5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
+                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26" transform="translate(5, 0) scale(0.8)" fill="currentColor" opacity="0.7"/>
+              </svg>
+              AI Assistant
+            </button>
             <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleTrackingClick}>
               Tracking
             </Button>
             
             {/* Mobile Authentication buttons */}
             {currentUser ? (
-              <>
-                <Button 
-                  variant="outline" 
-                  className="w-full mb-2 flex items-center justify-center gap-2"
-                  onClick={handleMyAccountClick}
-                >
-                  <User className="h-4 w-4" />
-                  {currentUser.displayName || 'My Account'}
-                </Button>
-                <Button variant="ghost" className="w-full" onClick={handleLogout}>
-                  Sign Out
-                </Button>
-              </>
+              <Button 
+                variant="outline" 
+                className="w-full mb-2 flex items-center justify-center gap-2"
+                onClick={handleMyAccountClick}
+              >
+                <User className="h-4 w-4" />
+                {currentUser.displayName || 'My Account'}
+              </Button>
             ) : (
               <Button className="w-full" onClick={handleAuthClick}>
                 Sign In
