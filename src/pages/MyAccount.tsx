@@ -153,7 +153,7 @@ const MyAccount = () => {
                   <h3 className="font-medium">Sign Out</h3>
                   <p className="text-sm text-gray-500">Sign out of your account</p>
                 </div>
-                <Button variant="outline" onClick={handleLogout}>
+                <Button variant="destructive" onClick={handleLogout}>
                   Sign Out
                 </Button>
               </div>
