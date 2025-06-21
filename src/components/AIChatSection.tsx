@@ -22,13 +22,11 @@ const AIChatSection = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [n8nWebhookUrl, setN8nWebhookUrl] = useState('');
+  
+  // Replace this with your actual n8n webhook URL
+  const n8nWebhookUrl = 'https://your-n8n-instance.com/webhook/your-webhook-id';
 
   const sendMessageToN8N = async (message: string) => {
-    if (!n8nWebhookUrl) {
-      throw new Error('Please configure your n8n webhook URL first');
-    }
-
     const response = await fetch(n8nWebhookUrl, {
       method: 'POST',
       headers: {
@@ -105,20 +103,6 @@ const AIChatSection = () => {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Get instant answers about our wildlife tracking solutions, products, and services.
           </p>
-        </div>
-
-        {/* Configuration Section */}
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            n8n Webhook URL (Configure to connect to your AI agent):
-          </label>
-          <input
-            type="url"
-            value={n8nWebhookUrl}
-            onChange={(e) => setN8nWebhookUrl(e.target.value)}
-            placeholder="https://your-n8n-instance.com/webhook/your-webhook-id"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
         </div>
 
         {/* Chat Interface */}
