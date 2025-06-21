@@ -16,21 +16,21 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Small (150-250g)",
       animals: "Small carnivores, cats",
       technologies: {
-        lora: { price: "₹68,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹96,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹1,32,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹58,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹25,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹30,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹50,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹20,000", icon: HardDrive, color: "text-green-600" }
       },
-      features: ["2-year battery", "Drop-off mechanism", "Waterproof IP67"]
+      features: ["2-year battery", "Ultra-Light weight", "Waterproof IP67"]
     },
     {
       size: "Medium (300-500g)",
       animals: "Wolves, deer, medium ungulates",
       technologies: {
-        lora: { price: "₹96,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹1,20,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹1,65,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹85,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹30,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹35,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹55,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹22,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["3-year battery", "Enhanced durability", "Custom fit sizing"]
     },
@@ -38,10 +38,10 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Large (600-800g)",
       animals: "Bears, elk, large ungulates",
       technologies: {
-        lora: { price: "₹1,32,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹1,65,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹2,20,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹1,15,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹35,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹40,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹60,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹24,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["5-year battery", "Heavy-duty construction", "Satellite ready"]
     }
@@ -52,10 +52,10 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Ultra-light (3-8g)",
       animals: "Small songbirds, warblers",
       technologies: {
-        lora: { price: "₹36,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹45,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹68,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹32,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹20,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹25,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹35,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹15,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["Solar charging", "1-year battery backup", "Harness attachment"]
     },
@@ -63,10 +63,10 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Standard (10-15g)",
       animals: "Raptors, seabirds",
       technologies: {
-        lora: { price: "₹52,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹65,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹85,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹48,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹22,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹27,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹37,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹16,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["Enhanced solar panel", "2-year battery", "Weather resistant"]
     },
@@ -74,10 +74,10 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Heavy-duty (18-25g)",
       animals: "Large raptors, waterfowl",
       technologies: {
-        lora: { price: "₹68,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹85,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹1,10,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹65,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹24,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹29,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹37,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹18,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["Extended range", "3-year battery", "Advanced GPS chipset"]
     }
@@ -88,10 +88,10 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Small (5-12g)",
       animals: "Small fish, amphibians",
       technologies: {
-        lora: { price: "₹42,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹55,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹78,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹38,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹30,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹35,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹50,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹20,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["Waterproof to 200m", "6-month battery", "Pressure sensors"]
     },
@@ -99,10 +99,10 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Medium (15-25g)",
       animals: "Medium fish, marine mammals",
       technologies: {
-        lora: { price: "₹58,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹72,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹95,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹52,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹35,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹40,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹55,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹25,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["Salt water resistant", "1-year battery", "Enhanced sensors"]
     },
@@ -110,10 +110,10 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
       size: "Large (30-40g)",
       animals: "Large fish, marine predators",
       technologies: {
-        lora: { price: "₹75,000", icon: Radio, color: "text-cyan-600" },
-        gsm: { price: "₹92,000", icon: Globe, color: "text-blue-600" },
-        satellite: { price: "₹1,18,000", icon: Satellite, color: "text-purple-600" },
-        loggers: { price: "₹68,000", icon: HardDrive, color: "text-green-600" }
+        lora: { price: "₹35,000", icon: Radio, color: "text-cyan-600" },
+        gsm: { price: "₹45,000", icon: Globe, color: "text-blue-600" },
+        satellite: { price: "₹60,000", icon: Satellite, color: "text-purple-600" },
+        loggers: { price: "₹28,000", icon: HardDrive, color: "text-green-600" }
       },
       features: ["Deep water rated", "2-year battery", "Buoyancy control"]
     }

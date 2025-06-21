@@ -28,7 +28,6 @@ const Footer = () => {
               <li className="hover:text-blue-400 cursor-pointer transition-colors">GPS-LoRa Systems</li>
               <li className="hover:text-blue-400 cursor-pointer transition-colors">GPS-Satellite (Coming Soon)</li>
               <li className="hover:text-blue-400 cursor-pointer transition-colors">GPS-Loggers</li>
-              <li className="hover:text-blue-400 cursor-pointer transition-colors">Bird Tags</li>
             </ul>
           </div>
 

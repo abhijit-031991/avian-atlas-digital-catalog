@@ -75,7 +75,7 @@ const Hero = () => {
             <div className="relative">
               <div className="bg-white rounded-2xl shadow-2xl p-8">
                 <img 
-                  src="https://images.unsplash.com/photo-1472396961693-142e6e269027?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                  src="/elephant.jpg" 
                   alt="Wildlife tracking technology in action"
                   className="w-full h-80 object-cover rounded-lg"
                 />
