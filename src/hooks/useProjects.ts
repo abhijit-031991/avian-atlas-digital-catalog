@@ -22,27 +22,34 @@ export const useProjects = (currentUser: any) => {
 
   useEffect(() => {
     if (!currentUser) {
+      setProjects([]);
       setLoading(false);
       return;
     }
 
+    console.log('Setting up Firebase listener for user:', currentUser.uid);
     fetchUserProjects();
   }, [currentUser]);
 
   const fetchUserProjects = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
       setError(null);
+      console.log('Fetching projects for user:', currentUser.uid);
       
       const userProjectsRef = ref(database, `Users/${currentUser.uid}/Projects`);
       
-      onValue(userProjectsRef, async (snapshot) => {
+      const unsubscribe = onValue(userProjectsRef, async (snapshot) => {
         try {
+          console.log('Firebase snapshot received:', snapshot.exists());
           const userProjectsData = snapshot.val();
           
-          if (!userProjectsData) {
+          if (!userProjectsData || Object.keys(userProjectsData).length === 0) {
             console.log('No projects found for user');
             setProjects([]);
             setLoading(false);
@@ -50,31 +57,37 @@ export const useProjects = (currentUser: any) => {
           }
 
           const projectIds = Object.keys(userProjectsData);
+          console.log('Found project IDs:', projectIds);
           const projectsData: Project[] = [];
 
           // Fetch each project's details
           for (const projectId of projectIds) {
             try {
+              console.log('Fetching project details for:', projectId);
               const projectRef = ref(database, `Projects/${projectId}`);
               const projectSnapshot = await get(projectRef);
               const projectData = projectSnapshot.val();
               
               if (projectData) {
+                console.log('Project data found for:', projectId, projectData);
                 projectsData.push({
                   id: projectId,
                   name: projectData.name || 'Unnamed Project',
                   description: projectData.description || '',
                   createdAt: projectData.createdAt || new Date().toISOString(),
                   uuid: projectData.uuid || '',
-                  users: projectData.users || [],
-                  devices: projectData.devices || []
+                  users: projectData.users ? Object.values(projectData.users) : [],
+                  devices: projectData.devices ? Object.values(projectData.devices) : []
                 });
+              } else {
+                console.log('No project data found for:', projectId);
               }
             } catch (projectError) {
               console.error(`Error fetching project ${projectId}:`, projectError);
             }
           }
 
+          console.log('Final projects data:', projectsData);
           setProjects(projectsData);
           setLoading(false);
         } catch (error) {
@@ -87,6 +100,9 @@ export const useProjects = (currentUser: any) => {
         setError('Failed to connect to database');
         setLoading(false);
       });
+
+      // Cleanup function
+      return () => unsubscribe();
     } catch (error) {
       console.error('Error setting up Firebase listener:', error);
       setError('Failed to initialize database connection');
@@ -98,6 +114,8 @@ export const useProjects = (currentUser: any) => {
     if (!currentUser) throw new Error('User not authenticated');
 
     try {
+      console.log('Creating project:', name, description);
+      
       // Generate new project reference with auto-generated ID
       const projectsRef = ref(database, 'Projects');
       const newProjectRef = push(projectsRef);
@@ -112,16 +130,20 @@ export const useProjects = (currentUser: any) => {
         description,
         uuid: currentUser.uid,
         createdAt: new Date().toISOString(),
-        users: [],
-        devices: []
+        users: {},
+        devices: {}
       };
 
+      console.log('Adding project to /Projects/', projectId, projectData);
+      
       // Add project to /Projects/{ProjectID}
       await set(newProjectRef, projectData);
 
       // Add project ID to user's project list
       const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
       await set(userProjectRef, true);
+
+      console.log('Project created successfully:', projectId);
 
       toast({
         title: 'Success',
