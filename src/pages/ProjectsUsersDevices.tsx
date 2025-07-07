@@ -1,16 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, Settings, Users, Smartphone, Trash2, UserPlus, Edit } from 'lucide-react';
+import { database } from '@/config/firebase';
+import { ref, onValue, push, set, get } from 'firebase/database';
+import { useToast } from '@/hooks/use-toast';
+import CreateProjectDialog from '@/components/CreateProjectDialog';
 
 interface Project {
   id: string;
   name: string;
   description: string;
   createdAt: string;
+  uuid: string;
   users: { id: string; email: string; role: string }[];
   devices: { id: string; name: string; type: string; status: string }[];
 }
@@ -18,34 +23,136 @@ interface Project {
 const ProjectsUsersDevices = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [creatingProject, setCreatingProject] = useState(false);
 
-  // Mock data - in real app this would come from API/database
-  const [projects] = useState<Project[]>([
-    {
-      id: 'proj-001',
-      name: 'Wildlife Tracking Study',
-      description: 'Monitoring elephant migration patterns',
-      createdAt: '2024-01-15',
-      users: [
-        { id: 'user-1', email: 'researcher@example.com', role: 'Admin' },
-        { id: 'user-2', email: 'observer@example.com', role: 'Viewer' }
-      ],
-      devices: [
-        { id: 'dev-001', name: 'Collar-Alpha-01', type: 'GPS Collar', status: 'Active' },
-        { id: 'dev-002', name: 'Collar-Beta-02', type: 'GPS Collar', status: 'Inactive' }
-      ]
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/auth');
+      return;
     }
-  ]);
+
+    fetchUserProjects();
+  }, [currentUser, navigate]);
+
+  const fetchUserProjects = async () => {
+    if (!currentUser) return;
+
+    try {
+      const userProjectsRef = ref(database, `Users/${currentUser.uid}/Projects`);
+      
+      onValue(userProjectsRef, async (snapshot) => {
+        const userProjectsData = snapshot.val();
+        
+        if (!userProjectsData) {
+          setProjects([]);
+          setLoading(false);
+          return;
+        }
+
+        const projectIds = Object.keys(userProjectsData);
+        const projectsData: Project[] = [];
+
+        // Fetch each project's details
+        for (const projectId of projectIds) {
+          const projectRef = ref(database, `Projects/${projectId}`);
+          const projectSnapshot = await get(projectRef);
+          const projectData = projectSnapshot.val();
+          
+          if (projectData) {
+            projectsData.push({
+              id: projectId,
+              name: projectData.name || 'Unnamed Project',
+              description: projectData.description || '',
+              createdAt: projectData.createdAt || new Date().toISOString(),
+              uuid: projectData.uuid || '',
+              users: projectData.users || [],
+              devices: projectData.devices || []
+            });
+          }
+        }
+
+        setProjects(projectsData);
+        setLoading(false);
+      });
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch projects. Please try again.',
+        variant: 'destructive'
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleCreateProject = async (name: string, description: string) => {
+    if (!currentUser) return;
+
+    setCreatingProject(true);
+    
+    try {
+      // Generate new project reference with auto-generated ID
+      const projectsRef = ref(database, 'Projects');
+      const newProjectRef = push(projectsRef);
+      const projectId = newProjectRef.key;
+
+      if (!projectId) {
+        throw new Error('Failed to generate project ID');
+      }
+
+      const projectData = {
+        name,
+        description,
+        uuid: currentUser.uid,
+        createdAt: new Date().toISOString(),
+        users: [],
+        devices: []
+      };
+
+      // Add project to /Projects/{ProjectID}
+      await set(newProjectRef, projectData);
+
+      // Add project ID to user's project list
+      const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
+      await set(userProjectRef, true);
+
+      toast({
+        title: 'Success',
+        description: 'Project created successfully!'
+      });
+
+      setCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create project. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setCreatingProject(false);
+    }
+  };
 
   if (!currentUser) {
-    navigate('/auth');
     return null;
   }
 
-  const handleCreateProject = () => {
-    console.log('Create new project');
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Settings className="h-8 w-8 mx-auto mb-4 animate-spin" />
+          <p className="text-gray-600">Loading projects...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -74,7 +181,7 @@ const ProjectsUsersDevices = () => {
               <p className="text-sm text-gray-500 mb-4">
                 Create your first project or contact your admin for access to existing projects.
               </p>
-              <Button onClick={handleCreateProject} className="w-full">
+              <Button onClick={() => setCreateDialogOpen(true)} className="w-full">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Project
               </Button>
@@ -105,7 +212,7 @@ const ProjectsUsersDevices = () => {
                   </CardContent>
                 </Card>
               ))}
-              <Button onClick={handleCreateProject} variant="outline" className="w-full mt-4">
+              <Button onClick={() => setCreateDialogOpen(true)} variant="outline" className="w-full mt-4">
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
               </Button>
@@ -153,22 +260,26 @@ const ProjectsUsersDevices = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {selectedProject.users.map((user) => (
-                      <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-sm">{user.email}</p>
-                          <p className="text-xs text-gray-500">{user.role}</p>
+                    {selectedProject.users.length === 0 ? (
+                      <p className="text-gray-500 text-sm text-center py-4">No users added yet</p>
+                    ) : (
+                      selectedProject.users.map((user) => (
+                        <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-sm">{user.email}</p>
+                            <p className="text-xs text-gray-500">{user.role}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="ghost">
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost">
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="ghost">
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button size="sm" variant="ghost">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -190,31 +301,35 @@ const ProjectsUsersDevices = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {selectedProject.devices.map((device) => (
-                      <div key={device.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-sm">{device.name}</p>
-                          <p className="text-xs text-gray-500">{device.type}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            device.status === 'Active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {device.status}
-                          </span>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="ghost">
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost">
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                    {selectedProject.devices.length === 0 ? (
+                      <p className="text-gray-500 text-sm text-center py-4">No devices added yet</p>
+                    ) : (
+                      selectedProject.devices.map((device) => (
+                        <div key={device.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-sm">{device.name}</p>
+                            <p className="text-xs text-gray-500">{device.type}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              device.status === 'Active' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {device.status}
+                            </span>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -222,6 +337,13 @@ const ProjectsUsersDevices = () => {
           </div>
         )}
       </div>
+
+      <CreateProjectDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onCreateProject={handleCreateProject}
+        loading={creatingProject}
+      />
     </div>
   );
 };
