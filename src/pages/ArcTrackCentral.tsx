@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Monitor, Database, Users, User, LogOut } from 'lucide-react';
 
 const ArcTrackCentral = () => {
-  const { currentUser, signOut } = useAuth();
+  const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
   if (!currentUser) {
@@ -16,7 +16,7 @@ const ArcTrackCentral = () => {
   }
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
     navigate('/');
   };
 
