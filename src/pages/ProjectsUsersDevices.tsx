@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowLeft, Settings, Users, Smartphone, Trash2, UserPlus, Edit, Plus } from 'lucide-react';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import ProjectList from '@/components/ProjectList';
+import AddUserDialog from '@/components/AddUserDialog';
 import { useProjects } from '@/hooks/useProjects';
 
 interface Project {
@@ -24,6 +25,7 @@ const ProjectsUsersDevices = () => {
   const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
 
   const { projects, loading, error, createProject } = useProjects(currentUser);
@@ -107,7 +109,7 @@ const ProjectsUsersDevices = () => {
                     </CardTitle>
                     <CardDescription>Manage project team members</CardDescription>
                   </div>
-                  <Button size="sm">
+                  <Button size="sm" onClick={() => setAddUserDialogOpen(true)}>
                     <UserPlus className="h-4 w-4 mr-2" />
                     Add User
                   </Button>
@@ -197,6 +199,12 @@ const ProjectsUsersDevices = () => {
         onOpenChange={setCreateDialogOpen}
         onCreateProject={handleCreateProject}
         loading={creatingProject}
+      />
+
+      <AddUserDialog
+        open={addUserDialogOpen}
+        onOpenChange={setAddUserDialogOpen}
+        projectId={selectedProject?.id || ''}
       />
     </div>
   );
