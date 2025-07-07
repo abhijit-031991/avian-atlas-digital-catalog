@@ -1,14 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus, Settings, Users, Smartphone, Trash2, UserPlus, Edit } from 'lucide-react';
-import { database } from '@/config/firebase';
-import { ref, onValue, push, set, get } from 'firebase/database';
-import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Settings, Users, Smartphone, Trash2, UserPlus, Edit, Plus } from 'lucide-react';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
+import ProjectList from '@/components/ProjectList';
+import { useProjects } from '@/hooks/useProjects';
 
 interface Project {
   id: string;
@@ -23,136 +22,29 @@ interface Project {
 const ProjectsUsersDevices = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
 
-  useEffect(() => {
-    if (!currentUser) {
-      navigate('/auth');
-      return;
-    }
+  const { projects, loading, error, createProject } = useProjects(currentUser);
 
-    fetchUserProjects();
-  }, [currentUser, navigate]);
-
-  const fetchUserProjects = async () => {
-    if (!currentUser) return;
-
-    try {
-      const userProjectsRef = ref(database, `Users/${currentUser.uid}/Projects`);
-      
-      onValue(userProjectsRef, async (snapshot) => {
-        const userProjectsData = snapshot.val();
-        
-        if (!userProjectsData) {
-          setProjects([]);
-          setLoading(false);
-          return;
-        }
-
-        const projectIds = Object.keys(userProjectsData);
-        const projectsData: Project[] = [];
-
-        // Fetch each project's details
-        for (const projectId of projectIds) {
-          const projectRef = ref(database, `Projects/${projectId}`);
-          const projectSnapshot = await get(projectRef);
-          const projectData = projectSnapshot.val();
-          
-          if (projectData) {
-            projectsData.push({
-              id: projectId,
-              name: projectData.name || 'Unnamed Project',
-              description: projectData.description || '',
-              createdAt: projectData.createdAt || new Date().toISOString(),
-              uuid: projectData.uuid || '',
-              users: projectData.users || [],
-              devices: projectData.devices || []
-            });
-          }
-        }
-
-        setProjects(projectsData);
-        setLoading(false);
-      });
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch projects. Please try again.',
-        variant: 'destructive'
-      });
-      setLoading(false);
-    }
-  };
+  if (!currentUser) {
+    navigate('/auth');
+    return null;
+  }
 
   const handleCreateProject = async (name: string, description: string) => {
-    if (!currentUser) return;
-
     setCreatingProject(true);
     
     try {
-      // Generate new project reference with auto-generated ID
-      const projectsRef = ref(database, 'Projects');
-      const newProjectRef = push(projectsRef);
-      const projectId = newProjectRef.key;
-
-      if (!projectId) {
-        throw new Error('Failed to generate project ID');
-      }
-
-      const projectData = {
-        name,
-        description,
-        uuid: currentUser.uid,
-        createdAt: new Date().toISOString(),
-        users: [],
-        devices: []
-      };
-
-      // Add project to /Projects/{ProjectID}
-      await set(newProjectRef, projectData);
-
-      // Add project ID to user's project list
-      const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
-      await set(userProjectRef, true);
-
-      toast({
-        title: 'Success',
-        description: 'Project created successfully!'
-      });
-
+      await createProject(name, description);
       setCreateDialogOpen(false);
     } catch (error) {
-      console.error('Error creating project:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create project. Please try again.',
-        variant: 'destructive'
-      });
+      console.error('Failed to create project:', error);
     } finally {
       setCreatingProject(false);
     }
   };
-
-  if (!currentUser) {
-    return null;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Settings className="h-8 w-8 mx-auto mb-4 animate-spin" />
-          <p className="text-gray-600">Loading projects...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -172,52 +64,14 @@ const ProjectsUsersDevices = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {projects.length === 0 ? (
-            <div className="p-6 text-center">
-              <div className="text-gray-400 mb-4">
-                <Settings className="h-12 w-12 mx-auto mb-2" />
-              </div>
-              <p className="text-gray-600 mb-4">No projects found</p>
-              <p className="text-sm text-gray-500 mb-4">
-                Create your first project or contact your admin for access to existing projects.
-              </p>
-              <Button onClick={() => setCreateDialogOpen(true)} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Project
-              </Button>
-            </div>
-          ) : (
-            <div className="p-4 space-y-2">
-              {projects.map((project) => (
-                <Card
-                  key={project.id}
-                  className={`cursor-pointer transition-colors ${
-                    selectedProject?.id === project.id 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedProject(project)}
-                >
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">{project.name}</CardTitle>
-                    <CardDescription className="text-xs">
-                      ID: {project.id}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>{project.users.length} users</span>
-                      <span>{project.devices.length} devices</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              <Button onClick={() => setCreateDialogOpen(true)} variant="outline" className="w-full mt-4">
-                <Plus className="h-4 w-4 mr-2" />
-                New Project
-              </Button>
-            </div>
-          )}
+          <ProjectList
+            projects={projects}
+            selectedProject={selectedProject}
+            onSelectProject={setSelectedProject}
+            onCreateProject={() => setCreateDialogOpen(true)}
+            loading={loading}
+            error={error}
+          />
         </div>
       </div>
 
