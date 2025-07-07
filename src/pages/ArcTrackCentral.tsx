@@ -7,104 +7,87 @@ import { Button } from '@/components/ui/button';
 import { Monitor, Database, Users, User, LogOut } from 'lucide-react';
 
 const ArcTrackCentral = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, signOut } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Failed to log out', error);
-    }
-  };
 
   if (!currentUser) {
     navigate('/auth');
     return null;
   }
 
-  const dashboardOptions = [
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const menuItems = [
     {
       title: 'Tracking Console',
-      description: 'Monitor and track your devices in real-time',
+      description: 'Real-time device tracking and monitoring',
       icon: Monitor,
-      path: '/tracking-console',
-      color: 'bg-blue-500 hover:bg-blue-600'
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      route: '/tracking-console'
     },
     {
       title: 'Database and Analytics',
-      description: 'Access data insights and analytics',
+      description: 'Data insights and analytics dashboard',
       icon: Database,
-      path: '/database-analytics',
-      color: 'bg-green-500 hover:bg-green-600'
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      route: '/database-analytics'
     },
     {
-      title: 'Projects and Users',
-      description: 'Manage your projects and team members',
+      title: 'Projects, Users and Devices',
+      description: 'Manage projects, users and device onboarding',
       icon: Users,
-      path: '/projects-users',
-      color: 'bg-purple-500 hover:bg-purple-600'
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      route: '/projects-users-devices'
     },
     {
       title: 'My ArcTrack',
       description: 'Personal account settings and preferences',
       icon: User,
-      path: '/my-arctrack',
-      color: 'bg-orange-500 hover:bg-orange-600'
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      route: '/my-arctrack'
     }
   ];
-
-  const handleOptionClick = (path: string) => {
-    navigate(path);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900">ArcTrack Central</h1>
-            <p className="text-gray-600 mt-2">
-              Welcome back, {currentUser.displayName || currentUser.email}
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900">ArcTrack Central</h1>
+            <p className="mt-2 text-gray-600">Welcome back, {currentUser.email}</p>
           </div>
-          <Button 
-            onClick={handleLogout}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
+          <Button onClick={handleSignOut} variant="outline" className="flex items-center gap-2">
             <LogOut className="h-4 w-4" />
             Sign Out
           </Button>
         </div>
-
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {dashboardOptions.map((option) => (
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {menuItems.map((item, index) => (
             <Card 
-              key={option.title}
-              className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105"
-              onClick={() => handleOptionClick(option.path)}
+              key={index} 
+              className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+              onClick={() => navigate(item.route)}
             >
-              <CardHeader className="text-center pb-4">
-                <div className={`w-16 h-16 rounded-full ${option.color} flex items-center justify-center mx-auto mb-4`}>
-                  <option.icon className="h-8 w-8 text-white" />
+              <CardHeader className="pb-4">
+                <div className={`w-12 h-12 rounded-lg ${item.bgColor} flex items-center justify-center mb-4`}>
+                  <item.icon className={`h-6 w-6 ${item.color}`} />
                 </div>
-                <CardTitle className="text-xl">{option.title}</CardTitle>
+                <CardTitle className="text-xl">{item.title}</CardTitle>
                 <CardDescription className="text-gray-600">
-                  {option.description}
+                  {item.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <Button 
-                  className={`w-full ${option.color} text-white`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOptionClick(option.path);
-                  }}
-                >
-                  Access {option.title}
+              <CardContent>
+                <Button variant="ghost" className="w-full justify-start text-sm">
+                  Access {item.title} →
                 </Button>
               </CardContent>
             </Card>

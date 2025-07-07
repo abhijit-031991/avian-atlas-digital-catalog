@@ -11,7 +11,7 @@ import MyAccount from "./pages/MyAccount";
 import ArcTrackCentral from "./pages/ArcTrackCentral";
 import TrackingConsole from "./pages/TrackingConsole";
 import DatabaseAnalytics from "./pages/DatabaseAnalytics";
-import ProjectsUsers from "./pages/ProjectsUsers";
+import ProjectsUsersDevices from "./pages/ProjectsUsersDevices";
 import MyArcTrack from "./pages/MyArcTrack";
 import NotFound from "./pages/NotFound";
 
@@ -31,7 +31,7 @@ const App = () => (
             <Route path="/arctrack-central" element={<ArcTrackCentral />} />
             <Route path="/tracking-console" element={<TrackingConsole />} />
             <Route path="/database-analytics" element={<DatabaseAnalytics />} />
-            <Route path="/projects-users" element={<ProjectsUsers />} />
+            <Route path="/projects-users-devices" element={<ProjectsUsersDevices />} />
             <Route path="/my-arctrack" element={<MyArcTrack />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
