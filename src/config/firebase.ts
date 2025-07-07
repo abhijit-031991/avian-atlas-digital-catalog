@@ -10,7 +10,7 @@ const firebaseConfig = {
   storageBucket: "arctrack-main.appspot.com",
   messagingSenderId: "280162320438",
   appId: "1:280162320438:web:d61a95eca202a80e45d897",
-  databaseURL: "https://arctrack-main-default-rtdb.firebaseio.com"
+  databaseURL: "https://arctrack-main.firebaseio.com/"
 };
 
 // Initialize Firebase
