@@ -30,13 +30,12 @@ const Navigation = () => {
     setIsMenuOpen(false);
   };
 
-  const handleAuthClick = () => {
-    navigate('/auth');
-    setIsMenuOpen(false);
-  };
-
-  const handleMyAccountClick = () => {
-    navigate('/my-account');
+  const handleArcTrackCentralClick = () => {
+    if (currentUser) {
+      navigate('/arctrack-central');
+    } else {
+      navigate('/auth');
+    }
     setIsMenuOpen(false);
   };
 
@@ -86,21 +85,10 @@ const Navigation = () => {
             </button>
             <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleTrackingClick}>Tracking</Button>
             
-            {/* Authentication buttons */}
-            {currentUser ? (
-              <Button 
-                variant="outline" 
-                onClick={handleMyAccountClick}
-                className="flex items-center gap-2"
-              >
-                <User className="h-4 w-4" />
-                {currentUser.displayName || 'My Account'}
-              </Button>
-            ) : (
-              <Button onClick={handleAuthClick}>
-                Sign In
-              </Button>
-            )}
+            {/* ArcTrack Central Button */}
+            <Button onClick={handleArcTrackCentralClick} className="bg-green-600 hover:bg-green-700">
+              ArcTrack Central
+            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -147,21 +135,10 @@ const Navigation = () => {
               Tracking
             </Button>
             
-            {/* Mobile Authentication buttons */}
-            {currentUser ? (
-              <Button 
-                variant="outline" 
-                className="w-full mb-2 flex items-center justify-center gap-2"
-                onClick={handleMyAccountClick}
-              >
-                <User className="h-4 w-4" />
-                {currentUser.displayName || 'My Account'}
-              </Button>
-            ) : (
-              <Button className="w-full" onClick={handleAuthClick}>
-                Sign In
-              </Button>
-            )}
+            {/* Mobile ArcTrack Central Button */}
+            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={handleArcTrackCentralClick}>
+              ArcTrack Central
+            </Button>
           </div>
         )}
       </div>

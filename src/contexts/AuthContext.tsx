@@ -12,7 +12,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth } from '@/config/firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -35,11 +35,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
-    navigate('/');
+    // Check if user came from auth page trying to access ArcTrack Central
+    if (location.pathname === '/auth') {
+      navigate('/arctrack-central');
+    } else {
+      navigate('/');
+    }
   };
 
   const signup = async (email: string, password: string, displayName: string) => {
@@ -47,12 +53,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (result.user) {
       await updateProfile(result.user, { displayName });
     }
-    navigate('/');
+    // Check if user came from auth page trying to access ArcTrack Central
+    if (location.pathname === '/auth') {
+      navigate('/arctrack-central');
+    } else {
+      navigate('/');
+    }
   };
 
   const login = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
-    navigate('/');
+    // Check if user came from auth page trying to access ArcTrack Central
+    if (location.pathname === '/auth') {
+      navigate('/arctrack-central');
+    } else {
+      navigate('/');
+    }
   };
 
   const logout = async () => {

@@ -1,0 +1,172 @@
+
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { ArrowLeft, User, Mail, Calendar } from 'lucide-react';
+
+const MyArcTrack = () => {
+  const { currentUser, logout, updateUserProfile } = useAuth();
+  const navigate = useNavigate();
+  const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  if (!currentUser) {
+    navigate('/auth');
+    return null;
+  }
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      setMessage('');
+      setError('');
+      setLoading(true);
+      await updateUserProfile(displayName);
+      setMessage('Profile updated successfully');
+    } catch (error: any) {
+      setError('Failed to update profile: ' + error.message);
+    }
+    
+    setLoading(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Failed to log out', error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <Button 
+            onClick={() => navigate('/arctrack-central')}
+            variant="outline"
+            size="icon"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <User className="h-8 w-8 text-orange-600" />
+            <h1 className="text-3xl font-bold text-gray-900">My ArcTrack</h1>
+          </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Profile Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Profile Information
+              </CardTitle>
+              <CardDescription>
+                View and update your personal information
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email Address
+                </Label>
+                <Input value={currentUser.email || ''} disabled />
+                <p className="text-sm text-gray-500">Email cannot be changed</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Member Since
+                </Label>
+                <Input 
+                  value={currentUser.metadata.creationTime ? 
+                    new Date(currentUser.metadata.creationTime).toLocaleDateString() : 'Unknown'} 
+                  disabled 
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Update Profile */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Update Profile</CardTitle>
+              <CardDescription>
+                Change your display name and other profile settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                
+                {message && (
+                  <Alert>
+                    <AlertDescription>{message}</AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="displayName">Display Name</Label>
+                  <Input
+                    id="displayName"
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Your display name"
+                  />
+                </div>
+
+                <Button disabled={loading} type="submit" className="w-full">
+                  {loading ? 'Updating...' : 'Update Profile'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Account Actions */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Account Actions</CardTitle>
+            <CardDescription>
+              Manage your account settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">Sign Out</h3>
+                  <p className="text-sm text-gray-500">Sign out of your account</p>
+                </div>
+                <Button variant="destructive" onClick={handleLogout}>
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default MyArcTrack;
