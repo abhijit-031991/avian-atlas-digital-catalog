@@ -11,7 +11,12 @@ interface Project {
   createdAt: string;
   uuid: string;
   users: string[];
-  devices: string[];
+  devices: { [key: string]: any };
+}
+
+interface Device {
+  id: string;
+  name: string;
 }
 
 export const useProjects = (currentUser: any) => {
@@ -63,7 +68,7 @@ export const useProjects = (currentUser: any) => {
               
               if (projectData) {
                 const users = projectData.Users ? Object.keys(projectData.Users) : [];
-                const devices = projectData.Devices ? Object.keys(projectData.Devices) : [];
+                const devices = projectData.Devices || {};
                 
                 projectsData.push({
                   id: projectId,
@@ -185,15 +190,49 @@ export const useProjects = (currentUser: any) => {
     }
   };
 
+  const addUser = async (email: string, projectId: string) => {
+    if (!currentUser) throw new Error('User not authenticated');
+
+    try {
+      const response = await fetch('https://65.1.242.158:1880/addUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          newUser: email,
+          addedBy: currentUser.uid,
+          ProjectID: projectId,
+          Devices: null
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add user');
+      }
+
+      toast({
+        title: 'Success',
+        description: 'User invitation sent successfully!'
+      });
+    } catch (error) {
+      console.error('Error adding user:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add user. Please try again.',
+        variant: 'destructive'
+      });
+      throw error;
+    }
+  };
+
   const removeUser = async (projectId: string, userUuid: string) => {
     if (!currentUser) throw new Error('User not authenticated');
 
     try {
-      // Remove user from project's Users list
       const projectUserRef = ref(database, `Projects/${projectId}/Users/${userUuid}`);
       await remove(projectUserRef);
 
-      // Remove project from user's Projects list
       const userProjectRef = ref(database, `Users/${userUuid}/Projects/${projectId}`);
       await remove(userProjectRef);
 
@@ -216,7 +255,6 @@ export const useProjects = (currentUser: any) => {
     if (!currentUser) throw new Error('User not authenticated');
 
     try {
-      // First, get all users in the project
       const projectRef = ref(database, `Projects/${projectId}`);
       const projectSnapshot = await get(projectRef);
       
@@ -227,15 +265,12 @@ export const useProjects = (currentUser: any) => {
       const projectData = projectSnapshot.val();
       const projectUsers = projectData.Users || {};
 
-      // Remove project reference from all users' Projects lists
       const userUpdatePromises = Object.keys(projectUsers).map(async (userUuid) => {
         const userProjectRef = ref(database, `Users/${userUuid}/Projects/${projectId}`);
         return remove(userProjectRef);
       });
 
       await Promise.all(userUpdatePromises);
-
-      // Delete the entire project
       await remove(projectRef);
 
       toast({
@@ -253,14 +288,122 @@ export const useProjects = (currentUser: any) => {
     }
   };
 
+  const addDevice = async (deviceId: string, deviceName: string, passkey: string, projectId: string) => {
+    if (!currentUser) throw new Error('User not authenticated');
+
+    try {
+      // Step 1: Retrieve device data from /tags/{deviceID}
+      const deviceRef = ref(database, `tags/${deviceId}`);
+      const deviceSnapshot = await get(deviceRef);
+      
+      if (!deviceSnapshot.exists()) {
+        throw new Error('Device not found');
+      }
+
+      const deviceData = deviceSnapshot.val();
+      const devicePasskey = deviceData.Management?.passkey;
+
+      // Step 2: Validate passkey
+      if (!devicePasskey || devicePasskey.toString() !== passkey) {
+        throw new Error('Invalid device passkey');
+      }
+
+      // Step 3: Add device to project and user
+      const projectDeviceRef = ref(database, `Projects/${projectId}/Devices/${deviceId}`);
+      await set(projectDeviceRef, true);
+
+      const userDeviceRef = ref(database, `Users/${currentUser.uid}/Devices/${deviceId}`);
+      await set(userDeviceRef, true);
+
+      // Step 4: Add device name to management
+      const deviceNameRef = ref(database, `tags/${deviceId}/Management/Device Name`);
+      await set(deviceNameRef, deviceName);
+
+      // Step 5: Set provisioned to true
+      const provisionedRef = ref(database, `tags/${deviceId}/Management/prov`);
+      await set(provisionedRef, true);
+
+      toast({
+        title: 'Success',
+        description: 'Device added to project successfully!'
+      });
+    } catch (error) {
+      console.error('Error adding device:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to add device',
+        variant: 'destructive'
+      });
+      throw error;
+    }
+  };
+
+  const removeDevice = async (deviceId: string, projectId: string) => {
+    if (!currentUser) throw new Error('User not authenticated');
+
+    try {
+      // Remove device from project
+      const projectDeviceRef = ref(database, `Projects/${projectId}/Devices/${deviceId}`);
+      await remove(projectDeviceRef);
+
+      // Remove device from user
+      const userDeviceRef = ref(database, `Users/${currentUser.uid}/Devices/${deviceId}`);
+      await remove(userDeviceRef);
+
+      // Set provisioned to false
+      const provisionedRef = ref(database, `tags/${deviceId}/Management/prov`);
+      await set(provisionedRef, false);
+
+      // Remove device name
+      const deviceNameRef = ref(database, `tags/${deviceId}/Management/Device Name`);
+      await remove(deviceNameRef);
+
+      toast({
+        title: 'Success',
+        description: 'Device removed from project successfully!'
+      });
+    } catch (error) {
+      console.error('Error removing device:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove device. Please try again.',
+        variant: 'destructive'
+      });
+      throw error;
+    }
+  };
+
+  const getDeviceDetails = async (deviceId: string): Promise<Device | null> => {
+    try {
+      const deviceRef = ref(database, `tags/${deviceId}/Management`);
+      const deviceSnapshot = await get(deviceRef);
+      
+      if (deviceSnapshot.exists()) {
+        const deviceData = deviceSnapshot.val();
+        return {
+          id: deviceId,
+          name: deviceData['Device Name'] || `Device ${deviceId}`
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching device details:', error);
+      return null;
+    }
+  };
+
   return {
     projects,
     loading,
     error,
     createProject,
     joinProject,
+    addUser,
     removeUser,
     deleteProject,
+    addDevice,
+    removeDevice,
+    getDeviceDetails,
     refetch: fetchUserProjects
   };
 };

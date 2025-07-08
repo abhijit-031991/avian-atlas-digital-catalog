@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import ProjectList from '@/components/ProjectList';
 import AddUserDialog from '@/components/AddUserDialog';
 import JoinProjectDialog from '@/components/JoinProjectDialog';
 import RemoveUserDialog from '@/components/RemoveUserDialog';
+import AddDeviceDialog from '@/components/AddDeviceDialog';
+import RemoveDeviceDialog from '@/components/RemoveDeviceDialog';
 import { useProjects } from '@/hooks/useProjects';
 
 interface Project {
@@ -19,7 +21,12 @@ interface Project {
   createdAt: string;
   uuid: string;
   users: string[];
-  devices: string[];
+  devices: { [key: string]: any };
+}
+
+interface Device {
+  id: string;
+  name: string;
 }
 
 const ProjectsUsersDevices = () => {
@@ -30,10 +37,49 @@ const ProjectsUsersDevices = () => {
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [removeUserDialogOpen, setRemoveUserDialogOpen] = useState(false);
+  const [addDeviceDialogOpen, setAddDeviceDialogOpen] = useState(false);
+  const [removeDeviceDialogOpen, setRemoveDeviceDialogOpen] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
   const [userToRemove, setUserToRemove] = useState<string | null>(null);
+  const [deviceToRemove, setDeviceToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [projectDevices, setProjectDevices] = useState<Device[]>([]);
 
-  const { projects, loading, error, createProject, joinProject, removeUser, deleteProject, refetch } = useProjects(currentUser);
+  const { 
+    projects, 
+    loading, 
+    error, 
+    createProject, 
+    joinProject, 
+    addUser, 
+    removeUser, 
+    deleteProject, 
+    addDevice,
+    removeDevice,
+    getDeviceDetails,
+    refetch 
+  } = useProjects(currentUser);
+
+  // Fetch device details when selectedProject changes
+  useEffect(() => {
+    const fetchDeviceDetails = async () => {
+      if (!selectedProject || !selectedProject.devices) {
+        setProjectDevices([]);
+        return;
+      }
+
+      const deviceIds = Object.keys(selectedProject.devices);
+      const deviceDetails = await Promise.all(
+        deviceIds.map(async (deviceId) => {
+          const details = await getDeviceDetails(deviceId);
+          return details || { id: deviceId, name: `Device ${deviceId}` };
+        })
+      );
+
+      setProjectDevices(deviceDetails);
+    };
+
+    fetchDeviceDetails();
+  }, [selectedProject, getDeviceDetails]);
 
   if (!currentUser) {
     navigate('/auth');
@@ -58,6 +104,12 @@ const ProjectsUsersDevices = () => {
     setJoinDialogOpen(false);
   };
 
+  const handleAddUser = async (email: string) => {
+    if (selectedProject) {
+      await addUser(email, selectedProject.id);
+    }
+  };
+
   const handleDeleteProject = async (projectId: string) => {
     await deleteProject(projectId);
     if (selectedProject?.id === projectId) {
@@ -74,6 +126,24 @@ const ProjectsUsersDevices = () => {
     if (selectedProject && userToRemove) {
       await removeUser(selectedProject.id, userToRemove);
       setUserToRemove(null);
+    }
+  };
+
+  const handleAddDevice = async (deviceId: string, deviceName: string, passkey: string) => {
+    if (selectedProject) {
+      await addDevice(deviceId, deviceName, passkey, selectedProject.id);
+    }
+  };
+
+  const handleRemoveDevice = (deviceId: string, deviceName: string) => {
+    setDeviceToRemove({ id: deviceId, name: deviceName });
+    setRemoveDeviceDialogOpen(true);
+  };
+
+  const handleRemoveDeviceConfirm = async () => {
+    if (selectedProject && deviceToRemove) {
+      await removeDevice(deviceToRemove.id, selectedProject.id);
+      setDeviceToRemove(null);
     }
   };
 
@@ -191,38 +261,44 @@ const ProjectsUsersDevices = () => {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Smartphone className="h-5 w-5" />
-                      Devices ({selectedProject.devices.length})
+                      Devices ({projectDevices.length})
                     </CardTitle>
                     <CardDescription>Manage tracking devices</CardDescription>
                   </div>
-                  <Button size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Device
-                  </Button>
+                  {isProjectOwner(selectedProject) && (
+                    <Button size="sm" onClick={() => setAddDeviceDialogOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Device
+                    </Button>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {selectedProject.devices.length === 0 ? (
+                    {projectDevices.length === 0 ? (
                       <p className="text-gray-500 text-sm text-center py-4">No devices added yet</p>
                     ) : (
-                      selectedProject.devices.map((deviceId) => (
-                        <div key={deviceId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      projectDevices.map((device) => (
+                        <div key={device.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
-                            <p className="font-medium text-sm">Device {deviceId}</p>
-                            <p className="text-xs text-gray-500">Device ID</p>
+                            <p className="font-medium text-sm">{device.name}</p>
+                            <p className="text-xs text-gray-500">Device ID: {device.id}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
                               Active
                             </span>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+                            {isProjectOwner(selectedProject) && (
+                              <div className="flex gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => handleRemoveDevice(device.id, device.name)}
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))
@@ -235,6 +311,7 @@ const ProjectsUsersDevices = () => {
         )}
       </div>
 
+      {/* Dialogs */}
       <CreateProjectDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
@@ -251,8 +328,8 @@ const ProjectsUsersDevices = () => {
       <AddUserDialog
         open={addUserDialogOpen}
         onOpenChange={setAddUserDialogOpen}
+        onAddUser={handleAddUser}
         projectId={selectedProject?.id || ''}
-        devices={selectedProject?.devices || []}
       />
 
       <RemoveUserDialog
@@ -261,6 +338,21 @@ const ProjectsUsersDevices = () => {
         onConfirm={handleRemoveUserConfirm}
         userName={userToRemove || ''}
         projectName={selectedProject?.name || ''}
+      />
+
+      <AddDeviceDialog
+        open={addDeviceDialogOpen}
+        onOpenChange={setAddDeviceDialogOpen}
+        onAddDevice={handleAddDevice}
+        projectId={selectedProject?.id || ''}
+      />
+
+      <RemoveDeviceDialog
+        open={removeDeviceDialogOpen}
+        onOpenChange={setRemoveDeviceDialogOpen}
+        onConfirm={handleRemoveDeviceConfirm}
+        deviceId={deviceToRemove?.id || ''}
+        deviceName={deviceToRemove?.name || ''}
       />
     </div>
   );
