@@ -17,8 +17,8 @@ interface Project {
   description: string;
   createdAt: string;
   uuid: string;
-  users: { id: string; email: string; role: string }[];
-  devices: { id: string; name: string; type: string; status: string }[];
+  users: string[];
+  devices: string[];
 }
 
 const ProjectsUsersDevices = () => {
@@ -30,7 +30,7 @@ const ProjectsUsersDevices = () => {
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
 
-  const { projects, loading, error, createProject, refetch } = useProjects(currentUser);
+  const { projects, loading, error, createProject, joinProject, refetch } = useProjects(currentUser);
 
   if (!currentUser) {
     navigate('/auth');
@@ -50,8 +50,8 @@ const ProjectsUsersDevices = () => {
     }
   };
 
-  const handleProjectJoined = () => {
-    refetch();
+  const handleJoinProject = async (passkey: string) => {
+    await joinProject(passkey);
     setJoinDialogOpen(false);
   };
 
@@ -127,11 +127,11 @@ const ProjectsUsersDevices = () => {
                     {selectedProject.users.length === 0 ? (
                       <p className="text-gray-500 text-sm text-center py-4">No users added yet</p>
                     ) : (
-                      selectedProject.users.map((user) => (
-                        <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      selectedProject.users.map((userId) => (
+                        <div key={userId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
-                            <p className="font-medium text-sm">{user.email}</p>
-                            <p className="text-xs text-gray-500">{user.role}</p>
+                            <p className="font-medium text-sm">{userId}</p>
+                            <p className="text-xs text-gray-500">User ID</p>
                           </div>
                           <div className="flex gap-2">
                             <Button size="sm" variant="ghost">
@@ -168,19 +168,15 @@ const ProjectsUsersDevices = () => {
                     {selectedProject.devices.length === 0 ? (
                       <p className="text-gray-500 text-sm text-center py-4">No devices added yet</p>
                     ) : (
-                      selectedProject.devices.map((device) => (
-                        <div key={device.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      selectedProject.devices.map((deviceId) => (
+                        <div key={deviceId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
-                            <p className="font-medium text-sm">{device.name}</p>
-                            <p className="text-xs text-gray-500">{device.type}</p>
+                            <p className="font-medium text-sm">Device {deviceId}</p>
+                            <p className="text-xs text-gray-500">Device ID</p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              device.status === 'Active' 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {device.status}
+                            <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                              Active
                             </span>
                             <div className="flex gap-1">
                               <Button size="sm" variant="ghost">
@@ -212,7 +208,7 @@ const ProjectsUsersDevices = () => {
       <JoinProjectDialog
         open={joinDialogOpen}
         onOpenChange={setJoinDialogOpen}
-        onProjectJoined={handleProjectJoined}
+        onJoinProject={handleJoinProject}
       />
 
       <AddUserDialog

@@ -11,23 +11,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
-import { database } from '@/config/firebase';
-import { ref, set } from 'firebase/database';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface JoinProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onProjectJoined: () => void;
+  onJoinProject: (passkey: string) => Promise<void>;
 }
 
 const JoinProjectDialog: React.FC<JoinProjectDialogProps> = ({ 
   open, 
   onOpenChange, 
-  onProjectJoined 
+  onJoinProject 
 }) => {
-  const { currentUser } = useAuth();
   const [passkey, setPasskey] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -36,47 +32,19 @@ const JoinProjectDialog: React.FC<JoinProjectDialogProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!passkey.trim() || !currentUser) return;
+    if (!passkey.trim()) return;
 
     setIsSubmitting(true);
     setStatus('idle');
     setErrorMessage('');
 
     try {
-      // Step 3: Retrieve data from /passkeys/{enteredpasskey}
-      const passkeyRef = ref(database, `passkeys/${passkey.trim()}`);
-      const { get } = await import('firebase/database');
-      const snapshot = await get(passkeyRef);
-      
-      if (!snapshot.exists()) {
-        setStatus('error');
-        setErrorMessage('Invalid passkey. Please check your passkey and try again.');
-        return;
-      }
-
-      const passkeyData = snapshot.val();
-      const projectId = passkeyData.ProjectID;
-
-      if (!projectId) {
-        setStatus('error');
-        setErrorMessage('Invalid passkey data. Please contact the project owner.');
-        return;
-      }
-
-      // Step 5: Add user to project users list
-      const projectUserRef = ref(database, `Projects/${projectId}/Users/${currentUser.uid}`);
-      await set(projectUserRef, true);
-
-      // Step 6: Add project to user's projects list
-      const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
-      await set(userProjectRef, true);
-
+      await onJoinProject(passkey.trim());
       setStatus('success');
-      onProjectJoined();
     } catch (error) {
       console.error('Error joining project:', error);
       setStatus('error');
-      setErrorMessage('Failed to join project. Please try again.');
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to join project');
     } finally {
       setIsSubmitting(false);
     }

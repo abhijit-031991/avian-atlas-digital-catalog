@@ -10,8 +10,8 @@ interface Project {
   description: string;
   createdAt: string;
   uuid: string;
-  users: { id: string; email: string; role: string }[];
-  devices: { id: string; name: string; type: string; status: string }[];
+  users: string[];
+  devices: string[];
 }
 
 interface ProjectListProps {

@@ -14,18 +14,11 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
-interface Device {
-  id: string;
-  name: string;
-  type: string;
-  status: string;
-}
-
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  devices: Device[];
+  devices: string[];
 }
 
 const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, projectId, devices }) => {
@@ -49,7 +42,7 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, proje
         newUser: email.trim(),
         addedBy: currentUser.uid,
         ProjectID: projectId,
-        Devices: devices
+        Devices: devices.length > 0 ? devices : null
       };
 
       const response = await fetch('https://65.1.242.158:1880/addUser', {
