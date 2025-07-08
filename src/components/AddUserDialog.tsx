@@ -14,13 +14,21 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
+interface Device {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+}
+
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
+  devices: Device[];
 }
 
-const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, projectId }) => {
+const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, projectId, devices }) => {
   const { currentUser } = useAuth();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,10 +47,10 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, proje
     try {
       const payload = {
         newUser: email.trim(),
-        addedBy: currentUser.uid
+        addedBy: currentUser.uid,
+        ProjectID: projectId,
+        Devices: devices
       };
-
-      console.log('Sending add user request:', payload);
 
       const response = await fetch('https://65.1.242.158:1880/addUser', {
         method: 'POST',
@@ -53,15 +61,12 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, proje
       });
 
       if (response.ok) {
-        console.log('User added successfully');
         setStatus('success');
       } else {
-        console.error('Failed to add user:', response.status, response.statusText);
         setStatus('error');
         setErrorMessage(`Failed to add user: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error adding user:', error);
       setStatus('error');
       setErrorMessage('Network error: Failed to connect to server');
     } finally {

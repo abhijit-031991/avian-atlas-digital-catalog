@@ -205,6 +205,7 @@ const ProjectsUsersDevices = () => {
         open={addUserDialogOpen}
         onOpenChange={setAddUserDialogOpen}
         projectId={selectedProject?.id || ''}
+        devices={selectedProject?.devices || []}
       />
     </div>
   );
