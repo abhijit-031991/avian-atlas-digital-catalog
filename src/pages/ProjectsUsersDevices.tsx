@@ -8,6 +8,7 @@ import { ArrowLeft, Settings, Users, Smartphone, Trash2, UserPlus, Edit, Plus } 
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import ProjectList from '@/components/ProjectList';
 import AddUserDialog from '@/components/AddUserDialog';
+import JoinProjectDialog from '@/components/JoinProjectDialog';
 import { useProjects } from '@/hooks/useProjects';
 
 interface Project {
@@ -25,10 +26,11 @@ const ProjectsUsersDevices = () => {
   const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
 
-  const { projects, loading, error, createProject } = useProjects(currentUser);
+  const { projects, loading, error, createProject, refetch } = useProjects(currentUser);
 
   if (!currentUser) {
     navigate('/auth');
@@ -46,6 +48,11 @@ const ProjectsUsersDevices = () => {
     } finally {
       setCreatingProject(false);
     }
+  };
+
+  const handleProjectJoined = () => {
+    refetch();
+    setJoinDialogOpen(false);
   };
 
   return (
@@ -71,6 +78,7 @@ const ProjectsUsersDevices = () => {
             selectedProject={selectedProject}
             onSelectProject={setSelectedProject}
             onCreateProject={() => setCreateDialogOpen(true)}
+            onJoinProject={() => setJoinDialogOpen(true)}
             loading={loading}
             error={error}
           />
@@ -199,6 +207,12 @@ const ProjectsUsersDevices = () => {
         onOpenChange={setCreateDialogOpen}
         onCreateProject={handleCreateProject}
         loading={creatingProject}
+      />
+
+      <JoinProjectDialog
+        open={joinDialogOpen}
+        onOpenChange={setJoinDialogOpen}
+        onProjectJoined={handleProjectJoined}
       />
 
       <AddUserDialog

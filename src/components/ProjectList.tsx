@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Settings } from 'lucide-react';
+import { Plus, Settings, UserPlus } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -19,6 +19,7 @@ interface ProjectListProps {
   selectedProject: Project | null;
   onSelectProject: (project: Project) => void;
   onCreateProject: () => void;
+  onJoinProject: () => void;
   loading: boolean;
   error: string | null;
 }
@@ -28,6 +29,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
   selectedProject,
   onSelectProject,
   onCreateProject,
+  onJoinProject,
   loading,
   error
 }) => {
@@ -48,10 +50,16 @@ const ProjectList: React.FC<ProjectListProps> = ({
         </div>
         <p className="text-red-600 mb-4">Error loading projects</p>
         <p className="text-sm text-gray-500 mb-4">{error}</p>
-        <Button onClick={onCreateProject} className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Project
-        </Button>
+        <div className="space-y-2">
+          <Button onClick={onCreateProject} className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Project
+          </Button>
+          <Button onClick={onJoinProject} variant="outline" className="w-full">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Join Project
+          </Button>
+        </div>
       </div>
     );
   }
@@ -64,12 +72,18 @@ const ProjectList: React.FC<ProjectListProps> = ({
         </div>
         <p className="text-gray-600 mb-4">No projects found</p>
         <p className="text-sm text-gray-500 mb-4">
-          Create your first project or contact your admin for access to existing projects.
+          Create your first project or join an existing one using a passkey.
         </p>
-        <Button onClick={onCreateProject} className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Project
-        </Button>
+        <div className="space-y-2">
+          <Button onClick={onCreateProject} className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Project
+          </Button>
+          <Button onClick={onJoinProject} variant="outline" className="w-full">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Join Project
+          </Button>
+        </div>
       </div>
     );
   }
@@ -100,10 +114,16 @@ const ProjectList: React.FC<ProjectListProps> = ({
           </CardContent>
         </Card>
       ))}
-      <Button onClick={onCreateProject} variant="outline" className="w-full mt-4">
-        <Plus className="h-4 w-4 mr-2" />
-        New Project
-      </Button>
+      <div className="space-y-2">
+        <Button onClick={onCreateProject} variant="outline" className="w-full">
+          <Plus className="h-4 w-4 mr-2" />
+          New Project
+        </Button>
+        <Button onClick={onJoinProject} variant="outline" className="w-full">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Join Project
+        </Button>
+      </div>
     </div>
   );
 };
