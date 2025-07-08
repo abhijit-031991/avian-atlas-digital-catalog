@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, User, LogOut } from 'lucide-react';
+import { Monitor, Database, Users, User, LogOut } from 'lucide-react';
 
 const ArcTrackCentral = () => {
   const { currentUser, logout } = useAuth();
@@ -22,12 +22,36 @@ const ArcTrackCentral = () => {
 
   const menuItems = [
     {
+      title: 'Tracking Console',
+      description: 'Real-time device tracking and monitoring',
+      icon: Monitor,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      route: '/tracking-console'
+    },
+    {
+      title: 'Database and Analytics',
+      description: 'Data insights and analytics dashboard',
+      icon: Database,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      route: '/database-analytics'
+    },
+    {
       title: 'Projects, Users and Devices',
       description: 'Manage projects, users and device onboarding',
       icon: Users,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
       route: '/projects-users-devices'
+    },
+    {
+      title: 'My ArcTrack',
+      description: 'Personal account settings and preferences',
+      icon: User,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      route: '/my-arctrack'
     }
   ];
 
