@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { database } from '@/config/firebase';
-import { ref, onValue, push, set, get } from 'firebase/database';
+import { ref, onValue, push, set, get, remove } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 
 interface Project {
@@ -123,10 +123,7 @@ export const useProjects = (currentUser: any) => {
         }
       };
 
-      // Add project to /Projects/{ProjectID}
       await set(newProjectRef, projectData);
-
-      // Add project ID to user's project list
       const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
       await set(userProjectRef, true);
 
@@ -151,7 +148,6 @@ export const useProjects = (currentUser: any) => {
     if (!currentUser) throw new Error('User not authenticated');
 
     try {
-      // Retrieve data from /passkeys/{passkey}
       const passkeyRef = ref(database, `passkeys/${passkey}`);
       const snapshot = await get(passkeyRef);
       
@@ -166,11 +162,9 @@ export const useProjects = (currentUser: any) => {
         throw new Error('Invalid passkey data');
       }
 
-      // Add user to project users list
       const projectUserRef = ref(database, `Projects/${projectId}/Users/${currentUser.uid}`);
       await set(projectUserRef, true);
 
-      // Add project to user's projects list
       const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
       await set(userProjectRef, true);
 
@@ -191,12 +185,82 @@ export const useProjects = (currentUser: any) => {
     }
   };
 
+  const removeUser = async (projectId: string, userUuid: string) => {
+    if (!currentUser) throw new Error('User not authenticated');
+
+    try {
+      // Remove user from project's Users list
+      const projectUserRef = ref(database, `Projects/${projectId}/Users/${userUuid}`);
+      await remove(projectUserRef);
+
+      // Remove project from user's Projects list
+      const userProjectRef = ref(database, `Users/${userUuid}/Projects/${projectId}`);
+      await remove(userProjectRef);
+
+      toast({
+        title: 'Success',
+        description: 'User removed from project successfully!'
+      });
+    } catch (error) {
+      console.error('Error removing user:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove user. Please try again.',
+        variant: 'destructive'
+      });
+      throw error;
+    }
+  };
+
+  const deleteProject = async (projectId: string) => {
+    if (!currentUser) throw new Error('User not authenticated');
+
+    try {
+      // First, get all users in the project
+      const projectRef = ref(database, `Projects/${projectId}`);
+      const projectSnapshot = await get(projectRef);
+      
+      if (!projectSnapshot.exists()) {
+        throw new Error('Project not found');
+      }
+
+      const projectData = projectSnapshot.val();
+      const projectUsers = projectData.Users || {};
+
+      // Remove project reference from all users' Projects lists
+      const userUpdatePromises = Object.keys(projectUsers).map(async (userUuid) => {
+        const userProjectRef = ref(database, `Users/${userUuid}/Projects/${projectId}`);
+        return remove(userProjectRef);
+      });
+
+      await Promise.all(userUpdatePromises);
+
+      // Delete the entire project
+      await remove(projectRef);
+
+      toast({
+        title: 'Success',
+        description: 'Project deleted successfully!'
+      });
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete project. Please try again.',
+        variant: 'destructive'
+      });
+      throw error;
+    }
+  };
+
   return {
     projects,
     loading,
     error,
     createProject,
     joinProject,
+    removeUser,
+    deleteProject,
     refetch: fetchUserProjects
   };
 };

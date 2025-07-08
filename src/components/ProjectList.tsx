@@ -1,8 +1,8 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Settings, UserPlus } from 'lucide-react';
+import { Plus, Settings, UserPlus, Trash2 } from 'lucide-react';
+import DeleteProjectDialog from '@/components/DeleteProjectDialog';
 
 interface Project {
   id: string;
@@ -20,8 +20,10 @@ interface ProjectListProps {
   onSelectProject: (project: Project) => void;
   onCreateProject: () => void;
   onJoinProject: () => void;
+  onDeleteProject: (projectId: string) => Promise<void>;
   loading: boolean;
   error: string | null;
+  currentUser: any;
 }
 
 const ProjectList: React.FC<ProjectListProps> = ({
@@ -30,9 +32,31 @@ const ProjectList: React.FC<ProjectListProps> = ({
   onSelectProject,
   onCreateProject,
   onJoinProject,
+  onDeleteProject,
   loading,
-  error
+  error,
+  currentUser
 }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+
+  const handleDeleteClick = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setProjectToDelete(project);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (projectToDelete) {
+      await onDeleteProject(projectToDelete.id);
+      setProjectToDelete(null);
+    }
+  };
+
+  const isProjectOwner = (project: Project) => {
+    return currentUser && project.uuid === currentUser.uid;
+  };
+
   if (loading) {
     return (
       <div className="p-6 text-center">
@@ -89,42 +113,65 @@ const ProjectList: React.FC<ProjectListProps> = ({
   }
 
   return (
-    <div className="p-4 space-y-2">
-      {projects.map((project) => (
-        <Card
-          key={project.id}
-          className={`cursor-pointer transition-colors ${
-            selectedProject?.id === project.id 
-              ? 'border-blue-500 bg-blue-50' 
-              : 'hover:bg-gray-50'
-          }`}
-          onClick={() => onSelectProject(project)}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">{project.name}</CardTitle>
-            <CardDescription className="text-xs">
-              ID: {project.id}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>{project.users.length} users</span>
-              <span>{project.devices.length} devices</span>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-      <div className="space-y-2">
-        <Button onClick={onCreateProject} variant="outline" className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
-          New Project
-        </Button>
-        <Button onClick={onJoinProject} variant="outline" className="w-full">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Join Project
-        </Button>
+    <>
+      <div className="p-4 space-y-2">
+        {projects.map((project) => (
+          <Card
+            key={project.id}
+            className={`cursor-pointer transition-colors ${
+              selectedProject?.id === project.id 
+                ? 'border-blue-500 bg-blue-50' 
+                : 'hover:bg-gray-50'
+            }`}
+            onClick={() => onSelectProject(project)}
+          >
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <CardTitle className="text-sm">{project.name}</CardTitle>
+                  <CardDescription className="text-xs">
+                    ID: {project.id}
+                  </CardDescription>
+                </div>
+                {isProjectOwner(project) && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => handleDeleteClick(project, e)}
+                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>{project.users.length} users</span>
+                <span>{project.devices.length} devices</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        <div className="space-y-2">
+          <Button onClick={onCreateProject} variant="outline" className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
+          <Button onClick={onJoinProject} variant="outline" className="w-full">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Join Project
+          </Button>
+        </div>
       </div>
-    </div>
+
+      <DeleteProjectDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        projectName={projectToDelete?.name || ''}
+      />
+    </>
   );
 };
 

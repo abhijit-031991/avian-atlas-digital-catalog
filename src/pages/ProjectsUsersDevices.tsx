@@ -9,6 +9,7 @@ import CreateProjectDialog from '@/components/CreateProjectDialog';
 import ProjectList from '@/components/ProjectList';
 import AddUserDialog from '@/components/AddUserDialog';
 import JoinProjectDialog from '@/components/JoinProjectDialog';
+import RemoveUserDialog from '@/components/RemoveUserDialog';
 import { useProjects } from '@/hooks/useProjects';
 
 interface Project {
@@ -28,9 +29,11 @@ const ProjectsUsersDevices = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [removeUserDialogOpen, setRemoveUserDialogOpen] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
+  const [userToRemove, setUserToRemove] = useState<string | null>(null);
 
-  const { projects, loading, error, createProject, joinProject, refetch } = useProjects(currentUser);
+  const { projects, loading, error, createProject, joinProject, removeUser, deleteProject, refetch } = useProjects(currentUser);
 
   if (!currentUser) {
     navigate('/auth');
@@ -53,6 +56,29 @@ const ProjectsUsersDevices = () => {
   const handleJoinProject = async (passkey: string) => {
     await joinProject(passkey);
     setJoinDialogOpen(false);
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    await deleteProject(projectId);
+    if (selectedProject?.id === projectId) {
+      setSelectedProject(null);
+    }
+  };
+
+  const handleRemoveUser = (userId: string) => {
+    setUserToRemove(userId);
+    setRemoveUserDialogOpen(true);
+  };
+
+  const handleRemoveUserConfirm = async () => {
+    if (selectedProject && userToRemove) {
+      await removeUser(selectedProject.id, userToRemove);
+      setUserToRemove(null);
+    }
+  };
+
+  const isProjectOwner = (project: Project | null) => {
+    return project && currentUser && project.uuid === currentUser.uid;
   };
 
   return (
@@ -79,8 +105,10 @@ const ProjectsUsersDevices = () => {
             onSelectProject={setSelectedProject}
             onCreateProject={() => setCreateDialogOpen(true)}
             onJoinProject={() => setJoinDialogOpen(true)}
+            onDeleteProject={handleDeleteProject}
             loading={loading}
             error={error}
+            currentUser={currentUser}
           />
         </div>
       </div>
@@ -103,6 +131,7 @@ const ProjectsUsersDevices = () => {
               <div className="flex gap-4 text-sm text-gray-500">
                 <span>Project ID: {selectedProject.id}</span>
                 <span>Created: {new Date(selectedProject.createdAt).toLocaleDateString()}</span>
+                <span>Owner: {isProjectOwner(selectedProject) ? 'You' : 'Other'}</span>
               </div>
             </div>
 
@@ -117,10 +146,12 @@ const ProjectsUsersDevices = () => {
                     </CardTitle>
                     <CardDescription>Manage project team members</CardDescription>
                   </div>
-                  <Button size="sm" onClick={() => setAddUserDialogOpen(true)}>
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add User
-                  </Button>
+                  {isProjectOwner(selectedProject) && (
+                    <Button size="sm" onClick={() => setAddUserDialogOpen(true)}>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add User
+                    </Button>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -131,16 +162,22 @@ const ProjectsUsersDevices = () => {
                         <div key={userId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
                             <p className="font-medium text-sm">{userId}</p>
-                            <p className="text-xs text-gray-500">User ID</p>
+                            <p className="text-xs text-gray-500">
+                              {userId === selectedProject.uuid ? 'Project Owner' : 'Member'}
+                            </p>
                           </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="ghost">
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost">
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
+                          {isProjectOwner(selectedProject) && userId !== selectedProject.uuid && (
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleRemoveUser(userId)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       ))
                     )}
@@ -216,6 +253,14 @@ const ProjectsUsersDevices = () => {
         onOpenChange={setAddUserDialogOpen}
         projectId={selectedProject?.id || ''}
         devices={selectedProject?.devices || []}
+      />
+
+      <RemoveUserDialog
+        open={removeUserDialogOpen}
+        onOpenChange={setRemoveUserDialogOpen}
+        onConfirm={handleRemoveUserConfirm}
+        userName={userToRemove || ''}
+        projectName={selectedProject?.name || ''}
       />
     </div>
   );
