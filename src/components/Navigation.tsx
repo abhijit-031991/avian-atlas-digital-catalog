@@ -1,13 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import { Satellite, Menu, X, User } from "lucide-react";
+import { Satellite, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleContactClick = () => {
@@ -16,10 +16,6 @@ const Navigation = () => {
       contactSection.scrollIntoView({ behavior: 'smooth' });
     }
     setIsMenuOpen(false);
-  };
-
-  const handleTrackingClick = () => {
-    window.location.href = '/tracking/tracking.html';
   };
 
   const handleNavClick = (sectionId: string) => {
@@ -37,15 +33,6 @@ const Navigation = () => {
       navigate('/auth');
     }
     setIsMenuOpen(false);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      setIsMenuOpen(false);
-    } catch (error) {
-      console.error('Failed to log out', error);
-    }
   };
 
   return (
@@ -83,9 +70,7 @@ const Navigation = () => {
             >
               Contact
             </button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleTrackingClick}>Tracking</Button>
             
-            {/* ArcTrack Central Button */}
             <Button onClick={handleArcTrackCentralClick} className="bg-green-600 hover:bg-green-700">
               ArcTrack Central
             </Button>
@@ -131,11 +116,7 @@ const Navigation = () => {
             >
               Contact
             </button>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleTrackingClick}>
-              Tracking
-            </Button>
             
-            {/* Mobile ArcTrack Central Button */}
             <Button className="w-full bg-green-600 hover:bg-green-700" onClick={handleArcTrackCentralClick}>
               ArcTrack Central
             </Button>

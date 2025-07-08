@@ -42,8 +42,6 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, proje
         addedBy: currentUser.uid
       };
 
-      console.log('Sending add user request:', payload);
-
       const response = await fetch('https://65.1.242.158:1880/addUser', {
         method: 'POST',
         headers: {
@@ -53,15 +51,12 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, proje
       });
 
       if (response.ok) {
-        console.log('User added successfully');
         setStatus('success');
       } else {
-        console.error('Failed to add user:', response.status, response.statusText);
         setStatus('error');
         setErrorMessage(`Failed to add user: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error adding user:', error);
       setStatus('error');
       setErrorMessage('Network error: Failed to connect to server');
     } finally {
