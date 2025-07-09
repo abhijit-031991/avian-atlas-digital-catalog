@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -60,52 +60,64 @@ const ProjectsUsersDevices = () => {
     refetch 
   } = useProjects(currentUser);
 
-  // Fetch device details when selectedProject changes
-  useEffect(() => {
-    const fetchDeviceDetails = async () => {
-      if (!selectedProject || !selectedProject.devices) {
-        console.log('No selected project or devices, clearing device list');
+  // Memoize the device fetching function to prevent infinite loops
+  const fetchDeviceDetails = useCallback(async (projectId: string, devices: { [key: string]: any }) => {
+    if (!devices) {
+      console.log('No devices object, clearing device list');
+      setProjectDevices([]);
+      return;
+    }
+
+    console.log('Fetching device details for project:', projectId);
+    setLoadingDevices(true);
+    
+    try {
+      const deviceIds = Object.keys(devices);
+      console.log('Device IDs to fetch:', deviceIds);
+      
+      if (deviceIds.length === 0) {
         setProjectDevices([]);
         return;
       }
 
-      console.log('Fetching device details for project:', selectedProject.id);
-      setLoadingDevices(true);
-      
-      try {
-        const deviceIds = Object.keys(selectedProject.devices);
-        console.log('Device IDs to fetch:', deviceIds);
-        
-        if (deviceIds.length === 0) {
-          setProjectDevices([]);
-          return;
-        }
+      const deviceDetails = await Promise.all(
+        deviceIds.map(async (deviceId) => {
+          try {
+            const details = await getDeviceDetails(deviceId);
+            console.log(`Device details for ${deviceId}:`, details);
+            return details || { id: deviceId, name: `Device ${deviceId}` };
+          } catch (error) {
+            console.error(`Error fetching device ${deviceId}:`, error);
+            return { id: deviceId, name: `Device ${deviceId}` };
+          }
+        })
+      );
 
-        const deviceDetails = await Promise.all(
-          deviceIds.map(async (deviceId) => {
-            try {
-              const details = await getDeviceDetails(deviceId);
-              console.log(`Device details for ${deviceId}:`, details);
-              return details || { id: deviceId, name: `Device ${deviceId}` };
-            } catch (error) {
-              console.error(`Error fetching device ${deviceId}:`, error);
-              return { id: deviceId, name: `Device ${deviceId}` };
-            }
-          })
-        );
+      console.log('All device details:', deviceDetails);
+      setProjectDevices(deviceDetails);
+    } catch (error) {
+      console.error('Error fetching device details:', error);
+      setProjectDevices([]);
+    } finally {
+      setLoadingDevices(false);
+    }
+  }, [getDeviceDetails]);
 
-        console.log('All device details:', deviceDetails);
-        setProjectDevices(deviceDetails);
-      } catch (error) {
-        console.error('Error fetching device details:', error);
-        setProjectDevices([]);
-      } finally {
-        setLoadingDevices(false);
-      }
-    };
+  // Fetch device details when selectedProject changes
+  useEffect(() => {
+    if (!selectedProject) {
+      setProjectDevices([]);
+      return;
+    }
 
-    fetchDeviceDetails();
-  }, [selectedProject?.id, selectedProject?.devices, getDeviceDetails]);
+    // Only fetch if we have a project with devices
+    if (selectedProject.devices && Object.keys(selectedProject.devices).length > 0) {
+      fetchDeviceDetails(selectedProject.id, selectedProject.devices);
+    } else {
+      setProjectDevices([]);
+      setLoadingDevices(false);
+    }
+  }, [selectedProject?.id, fetchDeviceDetails]); // Only depend on project ID, not the entire devices object
 
   if (!currentUser) {
     navigate('/auth');
@@ -161,6 +173,11 @@ const ProjectsUsersDevices = () => {
   const handleAddDevice = async (deviceId: string, deviceName: string, passkey: string) => {
     if (selectedProject) {
       await addDevice(deviceId, deviceName, passkey, selectedProject.id);
+      // Refresh the selected project to get updated device list
+      const updatedProject = projects.find(p => p.id === selectedProject.id);
+      if (updatedProject) {
+        setSelectedProject(updatedProject);
+      }
     }
   };
 
@@ -173,6 +190,11 @@ const ProjectsUsersDevices = () => {
     if (selectedProject && deviceToRemove) {
       await removeDevice(deviceToRemove.id, selectedProject.id);
       setDeviceToRemove(null);
+      // Refresh the selected project to get updated device list
+      const updatedProject = projects.find(p => p.id === selectedProject.id);
+      if (updatedProject) {
+        setSelectedProject(updatedProject);
+      }
     }
   };
 
