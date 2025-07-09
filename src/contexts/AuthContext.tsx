@@ -11,7 +11,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { auth } from '@/config/firebase';
+import { auth, database } from '@/config/firebase';
+import { ref, set } from 'firebase/database';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
@@ -37,9 +38,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
   const location = useLocation();
 
+  const storeUserData = async (user: User) => {
+    try {
+      const userRef = ref(database, `Users/${user.uid}`);
+      const userData = {
+        email: user.email || '',
+        image: user.photoURL || '',
+        name: user.displayName || user.email?.split('@')[0] || 'User'
+      };
+      await set(userRef, userData);
+      console.log('User data stored successfully:', userData);
+    } catch (error) {
+      console.error('Error storing user data:', error);
+    }
+  };
+
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    if (result.user) {
+      await storeUserData(result.user);
+    }
     // Check if user came from auth page trying to access ArcTrack Central
     if (location.pathname === '/auth') {
       navigate('/arctrack-central');
@@ -52,6 +71,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const result = await createUserWithEmailAndPassword(auth, email, password);
     if (result.user) {
       await updateProfile(result.user, { displayName });
+      // Reload user to get updated profile
+      await result.user.reload();
+      const updatedUser = auth.currentUser;
+      if (updatedUser) {
+        await storeUserData(updatedUser);
+      }
     }
     // Check if user came from auth page trying to access ArcTrack Central
     if (location.pathname === '/auth') {
@@ -62,7 +87,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    if (result.user) {
+      await storeUserData(result.user);
+    }
     // Check if user came from auth page trying to access ArcTrack Central
     if (location.pathname === '/auth') {
       navigate('/arctrack-central');
@@ -83,11 +111,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateUserProfile = async (displayName: string) => {
     if (currentUser) {
       await updateProfile(currentUser, { displayName });
+      await storeUserData(currentUser);
     }
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Store/update user data whenever auth state changes
+        await storeUserData(user);
+      }
       setCurrentUser(user);
       setLoading(false);
     });

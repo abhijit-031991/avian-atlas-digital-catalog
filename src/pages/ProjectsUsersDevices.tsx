@@ -12,6 +12,7 @@ import RemoveUserDialog from '@/components/RemoveUserDialog';
 import AddDeviceDialog from '@/components/AddDeviceDialog';
 import RemoveDeviceDialog from '@/components/RemoveDeviceDialog';
 import { useProjects } from '@/hooks/useProjects';
+import { useUserNames } from '@/hooks/useUserNames';
 
 interface Project {
   id: string;
@@ -65,6 +66,13 @@ const ProjectsUsersDevices = () => {
     getDeviceDetails,
     refetch 
   } = useProjects(currentUser);
+
+  // Get user names for the selected project
+  const projectUserIds = useMemo(() => {
+    return selectedProject?.users || [];
+  }, [selectedProject?.users]);
+
+  const { userNames, loading: loadingUserNames } = useUserNames(projectUserIds);
 
   // Memoize device IDs to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {
@@ -309,11 +317,13 @@ const ProjectsUsersDevices = () => {
                   <div className="space-y-3">
                     {selectedProject.users.length === 0 ? (
                       <p className="text-gray-500 text-sm text-center py-4">No users added yet</p>
+                    ) : loadingUserNames ? (
+                      <p className="text-gray-500 text-sm text-center py-4">Loading users...</p>
                     ) : (
                       selectedProject.users.map((userId) => (
                         <div key={userId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
-                            <p className="font-medium text-sm">{userId}</p>
+                            <p className="font-medium text-sm">{userNames[userId] || userId}</p>
                             <p className="text-xs text-gray-500">
                               {userId === selectedProject.uuid ? 'Project Owner' : 'Member'}
                             </p>
@@ -416,7 +426,7 @@ const ProjectsUsersDevices = () => {
         open={removeUserDialogOpen}
         onOpenChange={setRemoveUserDialogOpen}
         onConfirm={handleRemoveUserConfirm}
-        userName={userToRemove || ''}
+        userName={userToRemove ? (userNames[userToRemove] || userToRemove) : ''}
         projectName={selectedProject?.name || ''}
       />
 
