@@ -3,10 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { database } from '@/config/firebase';
 import { ref, onValue, get } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Search, MapPin } from 'lucide-react';
+import { Loader2, Search, MapPin, Plus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 declare global {
   interface Window {
@@ -23,11 +24,13 @@ interface DeviceData {
   signal: string;
   lastContact: number;
   accuracy: number;
+  dataCount: number;
   img?: string;
 }
 
 const MapComponent = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<{ [key: string]: any }>({});
@@ -122,6 +125,12 @@ const MapComponent = () => {
             
             if (deviceSnapshot.exists()) {
               const data = deviceSnapshot.val();
+              
+              // Get data count
+              const dataRef = ref(database, `tags/${deviceId}/data`);
+              const dataSnapshot = await get(dataRef);
+              const dataCount = dataSnapshot.exists() ? Object.keys(dataSnapshot.val()).length : 0;
+              
               return {
                 deviceId,
                 lat: data.Lat || 0,
@@ -130,6 +139,7 @@ const MapComponent = () => {
                 signal: data.Signal || 'No Signal',
                 lastContact: data.tts || 0,
                 accuracy: data.hdop || 0,
+                dataCount: dataCount,
                 img: data.img || 'deer.png'
               };
             }
@@ -221,8 +231,8 @@ const MapComponent = () => {
               <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">${device.signal}</div>
             </div>
             <div style="text-align: center; padding: 4px;">
-              <div style="font-size: 18px;">📍</div>
-              <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">${device.accuracy}m</div>
+              <div style="font-size: 18px;">📊</div>
+              <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">${device.dataCount}</div>
             </div>
           </div>
         </div>
@@ -275,6 +285,31 @@ const MapComponent = () => {
         <div className="text-center">
           <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show no devices message
+  if (!loading && devices.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[600px] bg-gray-50 rounded-lg">
+        <div className="text-center max-w-md">
+          <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">No Devices Found</h3>
+          <p className="text-gray-600 mb-6">
+            You don't have any devices associated with your account. To start tracking, you need to either create a project and add devices or join an existing project.
+          </p>
+          <div className="space-y-3">
+            <Button onClick={() => navigate('/projects-users')} className="w-full">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Project
+            </Button>
+            <Button onClick={() => navigate('/projects-users')} variant="outline" className="w-full">
+              <Users className="h-4 w-4 mr-2" />
+              Join Project
+            </Button>
+          </div>
         </div>
       </div>
     );
