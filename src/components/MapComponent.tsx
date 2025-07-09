@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { database } from '@/config/firebase';
 import { ref, onValue, get } from 'firebase/database';
@@ -193,27 +192,9 @@ const MapComponent = () => {
       markersRef.current[device.deviceId] = marker;
     });
 
-    // Fit map to show all markers after devices are loaded
-    if (devices.length > 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-      devices.forEach((device) => {
-        if (device.lat !== 0 || device.lng !== 0) {
-          bounds.extend({ lat: device.lat, lng: device.lng });
-        }
-      });
-      
-      if (!bounds.isEmpty()) {
-        mapInstanceRef.current.fitBounds(bounds);
-        const zoom = mapInstanceRef.current.getZoom();
-        if (zoom > 15) {
-          mapInstanceRef.current.setZoom(15);
-        }
-      }
-    } else {
-      // If no devices, center on India at zoom 5
-      mapInstanceRef.current.setCenter({ lat: 20.5937, lng: 78.9629 });
-      mapInstanceRef.current.setZoom(5);
-    }
+    // Always center map on India at zoom level 5 after devices are loaded
+    mapInstanceRef.current.setCenter({ lat: 20.5937, lng: 78.9629 });
+    mapInstanceRef.current.setZoom(5);
   }, [devices, mapLoaded]);
 
   const showInfoWindow = (device: DeviceData, marker: any) => {
