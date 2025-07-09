@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { database } from '@/config/firebase';
 import { ref, onValue, get } from 'firebase/database';
@@ -192,7 +193,7 @@ const MapComponent = () => {
       markersRef.current[device.deviceId] = marker;
     });
 
-    // Fit map to show all markers
+    // Fit map to show all markers after devices are loaded
     if (devices.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       devices.forEach((device) => {
@@ -208,6 +209,10 @@ const MapComponent = () => {
           mapInstanceRef.current.setZoom(15);
         }
       }
+    } else {
+      // If no devices, center on India at zoom 5
+      mapInstanceRef.current.setCenter({ lat: 20.5937, lng: 78.9629 });
+      mapInstanceRef.current.setZoom(5);
     }
   }, [devices, mapLoaded]);
 
@@ -300,7 +305,7 @@ const MapComponent = () => {
           <p className="text-gray-600 mb-6">
             You don't have any devices associated with your account. To start tracking, you need to either create a project and add devices or join an existing project.
           </p>
-          <Button onClick={() => navigate('/projects-users')} className="w-full">
+          <Button onClick={() => navigate('/projects-users-devices')} className="w-full">
             <ArrowRight className="h-4 w-4 mr-2" />
             Go to Projects
           </Button>
@@ -332,8 +337,8 @@ const MapComponent = () => {
         </Card>
       </div>
 
-      {/* Device Count */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* Device Count - moved to bottom left */}
+      <div className="absolute bottom-4 left-4 z-10">
         <Card className="shadow-lg">
           <CardContent className="p-3">
             <div className="flex items-center gap-2 text-sm font-medium">
@@ -357,9 +362,9 @@ const MapComponent = () => {
         </div>
       )}
 
-      {/* Device List (when searching) */}
+      {/* Device List (when searching) - moved up to avoid overlapping with device count */}
       {searchTerm && (
-        <div className="absolute bottom-4 left-4 z-10 max-w-sm">
+        <div className="absolute bottom-20 left-4 z-10 max-w-sm">
           <Card className="shadow-lg max-h-60 overflow-y-auto">
             <CardContent className="p-3">
               <div className="space-y-2">
