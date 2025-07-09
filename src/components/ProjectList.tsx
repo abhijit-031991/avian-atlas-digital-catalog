@@ -58,6 +58,11 @@ const ProjectList: React.FC<ProjectListProps> = ({
     return currentUser && project.uuid === currentUser.uid;
   };
 
+  const handleProjectSelect = (project: Project) => {
+    console.log('Selecting project:', project);
+    onSelectProject(project);
+  };
+
   if (loading) {
     return (
       <div className="p-6 text-center">
@@ -124,7 +129,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
                 ? 'border-blue-500 bg-blue-50' 
                 : 'hover:bg-gray-50'
             }`}
-            onClick={() => onSelectProject(project)}
+            onClick={() => handleProjectSelect(project)}
           >
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">

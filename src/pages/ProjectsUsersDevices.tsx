@@ -14,6 +14,16 @@ import AddDeviceDialog from '@/components/AddDeviceDialog';
 import RemoveDeviceDialog from '@/components/RemoveDeviceDialog';
 import { useProjects } from '@/hooks/useProjects';
 
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  uuid: string;
+  users: string[];
+  devices: { [key: string]: any };
+}
+
 interface Device {
   id: string;
   name: string;
@@ -22,7 +32,7 @@ interface Device {
 const ProjectsUsersDevices = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
@@ -33,6 +43,7 @@ const ProjectsUsersDevices = () => {
   const [userToRemove, setUserToRemove] = useState<string | null>(null);
   const [deviceToRemove, setDeviceToRemove] = useState<{ id: string; name: string } | null>(null);
   const [projectDevices, setProjectDevices] = useState<Device[]>([]);
+  const [loadingDevices, setLoadingDevices] = useState(false);
 
   const { 
     projects, 
@@ -53,28 +64,58 @@ const ProjectsUsersDevices = () => {
   useEffect(() => {
     const fetchDeviceDetails = async () => {
       if (!selectedProject || !selectedProject.devices) {
+        console.log('No selected project or devices, clearing device list');
         setProjectDevices([]);
         return;
       }
 
-      const deviceIds = Object.keys(selectedProject.devices);
-      const deviceDetails = await Promise.all(
-        deviceIds.map(async (deviceId) => {
-          const details = await getDeviceDetails(deviceId);
-          return details || { id: deviceId, name: `Device ${deviceId}` };
-        })
-      );
+      console.log('Fetching device details for project:', selectedProject.id);
+      setLoadingDevices(true);
+      
+      try {
+        const deviceIds = Object.keys(selectedProject.devices);
+        console.log('Device IDs to fetch:', deviceIds);
+        
+        if (deviceIds.length === 0) {
+          setProjectDevices([]);
+          return;
+        }
 
-      setProjectDevices(deviceDetails);
+        const deviceDetails = await Promise.all(
+          deviceIds.map(async (deviceId) => {
+            try {
+              const details = await getDeviceDetails(deviceId);
+              console.log(`Device details for ${deviceId}:`, details);
+              return details || { id: deviceId, name: `Device ${deviceId}` };
+            } catch (error) {
+              console.error(`Error fetching device ${deviceId}:`, error);
+              return { id: deviceId, name: `Device ${deviceId}` };
+            }
+          })
+        );
+
+        console.log('All device details:', deviceDetails);
+        setProjectDevices(deviceDetails);
+      } catch (error) {
+        console.error('Error fetching device details:', error);
+        setProjectDevices([]);
+      } finally {
+        setLoadingDevices(false);
+      }
     };
 
     fetchDeviceDetails();
-  }, [selectedProject, getDeviceDetails]);
+  }, [selectedProject?.id, selectedProject?.devices, getDeviceDetails]);
 
   if (!currentUser) {
     navigate('/auth');
     return null;
   }
+
+  const handleProjectSelect = (project: Project) => {
+    console.log('Project selected:', project);
+    setSelectedProject(project);
+  };
 
   const handleCreateProject = async (name: string, description: string) => {
     setCreatingProject(true);
@@ -135,7 +176,7 @@ const ProjectsUsersDevices = () => {
     }
   };
 
-  const isProjectOwner = (project: any) => {
+  const isProjectOwner = (project: Project) => {
     return project && currentUser && project.uuid === currentUser.uid;
   };
 
@@ -160,7 +201,7 @@ const ProjectsUsersDevices = () => {
           <ProjectList
             projects={projects}
             selectedProject={selectedProject}
-            onSelectProject={setSelectedProject}
+            onSelectProject={handleProjectSelect}
             onCreateProject={() => setCreateDialogOpen(true)}
             onJoinProject={() => setJoinDialogOpen(true)}
             onDeleteProject={handleDeleteProject}
@@ -262,7 +303,9 @@ const ProjectsUsersDevices = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {projectDevices.length === 0 ? (
+                    {loadingDevices ? (
+                      <p className="text-gray-500 text-sm text-center py-4">Loading devices...</p>
+                    ) : projectDevices.length === 0 ? (
                       <p className="text-gray-500 text-sm text-center py-4">No devices added yet</p>
                     ) : (
                       projectDevices.map((device) => (
