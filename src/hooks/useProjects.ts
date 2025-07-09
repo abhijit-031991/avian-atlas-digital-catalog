@@ -173,6 +173,9 @@ export const useProjects = (currentUser: any) => {
       const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
       await set(userProjectRef, true);
 
+      // Remove the passkey after successful join
+      await remove(passkeyRef);
+
       toast({
         title: 'Success',
         description: 'Successfully joined project!'
@@ -302,24 +305,30 @@ export const useProjects = (currentUser: any) => {
 
       const deviceData = deviceSnapshot.val();
       const devicePasskey = deviceData.Management?.passkey;
+      const isProvisioned = deviceData.Management?.prov;
 
-      // Step 2: Validate passkey
+      // Step 2: Check if device is already provisioned
+      if (isProvisioned === true) {
+        throw new Error('Device already provisioned');
+      }
+
+      // Step 3: Validate passkey
       if (!devicePasskey || devicePasskey.toString() !== passkey) {
         throw new Error('Invalid device passkey');
       }
 
-      // Step 3: Add device to project and user
+      // Step 4: Add device to project and user
       const projectDeviceRef = ref(database, `Projects/${projectId}/Devices/${deviceId}`);
       await set(projectDeviceRef, true);
 
       const userDeviceRef = ref(database, `Users/${currentUser.uid}/Devices/${deviceId}`);
       await set(userDeviceRef, true);
 
-      // Step 4: Add device name to management
+      // Step 5: Add device name to management
       const deviceNameRef = ref(database, `tags/${deviceId}/Management/Device Name`);
       await set(deviceNameRef, deviceName);
 
-      // Step 5: Set provisioned to true
+      // Step 6: Set provisioned to true
       const provisionedRef = ref(database, `tags/${deviceId}/Management/prov`);
       await set(provisionedRef, true);
 
