@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -37,6 +36,7 @@ const ProjectsUsersDevices = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projectDevices, setProjectDevices] = useState<Device[]>([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
+  const currentFetchRef = useRef<string | null>(null);
   
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -66,24 +66,45 @@ const ProjectsUsersDevices = () => {
     refetch 
   } = useProjects(currentUser);
 
+  // Memoize device IDs to prevent unnecessary re-renders
+  const deviceIds = useMemo(() => {
+    if (!selectedProject?.devices) return [];
+    return Object.keys(selectedProject.devices);
+  }, [selectedProject?.devices]);
+
+  // Memoize device IDs string for comparison
+  const deviceIdsString = useMemo(() => {
+    return deviceIds.join(',');
+  }, [deviceIds]);
+
   // Effect to fetch device details when project is selected
   useEffect(() => {
     const fetchDevices = async () => {
       if (!selectedProject) {
         setProjectDevices([]);
+        currentFetchRef.current = null;
         return;
       }
 
-      if (!selectedProject.devices || Object.keys(selectedProject.devices).length === 0) {
+      if (deviceIds.length === 0) {
         setProjectDevices([]);
+        currentFetchRef.current = null;
         return;
       }
 
+      // Create a unique identifier for this fetch operation
+      const fetchId = `${selectedProject.id}-${deviceIdsString}`;
+      
+      // If we're already fetching the same data, don't start a new fetch
+      if (currentFetchRef.current === fetchId) {
+        return;
+      }
+
+      currentFetchRef.current = fetchId;
       setLoadingDevices(true);
       console.log('Fetching devices for project:', selectedProject.id);
       
       try {
-        const deviceIds = Object.keys(selectedProject.devices);
         const devicePromises = deviceIds.map(async (deviceId) => {
           try {
             const deviceDetails = await getDeviceDetails(deviceId);
@@ -95,17 +116,25 @@ const ProjectsUsersDevices = () => {
         });
 
         const devices = await Promise.all(devicePromises);
-        setProjectDevices(devices);
+        
+        // Only update state if this is still the current fetch
+        if (currentFetchRef.current === fetchId) {
+          setProjectDevices(devices);
+        }
       } catch (error) {
         console.error('Error fetching devices:', error);
-        setProjectDevices([]);
+        if (currentFetchRef.current === fetchId) {
+          setProjectDevices([]);
+        }
       } finally {
-        setLoadingDevices(false);
+        if (currentFetchRef.current === fetchId) {
+          setLoadingDevices(false);
+        }
       }
     };
 
     fetchDevices();
-  }, [selectedProject?.id, selectedProject?.devices ? Object.keys(selectedProject.devices).join(',') : '', getDeviceDetails]);
+  }, [selectedProject?.id, deviceIdsString]);
 
   if (!currentUser) {
     navigate('/auth');
@@ -380,7 +409,7 @@ const ProjectsUsersDevices = () => {
         open={addUserDialogOpen}
         onOpenChange={setAddUserDialogOpen}
         projectId={selectedProject?.id || ''}
-        devices={Object.keys(selectedProject?.devices || {})}
+        devices={deviceIds}
       />
 
       <RemoveUserDialog
