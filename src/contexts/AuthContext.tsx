@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   User, 
@@ -12,7 +11,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth, database } from '@/config/firebase';
-import { ref, set } from 'firebase/database';
+import { ref, update } from 'firebase/database';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
@@ -46,10 +45,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         image: user.photoURL || '',
         name: user.displayName || user.email?.split('@')[0] || 'User'
       };
-      await set(userRef, userData);
-      console.log('User data stored successfully:', userData);
+      await update(userRef, userData);
+      console.log('User data updated successfully:', userData);
     } catch (error) {
-      console.error('Error storing user data:', error);
+      console.error('Error updating user data:', error);
     }
   };
 
