@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Settings, Users, Smartphone, Trash2, UserPlus, Edit, Plus } from 'lucide-react';
+import { ArrowLeft, Settings, Users, Smartphone, Trash2, UserPlus, Plus } from 'lucide-react';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import ProjectList from '@/components/ProjectList';
 import AddUserDialog from '@/components/AddUserDialog';
@@ -32,18 +32,24 @@ interface Device {
 const ProjectsUsersDevices = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  
+  // Project selection state
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projectDevices, setProjectDevices] = useState<Device[]>([]);
+  const [loadingDevices, setLoadingDevices] = useState(false);
+  
+  // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [removeUserDialogOpen, setRemoveUserDialogOpen] = useState(false);
   const [addDeviceDialogOpen, setAddDeviceDialogOpen] = useState(false);
   const [removeDeviceDialogOpen, setRemoveDeviceDialogOpen] = useState(false);
+  
+  // Action states
   const [creatingProject, setCreatingProject] = useState(false);
   const [userToRemove, setUserToRemove] = useState<string | null>(null);
   const [deviceToRemove, setDeviceToRemove] = useState<{ id: string; name: string } | null>(null);
-  const [projectDevices, setProjectDevices] = useState<Device[]>([]);
-  const [loadingDevices, setLoadingDevices] = useState(false);
 
   const { 
     projects, 
@@ -60,78 +66,63 @@ const ProjectsUsersDevices = () => {
     refetch 
   } = useProjects(currentUser);
 
-  // Memoize the device fetching function to prevent infinite loops
-  const fetchDeviceDetails = useCallback(async (projectId: string, devices: { [key: string]: any }) => {
-    if (!devices) {
-      console.log('No devices object, clearing device list');
-      setProjectDevices([]);
-      return;
-    }
-
-    console.log('Fetching device details for project:', projectId);
-    setLoadingDevices(true);
-    
-    try {
-      const deviceIds = Object.keys(devices);
-      console.log('Device IDs to fetch:', deviceIds);
-      
-      if (deviceIds.length === 0) {
+  // Effect to fetch device details when project is selected
+  useEffect(() => {
+    const fetchDevices = async () => {
+      if (!selectedProject) {
         setProjectDevices([]);
         return;
       }
 
-      const deviceDetails = await Promise.all(
-        deviceIds.map(async (deviceId) => {
+      if (!selectedProject.devices || Object.keys(selectedProject.devices).length === 0) {
+        setProjectDevices([]);
+        return;
+      }
+
+      setLoadingDevices(true);
+      console.log('Fetching devices for project:', selectedProject.id);
+      
+      try {
+        const deviceIds = Object.keys(selectedProject.devices);
+        const devicePromises = deviceIds.map(async (deviceId) => {
           try {
-            const details = await getDeviceDetails(deviceId);
-            console.log(`Device details for ${deviceId}:`, details);
-            return details || { id: deviceId, name: `Device ${deviceId}` };
+            const deviceDetails = await getDeviceDetails(deviceId);
+            return deviceDetails || { id: deviceId, name: `Device ${deviceId}` };
           } catch (error) {
             console.error(`Error fetching device ${deviceId}:`, error);
             return { id: deviceId, name: `Device ${deviceId}` };
           }
-        })
-      );
+        });
 
-      console.log('All device details:', deviceDetails);
-      setProjectDevices(deviceDetails);
-    } catch (error) {
-      console.error('Error fetching device details:', error);
-      setProjectDevices([]);
-    } finally {
-      setLoadingDevices(false);
-    }
-  }, [getDeviceDetails]);
+        const devices = await Promise.all(devicePromises);
+        setProjectDevices(devices);
+      } catch (error) {
+        console.error('Error fetching devices:', error);
+        setProjectDevices([]);
+      } finally {
+        setLoadingDevices(false);
+      }
+    };
 
-  // Fetch device details when selectedProject changes
-  useEffect(() => {
-    if (!selectedProject) {
-      setProjectDevices([]);
-      return;
-    }
-
-    // Only fetch if we have a project with devices
-    if (selectedProject.devices && Object.keys(selectedProject.devices).length > 0) {
-      fetchDeviceDetails(selectedProject.id, selectedProject.devices);
-    } else {
-      setProjectDevices([]);
-      setLoadingDevices(false);
-    }
-  }, [selectedProject?.id, fetchDeviceDetails]); // Only depend on project ID, not the entire devices object
+    fetchDevices();
+  }, [selectedProject?.id, selectedProject?.devices ? Object.keys(selectedProject.devices).join(',') : '', getDeviceDetails]);
 
   if (!currentUser) {
     navigate('/auth');
     return null;
   }
 
+  const isProjectOwner = (project: Project) => {
+    return project && currentUser && project.uuid === currentUser.uid;
+  };
+
   const handleProjectSelect = (project: Project) => {
-    console.log('Project selected:', project);
+    console.log('Selecting project:', project);
     setSelectedProject(project);
   };
 
   const handleCreateProject = async (name: string, description: string) => {
     setCreatingProject(true);
-    
     try {
       await createProject(name, description);
       setCreateDialogOpen(false);
@@ -143,18 +134,22 @@ const ProjectsUsersDevices = () => {
   };
 
   const handleJoinProject = async (passkey: string) => {
-    await joinProject(passkey);
-    setJoinDialogOpen(false);
-  };
-
-  const handleAddUser = async (email: string, projectId: string, devices: string[]) => {
-    await addUser(email, projectId);
+    try {
+      await joinProject(passkey);
+      setJoinDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to join project:', error);
+    }
   };
 
   const handleDeleteProject = async (projectId: string) => {
-    await deleteProject(projectId);
-    if (selectedProject?.id === projectId) {
-      setSelectedProject(null);
+    try {
+      await deleteProject(projectId);
+      if (selectedProject?.id === projectId) {
+        setSelectedProject(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete project:', error);
     }
   };
 
@@ -165,18 +160,27 @@ const ProjectsUsersDevices = () => {
 
   const handleRemoveUserConfirm = async () => {
     if (selectedProject && userToRemove) {
-      await removeUser(selectedProject.id, userToRemove);
-      setUserToRemove(null);
+      try {
+        await removeUser(selectedProject.id, userToRemove);
+        setUserToRemove(null);
+        setRemoveUserDialogOpen(false);
+        // Refresh projects to get updated user list
+        await refetch();
+      } catch (error) {
+        console.error('Failed to remove user:', error);
+      }
     }
   };
 
   const handleAddDevice = async (deviceId: string, deviceName: string, passkey: string) => {
     if (selectedProject) {
-      await addDevice(deviceId, deviceName, passkey, selectedProject.id);
-      // Refresh the selected project to get updated device list
-      const updatedProject = projects.find(p => p.id === selectedProject.id);
-      if (updatedProject) {
-        setSelectedProject(updatedProject);
+      try {
+        await addDevice(deviceId, deviceName, passkey, selectedProject.id);
+        setAddDeviceDialogOpen(false);
+        // Refresh projects to get updated device list
+        await refetch();
+      } catch (error) {
+        console.error('Failed to add device:', error);
       }
     }
   };
@@ -188,18 +192,16 @@ const ProjectsUsersDevices = () => {
 
   const handleRemoveDeviceConfirm = async () => {
     if (selectedProject && deviceToRemove) {
-      await removeDevice(deviceToRemove.id, selectedProject.id);
-      setDeviceToRemove(null);
-      // Refresh the selected project to get updated device list
-      const updatedProject = projects.find(p => p.id === selectedProject.id);
-      if (updatedProject) {
-        setSelectedProject(updatedProject);
+      try {
+        await removeDevice(deviceToRemove.id, selectedProject.id);
+        setDeviceToRemove(null);
+        setRemoveDeviceDialogOpen(false);
+        // Refresh projects to get updated device list
+        await refetch();
+      } catch (error) {
+        console.error('Failed to remove device:', error);
       }
     }
-  };
-
-  const isProjectOwner = (project: Project) => {
-    return project && currentUser && project.uuid === currentUser.uid;
   };
 
   return (
@@ -288,16 +290,14 @@ const ProjectsUsersDevices = () => {
                             </p>
                           </div>
                           {isProjectOwner(selectedProject) && userId !== selectedProject.uuid && (
-                            <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                onClick={() => handleRemoveUser(userId)}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleRemoveUser(userId)}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
                           )}
                         </div>
                       ))
@@ -341,16 +341,14 @@ const ProjectsUsersDevices = () => {
                               Active
                             </span>
                             {isProjectOwner(selectedProject) && (
-                              <div className="flex gap-1">
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  onClick={() => handleRemoveDevice(device.id, device.name)}
-                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleRemoveDevice(device.id, device.name)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
                             )}
                           </div>
                         </div>
