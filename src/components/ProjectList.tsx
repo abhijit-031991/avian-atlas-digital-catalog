@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ interface Project {
   createdAt: string;
   uuid: string;
   users: string[];
-  devices: string[];
+  devices: { [key: string]: any };
 }
 
 interface ProjectListProps {
@@ -148,7 +149,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
             <CardContent className="pt-0">
               <div className="flex justify-between text-xs text-gray-500">
                 <span>{project.users.length} users</span>
-                <span>{project.devices.length} devices</span>
+                <span>{Object.keys(project.devices || {}).length} devices</span>
               </div>
             </CardContent>
           </Card>

@@ -14,16 +14,6 @@ import AddDeviceDialog from '@/components/AddDeviceDialog';
 import RemoveDeviceDialog from '@/components/RemoveDeviceDialog';
 import { useProjects } from '@/hooks/useProjects';
 
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  uuid: string;
-  users: string[];
-  devices: { [key: string]: any };
-}
-
 interface Device {
   id: string;
   name: string;
@@ -32,7 +22,7 @@ interface Device {
 const ProjectsUsersDevices = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
@@ -104,10 +94,8 @@ const ProjectsUsersDevices = () => {
     setJoinDialogOpen(false);
   };
 
-  const handleAddUser = async (email: string) => {
-    if (selectedProject) {
-      await addUser(email, selectedProject.id);
-    }
+  const handleAddUser = async (email: string, projectId: string, devices: string[]) => {
+    await addUser(email, projectId);
   };
 
   const handleDeleteProject = async (projectId: string) => {
@@ -147,7 +135,7 @@ const ProjectsUsersDevices = () => {
     }
   };
 
-  const isProjectOwner = (project: Project | null) => {
+  const isProjectOwner = (project: any) => {
     return project && currentUser && project.uuid === currentUser.uid;
   };
 
@@ -328,8 +316,8 @@ const ProjectsUsersDevices = () => {
       <AddUserDialog
         open={addUserDialogOpen}
         onOpenChange={setAddUserDialogOpen}
-        onAddUser={handleAddUser}
         projectId={selectedProject?.id || ''}
+        devices={Object.keys(selectedProject?.devices || {})}
       />
 
       <RemoveUserDialog
