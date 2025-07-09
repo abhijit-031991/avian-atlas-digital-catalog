@@ -167,11 +167,30 @@ export const useProjects = (currentUser: any) => {
         throw new Error('Invalid passkey data');
       }
 
+      // Get project data to check for existing devices
+      const projectRef = ref(database, `Projects/${projectId}`);
+      const projectSnapshot = await get(projectRef);
+      const projectData = projectSnapshot.val();
+
+      if (!projectData) {
+        throw new Error('Project not found');
+      }
+
+      // Add user to project
       const projectUserRef = ref(database, `Projects/${projectId}/Users/${currentUser.uid}`);
       await set(projectUserRef, true);
 
       const userProjectRef = ref(database, `Users/${currentUser.uid}/Projects/${projectId}`);
       await set(userProjectRef, true);
+
+      // Add all existing project devices to the new user
+      if (projectData.Devices) {
+        const deviceIds = Object.keys(projectData.Devices);
+        for (const deviceId of deviceIds) {
+          const userDeviceRef = ref(database, `Users/${currentUser.uid}/Devices/${deviceId}`);
+          await set(userDeviceRef, true);
+        }
+      }
 
       // Remove the passkey after successful join
       await remove(passkeyRef);
@@ -317,18 +336,35 @@ export const useProjects = (currentUser: any) => {
         throw new Error('Invalid device passkey');
       }
 
-      // Step 4: Add device to project and user
+      // Step 4: Get all project users
+      const projectRef = ref(database, `Projects/${projectId}`);
+      const projectSnapshot = await get(projectRef);
+      
+      if (!projectSnapshot.exists()) {
+        throw new Error('Project not found');
+      }
+
+      const projectData = projectSnapshot.val();
+      const projectUsers = projectData.Users || {};
+      const userIds = Object.keys(projectUsers);
+
+      // Step 5: Add device to project
       const projectDeviceRef = ref(database, `Projects/${projectId}/Devices/${deviceId}`);
       await set(projectDeviceRef, true);
 
-      const userDeviceRef = ref(database, `Users/${currentUser.uid}/Devices/${deviceId}`);
-      await set(userDeviceRef, true);
+      // Step 6: Add device to all project users
+      const userDevicePromises = userIds.map(async (userId) => {
+        const userDeviceRef = ref(database, `Users/${userId}/Devices/${deviceId}`);
+        return set(userDeviceRef, true);
+      });
 
-      // Step 5: Add device name to management
+      await Promise.all(userDevicePromises);
+
+      // Step 7: Add device name to management
       const deviceNameRef = ref(database, `tags/${deviceId}/Management/Device Name`);
       await set(deviceNameRef, deviceName);
 
-      // Step 6: Set provisioned to true
+      // Step 8: Set provisioned to true
       const provisionedRef = ref(database, `tags/${deviceId}/Management/prov`);
       await set(provisionedRef, true);
 
@@ -351,19 +387,35 @@ export const useProjects = (currentUser: any) => {
     if (!currentUser) throw new Error('User not authenticated');
 
     try {
-      // Remove device from project
+      // Step 1: Get all project users
+      const projectRef = ref(database, `Projects/${projectId}`);
+      const projectSnapshot = await get(projectRef);
+      
+      if (!projectSnapshot.exists()) {
+        throw new Error('Project not found');
+      }
+
+      const projectData = projectSnapshot.val();
+      const projectUsers = projectData.Users || {};
+      const userIds = Object.keys(projectUsers);
+
+      // Step 2: Remove device from project
       const projectDeviceRef = ref(database, `Projects/${projectId}/Devices/${deviceId}`);
       await remove(projectDeviceRef);
 
-      // Remove device from user
-      const userDeviceRef = ref(database, `Users/${currentUser.uid}/Devices/${deviceId}`);
-      await remove(userDeviceRef);
+      // Step 3: Remove device from all project users
+      const userDevicePromises = userIds.map(async (userId) => {
+        const userDeviceRef = ref(database, `Users/${userId}/Devices/${deviceId}`);
+        return remove(userDeviceRef);
+      });
 
-      // Set provisioned to false
+      await Promise.all(userDevicePromises);
+
+      // Step 4: Set provisioned to false
       const provisionedRef = ref(database, `tags/${deviceId}/Management/prov`);
       await set(provisionedRef, false);
 
-      // Remove device name
+      // Step 5: Remove device name
       const deviceNameRef = ref(database, `tags/${deviceId}/Management/Device Name`);
       await remove(deviceNameRef);
 
