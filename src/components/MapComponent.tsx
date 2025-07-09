@@ -1,9 +1,8 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { database } from '@/config/firebase';
 import { ref, onValue, get } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Search, MapPin, Plus, Users } from 'lucide-react';
+import { Loader2, Search, MapPin, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -78,6 +77,7 @@ const MapComponent = () => {
       mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
         center: { lat: 20.5937, lng: 78.9629 }, // Center of India
         zoom: 5,
+        mapTypeId: 'satellite', // Set to satellite view
         styles: [
           {
             featureType: 'water',
@@ -300,16 +300,10 @@ const MapComponent = () => {
           <p className="text-gray-600 mb-6">
             You don't have any devices associated with your account. To start tracking, you need to either create a project and add devices or join an existing project.
           </p>
-          <div className="space-y-3">
-            <Button onClick={() => navigate('/projects-users')} className="w-full">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Project
-            </Button>
-            <Button onClick={() => navigate('/projects-users')} variant="outline" className="w-full">
-              <Users className="h-4 w-4 mr-2" />
-              Join Project
-            </Button>
-          </div>
+          <Button onClick={() => navigate('/projects-users')} className="w-full">
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Go to Projects
+          </Button>
         </div>
       </div>
     );
