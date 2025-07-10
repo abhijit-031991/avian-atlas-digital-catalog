@@ -9,6 +9,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from '@/components/ui/table';
 import { database } from '@/config/firebase';
 import { ref, get, update } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +39,21 @@ const DeviceSettingsDialog: React.FC<DeviceSettingsDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+
+  // Mapping of keys to friendly labels
+  const settingLabels: { [key: string]: string } = {
+    "DNACC": "Download IMU Data",
+    "DNALL": "Download All Data",
+    "GFRQ": "GPS Frequency",
+    "GTO": "GPS Timeout",
+    "HDOP": "GPS Accuracy",
+    "IFRQ": "IMU Sampling Frequency",
+    "ISPL": "No. of IMU Samples",
+    "TFRQ": "Transmission Frequency"
+  };
+
+  // Keys to hide from display
+  const hiddenKeys = ["NEW", "id"];
 
   useEffect(() => {
     if (open && deviceId) {
@@ -87,7 +108,7 @@ const DeviceSettingsDialog: React.FC<DeviceSettingsDialogProps> = ({
       
       toast({
         title: "Success",
-        description: "Device settings updated successfully",
+        description: "Device settings updated successfully. The device will ingest the settings next time it connects to the server.",
       });
       onOpenChange(false);
     } catch (error) {
@@ -102,28 +123,12 @@ const DeviceSettingsDialog: React.FC<DeviceSettingsDialogProps> = ({
     }
   };
 
-  const renderSettingInput = (key: string, value: any) => {
-    const inputType = typeof value === 'number' ? 'number' : 'text';
-    
-    return (
-      <div key={key} className="space-y-2">
-        <Label htmlFor={key} className="text-sm font-medium">
-          {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-        </Label>
-        <Input
-          id={key}
-          type={inputType}
-          value={value?.toString() || ''}
-          onChange={(e) => handleSettingChange(key, e.target.value)}
-          placeholder={`Enter ${key}`}
-        />
-      </div>
-    );
-  };
+  // Filter out hidden keys and get displayable settings
+  const displayableSettings = Object.entries(settings).filter(([key]) => !hiddenKeys.includes(key));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Device Settings - {deviceId}</DialogTitle>
         </DialogHeader>
@@ -135,15 +140,35 @@ const DeviceSettingsDialog: React.FC<DeviceSettingsDialogProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            {Object.keys(settings).length === 0 ? (
+            {displayableSettings.length === 0 ? (
               <p className="text-center text-gray-500 py-4">
                 No settings available for this device
               </p>
             ) : (
               <div className="space-y-4">
-                {Object.entries(settings).map(([key, value]) =>
-                  renderSettingInput(key, value)
-                )}
+                <Table>
+                  <TableBody>
+                    {displayableSettings.map(([key, value]) => (
+                      <TableRow key={key}>
+                        <TableCell className="font-medium w-1/2">
+                          <Label htmlFor={key} className="text-sm">
+                            {settingLabels[key] || key}
+                          </Label>
+                        </TableCell>
+                        <TableCell className="w-1/2">
+                          <Input
+                            id={key}
+                            type={typeof value === 'number' ? 'number' : 'text'}
+                            value={value?.toString() || ''}
+                            onChange={(e) => handleSettingChange(key, e.target.value)}
+                            placeholder={`Enter ${settingLabels[key] || key}`}
+                            className="w-full"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
             
@@ -153,7 +178,7 @@ const DeviceSettingsDialog: React.FC<DeviceSettingsDialogProps> = ({
               </Button>
               <Button 
                 onClick={handleSaveSettings} 
-                disabled={saving || Object.keys(settings).length === 0}
+                disabled={saving || displayableSettings.length === 0}
               >
                 {saving ? (
                   <>
