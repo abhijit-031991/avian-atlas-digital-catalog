@@ -10,18 +10,6 @@ const Navigation = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleContactClick = () => {
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMenuOpen(false);
-  };
-
-  const handleTrackingClick = () => {
-    window.location.href = '/tracking/tracking.html';
-  };
-
   const handleNavClick = (sectionId: string) => {
     const section = document.getElementById(sectionId);
     if (section) {
@@ -83,7 +71,6 @@ const Navigation = () => {
             >
               Contact
             </button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleTrackingClick}>Tracking</Button>
             
             {/* ArcTrack Central Button */}
             <Button onClick={handleArcTrackCentralClick} className="bg-green-600 hover:bg-green-700">
@@ -131,9 +118,6 @@ const Navigation = () => {
             >
               Contact
             </button>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-2" onClick={handleTrackingClick}>
-              Tracking
-            </Button>
             
             {/* Mobile ArcTrack Central Button */}
             <Button className="w-full bg-green-600 hover:bg-green-700" onClick={handleArcTrackCentralClick}>
