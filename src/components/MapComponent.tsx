@@ -76,7 +76,7 @@ const MapComponent = () => {
     const initializeMap = () => {
       mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
         center: { lat: 20.5937, lng: 78.9629 }, // Center of India
-        zoom: 5,
+        zoom: 4,
         mapTypeId: 'satellite', // Set to satellite view
         styles: [
           {
