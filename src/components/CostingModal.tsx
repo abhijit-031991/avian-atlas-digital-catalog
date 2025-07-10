@@ -290,12 +290,9 @@ const CostingModal = ({ isOpen, onClose }: CostingModalProps) => {
           </div>
         </div>
 
-        <div className="p-6 border-t bg-gray-50 flex justify-end space-x-4">
+        <div className="p-6 border-t bg-gray-50 flex justify-end">
           <Button variant="outline" onClick={onClose}>
             Close
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            Request Custom Quote
           </Button>
         </div>
       </div>
