@@ -7,11 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import DeviceDetailsDialog from './DeviceDetailsDialog';
+import ChangeIconDialog from './ChangeIconDialog';
+import DeviceSettingsDialog from './DeviceSettingsDialog';
 
 declare global {
   interface Window {
     google: any;
     initMap: () => void;
+    showDeviceDetails: (deviceId: string) => void;
+    showChangeIcon: (deviceId: string) => void;
+    showDeviceSettings: (deviceId: string) => void;
   }
 }
 
@@ -25,6 +31,8 @@ interface DeviceData {
   accuracy: number;
   dataCount: number;
   img?: string;
+  lastGPSFix?: number;
+  timeToFix?: number;
 }
 
 const MapComponent = () => {
@@ -41,6 +49,12 @@ const MapComponent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Dialog states
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [changeIconDialogOpen, setChangeIconDialogOpen] = useState(false);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [selectedDeviceData, setSelectedDeviceData] = useState<DeviceData | null>(null);
 
   // Load Google Maps script
   useEffect(() => {
@@ -197,6 +211,40 @@ const MapComponent = () => {
     mapInstanceRef.current.setZoom(5);
   }, [devices, mapLoaded]);
 
+  // Global functions for info window buttons
+  useEffect(() => {
+    window.showDeviceDetails = (deviceId: string) => {
+      const device = devices.find(d => d.deviceId === deviceId);
+      if (device) {
+        setSelectedDeviceData({
+          ...device,
+          lastGPSFix: device.lastContact, // Using lastContact as lastGPSFix for now
+          timeToFix: device.timeToFix || 0
+        });
+        setDetailsDialogOpen(true);
+      }
+    };
+
+    window.showChangeIcon = (deviceId: string) => {
+      const device = devices.find(d => d.deviceId === deviceId);
+      if (device) {
+        setSelectedDeviceData(device);
+        setChangeIconDialogOpen(true);
+      }
+    };
+
+    window.showDeviceSettings = (deviceId: string) => {
+      setSelectedDevice(deviceId);
+      setSettingsDialogOpen(true);
+    };
+
+    return () => {
+      delete window.showDeviceDetails;
+      delete window.showChangeIcon;
+      delete window.showDeviceSettings;
+    };
+  }, [devices]);
+
   const showInfoWindow = (device: DeviceData, marker: any) => {
     const formatDate = (timestamp: number) => {
       if (!timestamp) return 'Unknown';
@@ -204,7 +252,7 @@ const MapComponent = () => {
     };
 
     const content = `
-      <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 280px; padding: 8px;">
+      <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 300px; padding: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #3b82f6;">
           <h3 style="margin: 0; color: #3b82f6; font-weight: bold; font-size: 16px;">Device: ${device.deviceId}</h3>
           <div style="display: flex; gap: 8px;">
@@ -228,14 +276,22 @@ const MapComponent = () => {
           <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${formatDate(device.lastContact)}</div>
         </div>
         
-        <div style="display: flex; gap: 8px; margin-top: 12px;">
-          <button onclick="window.open('/tracking/deviceDetails.html?deviceId=${device.deviceId}', '_blank')" 
-                  style="flex: 1; background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">
-            View Details
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
+          <button onclick="window.showDeviceDetails('${device.deviceId}')" 
+                  style="background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">
+            Device Details
           </button>
           <button onclick="downloadDeviceData('${device.deviceId}')" 
-                  style="flex: 1; background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">
+                  style="background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">
             Download Data
+          </button>
+          <button onclick="window.showChangeIcon('${device.deviceId}')" 
+                  style="background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">
+            Change Icon
+          </button>
+          <button onclick="window.showDeviceSettings('${device.deviceId}')" 
+                  style="background: #8b5cf6; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">
+            Update Settings
           </button>
         </div>
       </div>
@@ -244,6 +300,27 @@ const MapComponent = () => {
     infoWindowRef.current.setContent(content);
     infoWindowRef.current.open(mapInstanceRef.current, marker);
     setSelectedDevice(device.deviceId);
+  };
+
+  const handleIconChange = (deviceId: string, newIcon: string) => {
+    // Update the devices state
+    setDevices(prevDevices => 
+      prevDevices.map(device => 
+        device.deviceId === deviceId 
+          ? { ...device, img: newIcon }
+          : device
+      )
+    );
+
+    // Update the marker icon
+    const marker = markersRef.current[deviceId];
+    if (marker) {
+      marker.setIcon({
+        url: `/tracking/markers/${newIcon}`,
+        scaledSize: new window.google.maps.Size(35, 35),
+        anchor: new window.google.maps.Point(17, 35)
+      });
+    }
   };
 
   const searchDevice = () => {
@@ -296,89 +373,112 @@ const MapComponent = () => {
   }
 
   return (
-    <div className="relative w-full h-[600px] bg-gray-50 rounded-lg overflow-hidden shadow-lg">
-      {/* Search Bar */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-        <Card className="shadow-lg">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-2">
-              <Input
-                type="text"
-                placeholder="Search devices..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && searchDevice()}
-                className="w-64"
-              />
-              <Button onClick={searchDevice} size="sm">
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Device Count - moved to bottom left */}
-      <div className="absolute bottom-4 left-4 z-10">
-        <Card className="shadow-lg">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <MapPin className="h-4 w-4 text-blue-600" />
-              <span>{devices.length} Devices</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Map Container */}
-      <div ref={mapRef} className="w-full h-full" />
-
-      {/* Loading Overlay */}
-      {loading && (
-        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-20">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
-            <p className="text-gray-600">Loading devices...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Device List (when searching) - moved up to avoid overlapping with device count */}
-      {searchTerm && (
-        <div className="absolute bottom-20 left-4 z-10 max-w-sm">
-          <Card className="shadow-lg max-h-60 overflow-y-auto">
+    <>
+      <div className="relative w-full h-[600px] bg-gray-50 rounded-lg overflow-hidden shadow-lg">
+        {/* Search Bar */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+          <Card className="shadow-lg">
             <CardContent className="p-3">
-              <div className="space-y-2">
-                {filteredDevices.length === 0 ? (
-                  <p className="text-sm text-gray-500">No devices found</p>
-                ) : (
-                  filteredDevices.map((device) => (
-                    <div
-                      key={device.deviceId}
-                      className="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer"
-                      onClick={() => {
-                        const marker = markersRef.current[device.deviceId];
-                        if (marker) {
-                          mapInstanceRef.current.setCenter({ lat: device.lat, lng: device.lng });
-                          mapInstanceRef.current.setZoom(12);
-                          showInfoWindow(device, marker);
-                        }
-                      }}
-                    >
-                      <div>
-                        <p className="font-medium text-sm">{device.deviceId}</p>
-                        <p className="text-xs text-gray-500">Battery: {device.battery}%</p>
-                      </div>
-                      <MapPin className="h-4 w-4 text-blue-600" />
-                    </div>
-                  ))
-                )}
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="Search devices..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && searchDevice()}
+                  className="w-64"
+                />
+                <Button onClick={searchDevice} size="sm">
+                  <Search className="h-4 w-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
-      )}
-    </div>
+
+        {/* Device Count - moved to bottom left */}
+        <div className="absolute bottom-4 left-4 z-10">
+          <Card className="shadow-lg">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <MapPin className="h-4 w-4 text-blue-600" />
+                <span>{devices.length} Devices</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Map Container */}
+        <div ref={mapRef} className="w-full h-full" />
+
+        {/* Loading Overlay */}
+        {loading && (
+          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-20">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
+              <p className="text-gray-600">Loading devices...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Device List (when searching) - moved up to avoid overlapping with device count */}
+        {searchTerm && (
+          <div className="absolute bottom-20 left-4 z-10 max-w-sm">
+            <Card className="shadow-lg max-h-60 overflow-y-auto">
+              <CardContent className="p-3">
+                <div className="space-y-2">
+                  {filteredDevices.length === 0 ? (
+                    <p className="text-sm text-gray-500">No devices found</p>
+                  ) : (
+                    filteredDevices.map((device) => (
+                      <div
+                        key={device.deviceId}
+                        className="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer"
+                        onClick={() => {
+                          const marker = markersRef.current[device.deviceId];
+                          if (marker) {
+                            mapInstanceRef.current.setCenter({ lat: device.lat, lng: device.lng });
+                            mapInstanceRef.current.setZoom(12);
+                            showInfoWindow(device, marker);
+                          }
+                        }}
+                      >
+                        <div>
+                          <p className="font-medium text-sm">{device.deviceId}</p>
+                          <p className="text-xs text-gray-500">Battery: {device.battery}%</p>
+                        </div>
+                        <MapPin className="h-4 w-4 text-blue-600" />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+
+      {/* Dialogs */}
+      <DeviceDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        device={selectedDeviceData}
+      />
+
+      <ChangeIconDialog
+        open={changeIconDialogOpen}
+        onOpenChange={setChangeIconDialogOpen}
+        deviceId={selectedDeviceData?.deviceId || null}
+        currentIcon={selectedDeviceData?.img || ''}
+        onIconChange={(newIcon) => handleIconChange(selectedDeviceData?.deviceId || '', newIcon)}
+      />
+
+      <DeviceSettingsDialog
+        open={settingsDialogOpen}
+        onOpenChange={setSettingsDialogOpen}
+        deviceId={selectedDevice}
+      />
+    </>
   );
 };
 
