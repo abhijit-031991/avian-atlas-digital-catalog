@@ -298,74 +298,78 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
       </CardHeader>
       
       <CardContent>
-        <div className="rounded-md border max-h-96 overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="h-8">
-                <TableHead className="w-16 text-xs">Point ID</TableHead>
-                <TableHead className="w-20 text-xs">ID</TableHead>
-                <TableHead className="w-32 text-xs">Timestamp</TableHead>
-                <TableHead className="w-24 text-xs">Locktime</TableHead>
-                <TableHead className="w-24 text-xs">Latitude</TableHead>
-                <TableHead className="w-24 text-xs">Longitude</TableHead>
-                <TableHead className="w-16 text-xs">HDOP</TableHead>
-                <TableHead className="w-16 text-xs">Count</TableHead>
-                <TableHead className="w-16 text-xs">Satellites</TableHead>
-                <TableHead className="w-16 text-xs">Speed</TableHead>
-                <TableHead className="w-20 text-xs">Activity</TableHead>
-                <TableHead className="w-16 text-xs">AX</TableHead>
-                <TableHead className="w-16 text-xs">AY</TableHead>
-                <TableHead className="w-16 text-xs">AZ</TableHead>
-                <TableHead className="w-32 text-xs">Created At</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={15} className="text-center py-8">
-                    <div className="flex items-center justify-center">
-                      <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                      Loading data...
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : filteredData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={15} className="text-center py-8 text-gray-500">
-                    No data found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredData.map((row, index) => (
-                  <TableRow key={index} className="h-8">
-                    <TableCell className="text-xs py-1">{row.pointid}</TableCell>
-                    <TableCell className="text-xs py-1">{row.id}</TableCell>
-                    <TableCell className="font-mono text-xs py-1">
-                      {new Date(row.timestamp).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs py-1">{row.locktime}</TableCell>
-                    <TableCell className="font-mono text-xs py-1">{row.latitude.toFixed(6)}</TableCell>
-                    <TableCell className="font-mono text-xs py-1">{row.longitude.toFixed(6)}</TableCell>
-                    <TableCell className="text-xs py-1">{row.hdop?.toFixed(2) || 'N/A'}</TableCell>
-                    <TableCell className="text-xs py-1">{row.count}</TableCell>
-                    <TableCell className="text-xs py-1">{row.satellites || 'N/A'}</TableCell>
-                    <TableCell className="text-xs py-1">{row.speed ? `${row.speed} km/h` : 'N/A'}</TableCell>
-                    <TableCell className="py-1">
-                      <Badge variant={row.activity ? "default" : "secondary"} className="text-xs">
-                        {row.activity ? "Active" : "Inactive"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs py-1">{row.ax?.toFixed(2) || 'N/A'}</TableCell>
-                    <TableCell className="text-xs py-1">{row.ay?.toFixed(2) || 'N/A'}</TableCell>
-                    <TableCell className="text-xs py-1">{row.az?.toFixed(2) || 'N/A'}</TableCell>
-                    <TableCell className="font-mono text-xs py-1">
-                      {row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'}
-                    </TableCell>
+        <div className="w-full overflow-x-auto">
+          <div className="rounded-md border min-w-[1400px]">
+            <div className="max-h-96 overflow-y-auto">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white z-10">
+                  <TableRow className="h-8">
+                    <TableHead className="w-16 text-xs font-medium">Point ID</TableHead>
+                    <TableHead className="w-20 text-xs font-medium">ID</TableHead>
+                    <TableHead className="w-32 text-xs font-medium">Timestamp</TableHead>
+                    <TableHead className="w-24 text-xs font-medium">Locktime</TableHead>
+                    <TableHead className="w-24 text-xs font-medium">Latitude</TableHead>
+                    <TableHead className="w-24 text-xs font-medium">Longitude</TableHead>
+                    <TableHead className="w-16 text-xs font-medium">HDOP</TableHead>
+                    <TableHead className="w-16 text-xs font-medium">Count</TableHead>
+                    <TableHead className="w-20 text-xs font-medium">Satellites</TableHead>
+                    <TableHead className="w-16 text-xs font-medium">Speed</TableHead>
+                    <TableHead className="w-20 text-xs font-medium">Activity</TableHead>
+                    <TableHead className="w-16 text-xs font-medium">AX</TableHead>
+                    <TableHead className="w-16 text-xs font-medium">AY</TableHead>
+                    <TableHead className="w-16 text-xs font-medium">AZ</TableHead>
+                    <TableHead className="w-32 text-xs font-medium">Created At</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={15} className="text-center py-8">
+                        <div className="flex items-center justify-center">
+                          <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                          Loading data...
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={15} className="text-center py-8 text-gray-500">
+                        No data found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredData.map((row, index) => (
+                      <TableRow key={index} className="h-6">
+                        <TableCell className="text-xs py-1 px-2">{row.pointid}</TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.id}</TableCell>
+                        <TableCell className="font-mono text-xs py-1 px-2">
+                          {new Date(row.timestamp).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs py-1 px-2">{row.locktime}</TableCell>
+                        <TableCell className="font-mono text-xs py-1 px-2">{row.latitude.toFixed(6)}</TableCell>
+                        <TableCell className="font-mono text-xs py-1 px-2">{row.longitude.toFixed(6)}</TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.hdop?.toFixed(2) || 'N/A'}</TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.count}</TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.satellites || 'N/A'}</TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.speed ? `${row.speed} km/h` : 'N/A'}</TableCell>
+                        <TableCell className="py-1 px-2">
+                          <Badge variant={row.activity ? "default" : "secondary"} className="text-xs px-1 py-0">
+                            {row.activity ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.ax?.toFixed(2) || 'N/A'}</TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.ay?.toFixed(2) || 'N/A'}</TableCell>
+                        <TableCell className="text-xs py-1 px-2">{row.az?.toFixed(2) || 'N/A'}</TableCell>
+                        <TableCell className="font-mono text-xs py-1 px-2">
+                          {row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

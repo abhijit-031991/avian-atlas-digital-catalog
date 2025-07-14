@@ -11,10 +11,11 @@ import {
   TrendingUp, 
   Calculator, 
   FileText, 
-  Send, 
+  Send,
+  Activity,
+  MapPin,
   Clock,
-  CheckCircle,
-  AlertCircle
+  Zap
 } from 'lucide-react';
 
 interface StatisticsPanelProps {
@@ -22,19 +23,9 @@ interface StatisticsPanelProps {
   deviceName: string;
 }
 
-interface AnalysisRequest {
-  id: string;
-  type: string;
-  description: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  timestamp: Date;
-  result?: string;
-}
-
 const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
   const [analysisType, setAnalysisType] = useState('');
   const [description, setDescription] = useState('');
-  const [requests, setRequests] = useState<AnalysisRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -59,47 +50,18 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
     setLoading(true);
     
     try {
-      const newRequest: AnalysisRequest = {
-        id: `req_${Date.now()}`,
-        type: analysisType,
-        description: description.trim(),
-        status: 'pending',
-        timestamp: new Date()
-      };
-
       // Simulate API call to backend
-      setRequests(prev => [newRequest, ...prev]);
-      
-      // Simulate processing
       setTimeout(() => {
-        setRequests(prev => prev.map(req => 
-          req.id === newRequest.id 
-            ? { ...req, status: 'processing' }
-            : req
-        ));
+        toast({
+          title: 'Request Submitted',
+          description: 'Your analysis request has been submitted to our backend server'
+        });
+        
+        // Clear form
+        setDescription('');
+        setAnalysisType('');
+        setLoading(false);
       }, 1000);
-
-      // Simulate completion
-      setTimeout(() => {
-        setRequests(prev => prev.map(req => 
-          req.id === newRequest.id 
-            ? { 
-                ...req, 
-                status: 'completed',
-                result: `Analysis completed for ${deviceName}. Statistical report has been generated and will be available for download shortly.`
-              }
-            : req
-        ));
-      }, 5000);
-
-      toast({
-        title: 'Request Submitted',
-        description: 'Your analysis request has been submitted to our backend server'
-      });
-
-      // Clear form
-      setDescription('');
-      setAnalysisType('');
       
     } catch (error) {
       toast({
@@ -107,40 +69,36 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
         description: 'Failed to submit analysis request',
         variant: 'destructive'
       });
-    } finally {
       setLoading(false);
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'processing':
-        return <div className="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />;
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'failed':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
-      default:
-        return null;
+  const commonStats = [
+    {
+      title: 'Average Speed',
+      value: deviceId ? '24.5 km/h' : 'N/A',
+      icon: TrendingUp,
+      color: 'text-blue-600'
+    },
+    {
+      title: 'Total Distance',
+      value: deviceId ? '156.7 km' : 'N/A',
+      icon: MapPin,
+      color: 'text-green-600'
+    },
+    {
+      title: 'Active Time',
+      value: deviceId ? '8.5 hours' : 'N/A',
+      icon: Clock,
+      color: 'text-orange-600'
+    },
+    {
+      title: 'Data Points',
+      value: deviceId ? '1,247' : 'N/A',
+      icon: Activity,
+      color: 'text-purple-600'
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'default';
-      case 'processing':
-        return 'secondary';
-      case 'completed':
-        return 'default';
-      case 'failed':
-        return 'destructive';
-      default:
-        return 'outline';
-    }
-  };
+  ];
 
   return (
     <div className="h-64 bg-white border-t border-gray-200 flex gap-4 p-4">
@@ -196,52 +154,35 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
         </CardContent>
       </Card>
 
-      {/* Recent Requests */}
+      {/* Common Statistics */}
       <Card className="flex-1">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Recent Analysis Requests
+            <BarChart3 className="h-4 w-4" />
+            Common Statistics
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2 max-h-32 overflow-y-auto">
-            {requests.length === 0 ? (
-              <div className="text-center text-gray-500 py-4">
-                <FileText className="h-6 w-6 mx-auto mb-2 text-gray-300" />
-                <p className="text-xs">No requests yet</p>
-              </div>
-            ) : (
-              requests.map(request => (
-                <div key={request.id} className="flex items-start gap-2 p-2 border rounded-lg">
-                  <div className="mt-0.5">
-                    {getStatusIcon(request.status)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-xs font-medium truncate">
-                        {analysisTypes.find(t => t.value === request.type)?.label || request.type}
-                      </p>
-                      <Badge variant={getStatusColor(request.status) as any} className="text-xs">
-                        {request.status}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-600 truncate">
-                      {request.description}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {request.timestamp.toLocaleTimeString()}
-                    </p>
-                    {request.result && (
-                      <p className="text-xs text-green-600 mt-1">
-                        {request.result}
-                      </p>
-                    )}
-                  </div>
+          <div className="grid grid-cols-2 gap-3">
+            {commonStats.map((stat, index) => (
+              <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                <div className={`${stat.color}`}>
+                  <stat.icon className="h-5 w-5" />
                 </div>
-              ))
-            )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-gray-900">{stat.title}</p>
+                  <p className="text-sm font-semibold text-gray-700">{stat.value}</p>
+                </div>
+              </div>
+            ))}
           </div>
+          
+          {!deviceId && (
+            <div className="text-center text-gray-500 py-4 mt-2">
+              <Activity className="h-6 w-6 mx-auto mb-2 text-gray-300" />
+              <p className="text-xs">Select a device to view statistics</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
