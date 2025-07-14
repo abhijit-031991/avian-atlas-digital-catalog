@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { database } from '@/config/firebase';
 import { ref, onValue, push, set, get, remove } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Project {
   id: string;
@@ -367,6 +368,28 @@ export const useProjects = (currentUser: any) => {
       // Step 8: Set provisioned to true
       const provisionedRef = ref(database, `tags/${deviceId}/Management/prov`);
       await set(provisionedRef, true);
+
+      // Step 9: Create device tracking table in Supabase
+      try {
+        const { data, error } = await supabase.functions.invoke('create-device-table', {
+          body: { deviceId }
+        });
+
+        if (error) {
+          console.error('Error creating device table:', error);
+          // Don't fail the entire operation if table creation fails
+          toast({
+            title: 'Warning',
+            description: 'Device added but tracking table creation failed. You may need to create it manually.',
+            variant: 'destructive'
+          });
+        } else {
+          console.log('Device table created successfully:', data);
+        }
+      } catch (tableError) {
+        console.error('Error calling create-device-table function:', tableError);
+        // Don't fail the entire operation if table creation fails
+      }
 
       toast({
         title: 'Success',

@@ -20,7 +20,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_device_table: {
+        Args: { device_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
