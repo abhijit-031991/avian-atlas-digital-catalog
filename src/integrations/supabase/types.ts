@@ -14,13 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      "11111": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_device_table: {
+        Args: { device_id: string }
+        Returns: undefined
+      }
+      create_table_dynamic: {
+        Args: { table_name: string; table_schema: string }
+        Returns: Json
+      }
+      exec_sql: {
+        Args: { sql: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
