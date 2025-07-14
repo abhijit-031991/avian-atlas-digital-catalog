@@ -26,6 +26,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentPointIndex, setCurrentPointIndex] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
 
   // Sample data - in real app, this would come from props or API
   const trackData: DataPoint[] = [
@@ -36,20 +37,39 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
     { timestamp: Date.now() - 1200000, latitude: 28.6179, longitude: 77.2130, speed: 0, activity: false },
   ];
 
+  // Load Google Maps API
   useEffect(() => {
-    const checkGoogleMaps = () => {
-      if (window.google && window.google.maps && mapRef.current) {
-        initializeMap();
-        setMapLoaded(true);
-      } else {
-        setTimeout(checkGoogleMaps, 100);
+    const loadGoogleMaps = () => {
+      if (window.google && window.google.maps) {
+        setGoogleMapsLoaded(true);
+        return;
       }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        setGoogleMapsLoaded(true);
+      };
+      script.onerror = () => {
+        console.error('Failed to load Google Maps API');
+      };
+      document.head.appendChild(script);
     };
-    checkGoogleMaps();
+
+    loadGoogleMaps();
   }, []);
 
+  useEffect(() => {
+    if (googleMapsLoaded && mapRef.current) {
+      initializeMap();
+      setMapLoaded(true);
+    }
+  }, [googleMapsLoaded]);
+
   const initializeMap = () => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !window.google) return;
 
     mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
       center: { lat: 28.6139, lng: 77.2090 },
@@ -72,7 +92,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   };
 
   const drawPath = () => {
-    if (!mapInstanceRef.current || trackData.length === 0) return;
+    if (!mapInstanceRef.current || trackData.length === 0 || !window.google) return;
 
     // Clear existing markers and path
     clearMap();
@@ -83,7 +103,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
       lng: point.longitude,
     }));
 
-    pathRef.current = new google.maps.Polyline({
+    pathRef.current = new window.google.maps.Polyline({
       path: pathCoordinates,
       geodesic: true,
       strokeColor: '#3B82F6',
@@ -94,12 +114,12 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
     pathRef.current.setMap(mapInstanceRef.current);
 
     // Add markers for start and end points
-    const startMarker = new google.maps.Marker({
+    const startMarker = new window.google.maps.Marker({
       position: pathCoordinates[0],
       map: mapInstanceRef.current,
       title: 'Start Point',
       icon: {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: window.google.maps.SymbolPath.CIRCLE,
         fillColor: '#10B981',
         fillOpacity: 1,
         strokeColor: '#065F46',
@@ -108,12 +128,12 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
       },
     });
 
-    const endMarker = new google.maps.Marker({
+    const endMarker = new window.google.maps.Marker({
       position: pathCoordinates[pathCoordinates.length - 1],
       map: mapInstanceRef.current,
       title: 'End Point',
       icon: {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: window.google.maps.SymbolPath.CIRCLE,
         fillColor: '#EF4444',
         fillOpacity: 1,
         strokeColor: '#991B1B',
@@ -125,7 +145,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
     markersRef.current = [startMarker, endMarker];
 
     // Fit bounds to show all points
-    const bounds = new google.maps.LatLngBounds();
+    const bounds = new window.google.maps.LatLngBounds();
     pathCoordinates.forEach(coord => bounds.extend(coord));
     mapInstanceRef.current.fitBounds(bounds);
   };
@@ -142,7 +162,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   };
 
   const startAnimation = () => {
-    if (!mapInstanceRef.current || trackData.length === 0) return;
+    if (!mapInstanceRef.current || trackData.length === 0 || !window.google) return;
 
     setIsAnimating(true);
     setCurrentPointIndex(0);
@@ -150,7 +170,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   };
 
   const animateToNextPoint = (index: number) => {
-    if (index >= trackData.length || !isAnimating) {
+    if (index >= trackData.length || !isAnimating || !window.google) {
       setIsAnimating(false);
       return;
     }
@@ -159,19 +179,19 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
     const position = { lat: point.latitude, lng: point.longitude };
 
     // Create animated marker
-    const animatedMarker = new google.maps.Marker({
+    const animatedMarker = new window.google.maps.Marker({
       position,
       map: mapInstanceRef.current,
       title: `Point ${index + 1} - Speed: ${point.speed} km/h`,
       icon: {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: window.google.maps.SymbolPath.CIRCLE,
         fillColor: point.activity ? '#3B82F6' : '#6B7280',
         fillOpacity: 1,
         strokeColor: '#FFFFFF',
         strokeWeight: 2,
         scale: 6,
       },
-      animation: google.maps.Animation.DROP,
+      animation: window.google.maps.Animation.DROP,
     });
 
     markersRef.current.push(animatedMarker);
@@ -261,11 +281,19 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
           ref={mapRef} 
           className="w-full h-96 rounded-lg border bg-gray-100"
         >
-          {!mapLoaded && (
+          {!googleMapsLoaded && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-gray-500">
                 <MapPin className="h-8 w-8 mx-auto mb-2 animate-pulse" />
-                <p className="text-sm">Loading map...</p>
+                <p className="text-sm">Loading Google Maps...</p>
+              </div>
+            </div>
+          )}
+          {googleMapsLoaded && !mapLoaded && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-gray-500">
+                <MapPin className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                <p className="text-sm">Initializing map...</p>
               </div>
             </div>
           )}
