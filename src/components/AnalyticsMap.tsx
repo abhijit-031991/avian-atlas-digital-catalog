@@ -46,7 +46,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAsbF6BOz9gEXTFgwBYx1fi6nCfO1kN1bs&libraries=geometry`;
       script.async = true;
       script.defer = true;
       script.onload = () => {

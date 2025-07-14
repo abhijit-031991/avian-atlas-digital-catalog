@@ -19,19 +19,21 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 interface DataPoint {
+  pointid: number;
+  id: number;
   timestamp: number;
   locktime: number;
   latitude: number;
   longitude: number;
-  hdop: number;
+  hdop: number | null;
   count: number;
-  satellites: number;
-  speed: number;
-  activity: boolean;
-  ax: number;
-  ay: number;
-  az: number;
-  created_at?: string;
+  satellites: number | null;
+  speed: number | null;
+  activity: boolean | null;
+  ax: number | null;
+  ay: number | null;
+  az: number | null;
+  created_at: string | null;
 }
 
 interface DataTableProps {
@@ -54,9 +56,11 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
     setLoading(true);
     try {
       // This would typically fetch from your Supabase device table
-      // For now, we'll simulate some data
+      // For now, we'll simulate some data with all fields
       const simulatedData: DataPoint[] = [
         {
+          pointid: 1,
+          id: 1001,
           timestamp: Date.now() - 86400000,
           locktime: 1234567890,
           latitude: 28.6139,
@@ -72,6 +76,8 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
           created_at: new Date(Date.now() - 86400000).toISOString()
         },
         {
+          pointid: 2,
+          id: 1002,
           timestamp: Date.now() - 43200000,
           locktime: 1234567891,
           latitude: 28.6129,
@@ -85,6 +91,23 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
           ay: 0.15,
           az: 9.85,
           created_at: new Date(Date.now() - 43200000).toISOString()
+        },
+        {
+          pointid: 3,
+          id: 1003,
+          timestamp: Date.now() - 21600000,
+          locktime: 1234567892,
+          latitude: 28.6149,
+          longitude: 77.2100,
+          hdop: 0.9,
+          count: 102,
+          satellites: 9,
+          speed: 15,
+          activity: true,
+          ax: -0.02,
+          ay: 0.18,
+          az: 9.79,
+          created_at: new Date(Date.now() - 21600000).toISOString()
         }
       ];
       
@@ -131,8 +154,10 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
 
   const exportData = () => {
     const csvContent = [
-      ['Timestamp', 'Locktime', 'Latitude', 'Longitude', 'HDOP', 'Count', 'Satellites', 'Speed', 'Activity', 'AX', 'AY', 'AZ'],
+      ['Point ID', 'ID', 'Timestamp', 'Locktime', 'Latitude', 'Longitude', 'HDOP', 'Count', 'Satellites', 'Speed', 'Activity', 'AX', 'AY', 'AZ', 'Created At'],
       ...data.map(row => [
+        row.pointid,
+        row.id,
         row.timestamp,
         row.locktime,
         row.latitude,
@@ -144,7 +169,8 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
         row.activity,
         row.ax,
         row.ay,
-        row.az
+        row.az,
+        row.created_at
       ])
     ].map(row => row.join(',')).join('\n');
 
@@ -160,7 +186,8 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
   const filteredData = data.filter(item => {
     const matchesSearch = searchTerm === '' || 
       item.latitude.toString().includes(searchTerm) ||
-      item.longitude.toString().includes(searchTerm);
+      item.longitude.toString().includes(searchTerm) ||
+      item.id.toString().includes(searchTerm);
     
     const itemDate = new Date(item.timestamp);
     const matchesDateRange = (!startDate || itemDate >= startDate) && 
@@ -228,7 +255,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
         
         <div className="flex items-center gap-2 mt-4">
           <Input
-            placeholder="Search coordinates..."
+            placeholder="Search coordinates or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-xs"
@@ -274,20 +301,28 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
         <div className="rounded-md border max-h-96 overflow-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Latitude</TableHead>
-                <TableHead>Longitude</TableHead>
-                <TableHead>Speed</TableHead>
-                <TableHead>Satellites</TableHead>
-                <TableHead>Activity</TableHead>
-                <TableHead>HDOP</TableHead>
+              <TableRow className="h-8">
+                <TableHead className="w-16 text-xs">Point ID</TableHead>
+                <TableHead className="w-20 text-xs">ID</TableHead>
+                <TableHead className="w-32 text-xs">Timestamp</TableHead>
+                <TableHead className="w-24 text-xs">Locktime</TableHead>
+                <TableHead className="w-24 text-xs">Latitude</TableHead>
+                <TableHead className="w-24 text-xs">Longitude</TableHead>
+                <TableHead className="w-16 text-xs">HDOP</TableHead>
+                <TableHead className="w-16 text-xs">Count</TableHead>
+                <TableHead className="w-16 text-xs">Satellites</TableHead>
+                <TableHead className="w-16 text-xs">Speed</TableHead>
+                <TableHead className="w-20 text-xs">Activity</TableHead>
+                <TableHead className="w-16 text-xs">AX</TableHead>
+                <TableHead className="w-16 text-xs">AY</TableHead>
+                <TableHead className="w-16 text-xs">AZ</TableHead>
+                <TableHead className="w-32 text-xs">Created At</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={15} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                       Loading data...
@@ -296,26 +331,36 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
                 </TableRow>
               ) : filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={15} className="text-center py-8 text-gray-500">
                     No data found
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredData.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-mono text-xs">
+                  <TableRow key={index} className="h-8">
+                    <TableCell className="text-xs py-1">{row.pointid}</TableCell>
+                    <TableCell className="text-xs py-1">{row.id}</TableCell>
+                    <TableCell className="font-mono text-xs py-1">
                       {new Date(row.timestamp).toLocaleString()}
                     </TableCell>
-                    <TableCell className="font-mono">{row.latitude.toFixed(6)}</TableCell>
-                    <TableCell className="font-mono">{row.longitude.toFixed(6)}</TableCell>
-                    <TableCell>{row.speed} km/h</TableCell>
-                    <TableCell>{row.satellites}</TableCell>
-                    <TableCell>
-                      <Badge variant={row.activity ? "default" : "secondary"}>
+                    <TableCell className="font-mono text-xs py-1">{row.locktime}</TableCell>
+                    <TableCell className="font-mono text-xs py-1">{row.latitude.toFixed(6)}</TableCell>
+                    <TableCell className="font-mono text-xs py-1">{row.longitude.toFixed(6)}</TableCell>
+                    <TableCell className="text-xs py-1">{row.hdop?.toFixed(2) || 'N/A'}</TableCell>
+                    <TableCell className="text-xs py-1">{row.count}</TableCell>
+                    <TableCell className="text-xs py-1">{row.satellites || 'N/A'}</TableCell>
+                    <TableCell className="text-xs py-1">{row.speed ? `${row.speed} km/h` : 'N/A'}</TableCell>
+                    <TableCell className="py-1">
+                      <Badge variant={row.activity ? "default" : "secondary"} className="text-xs">
                         {row.activity ? "Active" : "Inactive"}
                       </Badge>
                     </TableCell>
-                    <TableCell>{row.hdop.toFixed(2)}</TableCell>
+                    <TableCell className="text-xs py-1">{row.ax?.toFixed(2) || 'N/A'}</TableCell>
+                    <TableCell className="text-xs py-1">{row.ay?.toFixed(2) || 'N/A'}</TableCell>
+                    <TableCell className="text-xs py-1">{row.az?.toFixed(2) || 'N/A'}</TableCell>
+                    <TableCell className="font-mono text-xs py-1">
+                      {row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'}
+                    </TableCell>
                   </TableRow>
                 ))
               )}

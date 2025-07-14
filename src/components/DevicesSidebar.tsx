@@ -32,7 +32,7 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
 
   if (loading) {
     return (
-      <div className="w-80 bg-white border-r border-gray-200 p-4">
+      <div className="w-64 bg-white border-r border-gray-200 p-4">
         <div className="animate-pulse">
           <div className="h-6 bg-gray-200 rounded mb-4"></div>
           <div className="space-y-3">
@@ -46,7 +46,7 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
   }
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto">
+    <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <Database className="h-5 w-5 text-green-600" />
