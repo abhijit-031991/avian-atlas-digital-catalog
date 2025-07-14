@@ -23,6 +23,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const pathRef = useRef<google.maps.Polyline | null>(null);
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentPointIndex, setCurrentPointIndex] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -45,8 +46,15 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
         return;
       }
 
+      // Check if script is already loading
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        existingScript.addEventListener('load', () => setGoogleMapsLoaded(true));
+        return;
+      }
+
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAsbF6BOz9gEXTFgwBYx1fi6nCfO1kN1bs&libraries=geometry`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAsbF6BOz9gEXTFgwBYx1fi6nCfO1kN1bs&libraries=geometry&loading=async`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
@@ -62,102 +70,134 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   }, []);
 
   useEffect(() => {
-    if (googleMapsLoaded && mapRef.current) {
+    if (googleMapsLoaded && mapRef.current && !mapInstanceRef.current) {
       initializeMap();
       setMapLoaded(true);
     }
   }, [googleMapsLoaded]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      setIsAnimating(false);
+      cleanupMarkers();
+    };
+  }, []);
+
   const initializeMap = () => {
-    if (!mapRef.current || !window.google) return;
+    if (!mapRef.current || !window.google || mapInstanceRef.current) return;
 
-    mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 28.6139, lng: 77.2090 },
-      zoom: 15,
-      mapTypeId: 'roadmap',
-      styles: [
-        {
-          featureType: 'poi',
-          stylers: [{ visibility: 'off' }],
-        },
-        {
-          featureType: 'transit',
-          stylers: [{ visibility: 'off' }],
-        },
-      ],
+    try {
+      mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+        center: { lat: 28.6139, lng: 77.2090 },
+        zoom: 15,
+        mapTypeId: 'roadmap',
+        styles: [
+          {
+            featureType: 'poi',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'transit',
+            stylers: [{ visibility: 'off' }],
+          },
+        ],
+      });
+
+      // Draw the complete path
+      drawPath();
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
+  };
+
+  const cleanupMarkers = () => {
+    // Safely remove all markers
+    markersRef.current.forEach(marker => {
+      try {
+        if (marker && marker.setMap) {
+          marker.setMap(null);
+        }
+      } catch (error) {
+        console.warn('Error removing marker:', error);
+      }
     });
+    markersRef.current = [];
 
-    // Draw the complete path
-    drawPath();
+    // Safely remove path
+    if (pathRef.current) {
+      try {
+        pathRef.current.setMap(null);
+      } catch (error) {
+        console.warn('Error removing path:', error);
+      }
+      pathRef.current = null;
+    }
   };
 
   const drawPath = () => {
     if (!mapInstanceRef.current || trackData.length === 0 || !window.google) return;
 
-    // Clear existing markers and path
-    clearMap();
+    try {
+      // Clear existing markers and path
+      cleanupMarkers();
 
-    // Create path
-    const pathCoordinates = trackData.map(point => ({
-      lat: point.latitude,
-      lng: point.longitude,
-    }));
+      // Create path
+      const pathCoordinates = trackData.map(point => ({
+        lat: point.latitude,
+        lng: point.longitude,
+      }));
 
-    pathRef.current = new window.google.maps.Polyline({
-      path: pathCoordinates,
-      geodesic: true,
-      strokeColor: '#3B82F6',
-      strokeOpacity: 0.8,
-      strokeWeight: 3,
-    });
+      pathRef.current = new window.google.maps.Polyline({
+        path: pathCoordinates,
+        geodesic: true,
+        strokeColor: '#3B82F6',
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+      });
 
-    pathRef.current.setMap(mapInstanceRef.current);
+      pathRef.current.setMap(mapInstanceRef.current);
 
-    // Add markers for start and end points
-    const startMarker = new window.google.maps.Marker({
-      position: pathCoordinates[0],
-      map: mapInstanceRef.current,
-      title: 'Start Point',
-      icon: {
-        path: window.google.maps.SymbolPath.CIRCLE,
-        fillColor: '#10B981',
-        fillOpacity: 1,
-        strokeColor: '#065F46',
-        strokeWeight: 2,
-        scale: 8,
-      },
-    });
+      // Add markers for start and end points
+      const startMarker = new window.google.maps.Marker({
+        position: pathCoordinates[0],
+        map: mapInstanceRef.current,
+        title: 'Start Point',
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          fillColor: '#10B981',
+          fillOpacity: 1,
+          strokeColor: '#065F46',
+          strokeWeight: 2,
+          scale: 8,
+        },
+      });
 
-    const endMarker = new window.google.maps.Marker({
-      position: pathCoordinates[pathCoordinates.length - 1],
-      map: mapInstanceRef.current,
-      title: 'End Point',
-      icon: {
-        path: window.google.maps.SymbolPath.CIRCLE,
-        fillColor: '#EF4444',
-        fillOpacity: 1,
-        strokeColor: '#991B1B',
-        strokeWeight: 2,
-        scale: 8,
-      },
-    });
+      const endMarker = new window.google.maps.Marker({
+        position: pathCoordinates[pathCoordinates.length - 1],
+        map: mapInstanceRef.current,
+        title: 'End Point',
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          fillColor: '#EF4444',
+          fillOpacity: 1,
+          strokeColor: '#991B1B',
+          strokeWeight: 2,
+          scale: 8,
+        },
+      });
 
-    markersRef.current = [startMarker, endMarker];
+      markersRef.current = [startMarker, endMarker];
 
-    // Fit bounds to show all points
-    const bounds = new window.google.maps.LatLngBounds();
-    pathCoordinates.forEach(coord => bounds.extend(coord));
-    mapInstanceRef.current.fitBounds(bounds);
-  };
-
-  const clearMap = () => {
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.setMap(null));
-    markersRef.current = [];
-
-    // Clear existing path
-    if (pathRef.current) {
-      pathRef.current.setMap(null);
+      // Fit bounds to show all points
+      const bounds = new window.google.maps.LatLngBounds();
+      pathCoordinates.forEach(coord => bounds.extend(coord));
+      mapInstanceRef.current.fitBounds(bounds);
+    } catch (error) {
+      console.error('Error drawing path:', error);
     }
   };
 
@@ -170,53 +210,64 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   };
 
   const animateToNextPoint = (index: number) => {
-    if (index >= trackData.length || !isAnimating || !window.google) {
+    if (index >= trackData.length || !isAnimating || !window.google || !mapInstanceRef.current) {
       setIsAnimating(false);
       return;
     }
 
-    const point = trackData[index];
-    const position = { lat: point.latitude, lng: point.longitude };
+    try {
+      const point = trackData[index];
+      const position = { lat: point.latitude, lng: point.longitude };
 
-    // Create animated marker
-    const animatedMarker = new window.google.maps.Marker({
-      position,
-      map: mapInstanceRef.current,
-      title: `Point ${index + 1} - Speed: ${point.speed} km/h`,
-      icon: {
-        path: window.google.maps.SymbolPath.CIRCLE,
-        fillColor: point.activity ? '#3B82F6' : '#6B7280',
-        fillOpacity: 1,
-        strokeColor: '#FFFFFF',
-        strokeWeight: 2,
-        scale: 6,
-      },
-      animation: window.google.maps.Animation.DROP,
-    });
+      // Create animated marker
+      const animatedMarker = new window.google.maps.Marker({
+        position,
+        map: mapInstanceRef.current,
+        title: `Point ${index + 1} - Speed: ${point.speed} km/h`,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          fillColor: point.activity ? '#3B82F6' : '#6B7280',
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2,
+          scale: 6,
+        },
+        animation: window.google.maps.Animation.DROP,
+      });
 
-    markersRef.current.push(animatedMarker);
+      markersRef.current.push(animatedMarker);
 
-    // Pan to the current point
-    mapInstanceRef.current?.panTo(position);
+      // Pan to the current point
+      mapInstanceRef.current.panTo(position);
 
-    setCurrentPointIndex(index);
+      setCurrentPointIndex(index);
 
-    // Continue to next point after delay
-    setTimeout(() => {
-      if (isAnimating) {
-        animateToNextPoint(index + 1);
-      }
-    }, 1000);
+      // Continue to next point after delay
+      animationTimeoutRef.current = setTimeout(() => {
+        if (isAnimating) {
+          animateToNextPoint(index + 1);
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Error animating point:', error);
+      setIsAnimating(false);
+    }
   };
 
   const stopAnimation = () => {
     setIsAnimating(false);
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
   };
 
   const resetAnimation = () => {
-    setIsAnimating(false);
+    stopAnimation();
     setCurrentPointIndex(0);
-    drawPath();
+    if (mapInstanceRef.current) {
+      drawPath();
+    }
   };
 
   if (!deviceId) {
