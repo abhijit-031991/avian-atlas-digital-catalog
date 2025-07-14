@@ -31,7 +31,7 @@ const DatabaseAnalytics = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-4">
           <Button 
             onClick={() => navigate('/arctrack-central')}
@@ -66,37 +66,53 @@ const DatabaseAnalytics = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex flex-1">
-        {/* Left Sidebar - Devices */}
-        <DevicesSidebar
-          selectedDevice={selectedDevice}
-          onDeviceSelect={handleDeviceSelect}
-        />
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Data View */}
-          <div className="flex-1 p-4">
-            {activeView === 'table' ? (
-              <DataTable
-                deviceId={selectedDevice}
-                deviceName={selectedDeviceName}
-                projectName={selectedProjectName}
-              />
-            ) : (
-              <AnalyticsMap
-                deviceId={selectedDevice}
-                deviceName={selectedDeviceName}
-              />
-            )}
-          </div>
-
-          {/* Bottom Statistics Panel */}
-          <StatisticsPanel
-            deviceId={selectedDevice}
-            deviceName={selectedDeviceName}
+      {/* Main Content - Fixed Layout */}
+      <div className="flex flex-1 min-h-0">
+        {/* Left Sidebar - Fixed Width */}
+        <div className="w-72 flex-shrink-0">
+          <DevicesSidebar
+            selectedDevice={selectedDevice}
+            onDeviceSelect={handleDeviceSelect}
           />
+        </div>
+
+        {/* Main Content Area - Flexible */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {selectedDevice ? (
+            <>
+              {/* Data View */}
+              <div className="flex-1 p-4 min-h-0">
+                {activeView === 'table' ? (
+                  <DataTable
+                    deviceId={selectedDevice}
+                    deviceName={selectedDeviceName}
+                    projectName={selectedProjectName}
+                  />
+                ) : (
+                  <AnalyticsMap
+                    deviceId={selectedDevice}
+                    deviceName={selectedDeviceName}
+                  />
+                )}
+              </div>
+
+              {/* Bottom Statistics Panel */}
+              <div className="flex-shrink-0">
+                <StatisticsPanel
+                  deviceId={selectedDevice}
+                  deviceName={selectedDeviceName}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <Database className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium mb-2">Select a Device</h3>
+                <p className="text-sm">Choose a device from the sidebar to view its data and analytics</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
