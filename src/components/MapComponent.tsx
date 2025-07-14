@@ -90,7 +90,7 @@ const MapComponent = () => {
     const initializeMap = () => {
       mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
         center: { lat: 20.5937, lng: 78.9629 }, // Center of India
-        zoom: 4,
+        zoom: 3,
         mapTypeId: 'satellite', // Set to satellite view
         styles: [
           {
@@ -208,7 +208,7 @@ const MapComponent = () => {
 
     // Always center map on India at zoom level 5 after devices are loaded
     mapInstanceRef.current.setCenter({ lat: 20.5937, lng: 78.9629 });
-    mapInstanceRef.current.setZoom(5);
+    mapInstanceRef.current.setZoom(4);
   }, [devices, mapLoaded]);
 
   // Global functions for info window buttons
