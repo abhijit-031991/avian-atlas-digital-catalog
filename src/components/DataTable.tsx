@@ -75,7 +75,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
         }
       } else {
         setTableExists(true);
-        const typedData = deviceData as DataPoint[] || [];
+        const typedData = (deviceData as unknown) as DataPoint[] || [];
         setData(typedData);
       }
     } catch (error) {

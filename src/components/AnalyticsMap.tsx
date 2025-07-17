@@ -63,7 +63,7 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
         }
       } else {
         setTableExists(true);
-        const typedData = deviceData as DataPoint[] || [];
+        const typedData = (deviceData as unknown) as DataPoint[] || [];
         setData(typedData);
         if (typedData && typedData.length > 0 && mapInstanceRef.current) {
           displayDataOnMap(typedData);
