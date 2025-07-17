@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,13 +16,13 @@ import {
   Clock,
   Zap
 } from 'lucide-react';
+import { DeviceInfo } from '@/types/database-analytics';
 
-interface StatisticsPanelProps {
-  deviceId: string | null;
-  deviceName: string;
+interface StatsPanelProps {
+  device: DeviceInfo | null;
 }
 
-const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
+const StatsPanel = ({ device }: StatsPanelProps) => {
   const [analysisType, setAnalysisType] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,7 +37,7 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
   ];
 
   const handleSubmitRequest = async () => {
-    if (!deviceId || !analysisType || !description.trim()) {
+    if (!device || !analysisType || !description.trim()) {
       toast({
         title: 'Error',
         description: 'Please select a device, analysis type, and provide a description',
@@ -76,25 +75,25 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
   const commonStats = [
     {
       title: 'Average Speed',
-      value: deviceId ? '24.5 km/h' : 'N/A',
+      value: device ? '24.5 km/h' : 'N/A',
       icon: TrendingUp,
       color: 'text-blue-600'
     },
     {
       title: 'Total Distance',
-      value: deviceId ? '156.7 km' : 'N/A',
+      value: device ? '156.7 km' : 'N/A',
       icon: MapPin,
       color: 'text-green-600'
     },
     {
       title: 'Active Time',
-      value: deviceId ? '8.5 hours' : 'N/A',
+      value: device ? '8.5 hours' : 'N/A',
       icon: Clock,
       color: 'text-orange-600'
     },
     {
       title: 'Data Points',
-      value: deviceId ? '1,247' : 'N/A',
+      value: device ? '1,247' : 'N/A',
       icon: Activity,
       color: 'text-purple-600'
     }
@@ -130,7 +129,7 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
             
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs">
-                {deviceId ? deviceName : 'No device selected'}
+                {device ? device.name : 'No device selected'}
               </Badge>
             </div>
           </div>
@@ -144,7 +143,7 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
           
           <Button 
             onClick={handleSubmitRequest}
-            disabled={loading || !deviceId}
+            disabled={loading || !device}
             size="sm"
             className="w-full"
           >
@@ -177,7 +176,7 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
             ))}
           </div>
           
-          {!deviceId && (
+          {!device && (
             <div className="text-center text-gray-500 py-4 mt-2">
               <Activity className="h-6 w-6 mx-auto mb-2 text-gray-300" />
               <p className="text-xs">Select a device to view statistics</p>
@@ -189,4 +188,4 @@ const StatisticsPanel = ({ deviceId, deviceName }: StatisticsPanelProps) => {
   );
 };
 
-export default StatisticsPanel;
+export default StatsPanel;

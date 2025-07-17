@@ -4,34 +4,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, RefreshCw, Upload, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import CSVUploadDialog from './CSVUploadDialog';
+import CSVUploadDialog from '@/components/CSVUploadDialog';
+import { DataPoint, DeviceInfo } from '@/types/database-analytics';
 
-interface AnalyticsMapProps {
-  deviceId: string;
-  deviceName: string;
+interface MapViewProps {
+  device: DeviceInfo;
+  data: DataPoint[];
   filteredData?: DataPoint[];
+  loading: boolean;
+  tableExists: boolean;
+  onRefresh: () => void;
 }
 
-interface DataPoint {
-  pointid: number;
-  id: number;
-  timestamp: number;
-  locktime: number;
-  latitude: number;
-  longitude: number;
-  hdop: number | null;
-  count: number;
-  satellites: number | null;
-  speed: number | null;
-  activity: boolean | null;
-  ax: number | null;
-  ay: number | null;
-  az: number | null;
-  created_at: string | null;
-}
-
-const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps) => {
+const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -39,10 +24,7 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [data, setData] = useState<DataPoint[]>([]);
-  const [loading, setLoading] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const [tableExists, setTableExists] = useState(false);
   const { toast } = useToast();
 
   const loadGoogleMaps = () => {
@@ -99,43 +81,6 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
         description: 'Failed to load Google Maps',
         variant: 'destructive'
       });
-    }
-  };
-
-  const fetchData = async () => {
-    if (!deviceId) return;
-
-    setLoading(true);
-    try {
-      const { data: deviceData, error } = await supabase
-        .from(deviceId as any)
-        .select('*')
-        .order('timestamp', { ascending: true });
-
-      if (error) {
-        if (error.code === '42P01') {
-          console.log(`Table ${deviceId} does not exist`);
-          setTableExists(false);
-          setData([]);
-        } else {
-          throw error;
-        }
-      } else {
-        setTableExists(true);
-        const typedData = (deviceData as unknown) as DataPoint[] || [];
-        setData(typedData);
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch device data',
-        variant: 'destructive'
-      });
-      setTableExists(false);
-      setData([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -232,10 +177,6 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [deviceId]);
-
-  useEffect(() => {
     if (isLoaded && mapInstanceRef.current && data.length > 0) {
       displayDataOnMap(data);
     }
@@ -248,11 +189,7 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
     } else if (filteredData && filteredData.length === 0) {
       clearMapElements();
     }
-  }, [filteredData]);
-
-  const handleUploadComplete = () => {
-    fetchData();
-  };
+  }, [filteredData, isLoaded]);
 
   if (!tableExists && !loading) {
     return (
@@ -283,7 +220,7 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
             <div>
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-green-600" />
-                {deviceName} - Location Map
+                {device.name} - Location Map
               </CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary">{data.length} data points</Badge>
@@ -293,7 +230,7 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
               <Button
                 variant="outline"
                 size="sm"
-                onClick={fetchData}
+                onClick={onRefresh}
                 disabled={loading}
               >
                 <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
@@ -339,11 +276,11 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
       <CSVUploadDialog 
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
-        deviceId={deviceId}
-        onUploadComplete={handleUploadComplete}
+        deviceId={device.id}
+        onUploadComplete={onRefresh}
       />
     </>
   );
 };
 
-export default AnalyticsMap;
+export default MapView;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects } from '@/hooks/useProjects';
@@ -8,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { Smartphone, Database, ChevronDown, ChevronRight, Plus, FolderPlus } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useNavigate } from 'react-router-dom';
+import { DeviceInfo } from '@/types/database-analytics';
 
-interface DevicesSidebarProps {
-  selectedDevice: string | null;
-  onDeviceSelect: (deviceId: string, deviceName: string, projectName: string) => void;
+interface DeviceSelectorProps {
+  selectedDevice: DeviceInfo | null;
+  onDeviceSelect: (device: DeviceInfo) => void;
 }
 
-const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps) => {
+const DeviceSelector = ({ selectedDevice, onDeviceSelect }: DeviceSelectorProps) => {
   const { currentUser } = useAuth();
   const { projects, loading } = useProjects(currentUser);
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
@@ -30,6 +30,14 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
 
   const getDeviceCount = (devices: { [key: string]: any }) => {
     return Object.keys(devices || {}).length;
+  };
+
+  const handleDeviceSelect = (deviceId: string, projectName: string) => {
+    onDeviceSelect({
+      id: deviceId,
+      name: `Device ${deviceId}`,
+      projectName
+    });
   };
 
   if (loading) {
@@ -121,10 +129,10 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
                           {Object.keys(project.devices).map(deviceId => (
                             <Button
                               key={deviceId}
-                              variant={selectedDevice === deviceId ? "default" : "ghost"}
+                              variant={selectedDevice?.id === deviceId ? "default" : "ghost"}
                               size="sm"
                               className="w-full justify-start text-xs h-8"
-                              onClick={() => onDeviceSelect(deviceId, `Device ${deviceId}`, project.name)}
+                              onClick={() => handleDeviceSelect(deviceId, project.name)}
                             >
                               <Smartphone className="h-3 w-3 mr-2" />
                               Device {deviceId}
@@ -144,4 +152,4 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
   );
 };
 
-export default DevicesSidebar;
+export default DeviceSelector;
