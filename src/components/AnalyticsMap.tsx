@@ -2,14 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { MapPin, RefreshCw, Upload, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import CSVUploadDialog from './CSVUploadDialog';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface AnalyticsMapProps {
   deviceId: string;
@@ -37,14 +33,15 @@ interface DataPoint {
 
 const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  const pathRef = useRef<google.maps.Polyline | null>(null);
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [data, setData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [tableExists, setTableExists] = useState(false);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -87,21 +84,44 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
     }
   };
 
+  const loadGoogleMaps = () => {
+    return new Promise<void>((resolve, reject) => {
+      if (window.google && window.google.maps) {
+        resolve();
+        return;
+      }
+
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        existingScript.addEventListener('load', () => resolve());
+        existingScript.addEventListener('error', reject);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCs1PdnjLUuFYdrHCN-xTAW6r3p7BiiMZI&libraries=geometry&loading=async`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        setIsLoaded(true);
+        resolve();
+      };
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  };
+
   const initMap = async () => {
-    if (!mapboxToken || !mapRef.current) return;
-
     try {
-      mapboxgl.accessToken = mapboxToken;
+      await loadGoogleMaps();
       
-      const map = new mapboxgl.Map({
-        container: mapRef.current,
-        style: 'mapbox://styles/mapbox/satellite-v9',
-        zoom: 10,
-        center: [77.2090, 28.6139], // [lng, lat] for Mapbox
-      });
+      if (!mapRef.current) return;
 
-      // Add navigation controls
-      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      const map = new google.maps.Map(mapRef.current, {
+        zoom: 10,
+        center: { lat: 28.6139, lng: 77.2090 },
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+      });
 
       mapInstanceRef.current = map;
       
@@ -112,7 +132,7 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
       console.error('Error initializing map:', error);
       toast({
         title: 'Map Error',
-        description: 'Failed to load Mapbox. Please check your API token.',
+        description: 'Failed to load Google Maps',
         variant: 'destructive'
       });
     }
@@ -123,35 +143,31 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
 
     clearMapElements();
 
-    const bounds = new mapboxgl.LngLatBounds();
+    const bounds = new google.maps.LatLngBounds();
+    const path: google.maps.LatLng[] = [];
 
     points.forEach((point, index) => {
-      const lngLat: [number, number] = [point.longitude, point.latitude];
-      bounds.extend(lngLat);
+      const position = new google.maps.LatLng(point.latitude, point.longitude);
+      path.push(position);
+      bounds.extend(position);
 
-      // Create a custom marker element
-      const markerElement = document.createElement('div');
-      markerElement.className = 'custom-marker';
-      markerElement.style.width = '20px';
-      markerElement.style.height = '20px';
-      markerElement.style.borderRadius = '50%';
-      markerElement.style.backgroundColor = point.activity ? '#10B981' : '#EF4444';
-      markerElement.style.border = '2px solid white';
-      markerElement.style.display = 'flex';
-      markerElement.style.alignItems = 'center';
-      markerElement.style.justifyContent = 'center';
-      markerElement.style.color = 'white';
-      markerElement.style.fontSize = '10px';
-      markerElement.style.fontWeight = 'bold';
-      markerElement.textContent = (index + 1).toString();
+      const marker = new google.maps.Marker({
+        position,
+        map: mapInstanceRef.current,
+        title: `Point ${point.pointid} - ${new Date(point.timestamp).toLocaleString()}`,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="10" r="8" fill="${point.activity ? '#10B981' : '#EF4444'}" stroke="white" stroke-width="2"/>
+              <text x="10" y="14" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${index + 1}</text>
+            </svg>
+          `),
+          scaledSize: new google.maps.Size(20, 20),
+        },
+      });
 
-      const marker = new mapboxgl.Marker(markerElement)
-        .setLngLat(lngLat)
-        .addTo(mapInstanceRef.current!);
-
-      // Create popup
-      const popup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML(`
+      const infoWindow = new google.maps.InfoWindow({
+        content: `
           <div style="font-size: 12px;">
             <strong>Point ${point.pointid}</strong><br/>
             <strong>Time:</strong> ${new Date(point.timestamp).toLocaleString()}<br/>
@@ -160,84 +176,65 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
             <strong>Activity:</strong> ${point.activity ? 'Active' : 'Inactive'}<br/>
             <strong>Satellites:</strong> ${point.satellites || 'N/A'}
           </div>
-        `);
+        `,
+      });
 
-      marker.setPopup(popup);
+      marker.addListener('click', () => {
+        infoWindow.open(mapInstanceRef.current, marker);
+      });
+
       markersRef.current.push(marker);
     });
 
-    // Add path line if there are multiple points
-    if (points.length > 1 && mapInstanceRef.current.getSource('route')) {
-      mapInstanceRef.current.removeLayer('route');
-      mapInstanceRef.current.removeSource('route');
-    }
-
-    if (points.length > 1) {
-      const coordinates = points.map(point => [point.longitude, point.latitude]);
-      
-      mapInstanceRef.current.addSource('route', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: coordinates
-          }
-        }
+    if (path.length > 1) {
+      const polyline = new google.maps.Polyline({
+        path,
+        geodesic: true,
+        strokeColor: '#2563EB',
+        strokeOpacity: 1.0,
+        strokeWeight: 3,
       });
 
-      mapInstanceRef.current.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#2563EB',
-          'line-width': 3
-        }
-      });
+      polyline.setMap(mapInstanceRef.current);
+      pathRef.current = polyline;
     }
 
-    // Fit map to bounds
     if (points.length > 0) {
-      mapInstanceRef.current.fitBounds(bounds, { padding: 50 });
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      
+      animationTimeoutRef.current = setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.fitBounds(bounds);
+        }
+      }, 100);
     }
   };
 
   const clearMapElements = () => {
     markersRef.current.forEach(marker => {
-      marker.remove();
+      if (marker && marker.setMap) {
+        marker.setMap(null);
+      }
     });
     markersRef.current = [];
 
-    // Remove route layer if it exists
-    if (mapInstanceRef.current && mapInstanceRef.current.getSource('route')) {
-      mapInstanceRef.current.removeLayer('route');
-      mapInstanceRef.current.removeSource('route');
-    }
-  };
-
-  const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
-      setShowTokenInput(false);
-      initMap();
+    if (pathRef.current && pathRef.current.setMap) {
+      pathRef.current.setMap(null);
+      pathRef.current = null;
     }
   };
 
   useEffect(() => {
-    if (mapboxToken && !showTokenInput) {
-      initMap();
-    }
+    initMap();
     return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
       }
+      clearMapElements();
     };
-  }, [mapboxToken, showTokenInput]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -314,43 +311,18 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
         </CardHeader>
         
         <CardContent>
-          {showTokenInput ? (
-            <div className="flex flex-col items-center justify-center h-96 space-y-4">
-              <div className="text-center">
-                <h3 className="text-lg font-medium mb-2">Mapbox Token Required</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Please enter your Mapbox public token to display the map.
-                  You can get one from <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">mapbox.com</a>
-                </p>
+          <div className="w-full h-96 rounded-lg overflow-hidden border">
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+                <span className="ml-2 text-gray-500">Loading map data...</span>
               </div>
-              <div className="w-full max-w-md space-y-2">
-                <Label htmlFor="mapbox-token">Mapbox Public Token</Label>
-                <Input
-                  id="mapbox-token"
-                  type="text"
-                  placeholder="pk.ey..."
-                  value={mapboxToken}
-                  onChange={(e) => setMapboxToken(e.target.value)}
-                />
-                <Button onClick={handleTokenSubmit} className="w-full">
-                  Load Map
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full h-96 rounded-lg overflow-hidden border">
-              {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
-                  <span className="ml-2 text-gray-500">Loading map data...</span>
-                </div>
-              ) : (
-                <div ref={mapRef} className="w-full h-full" />
-              )}
-            </div>
-          )}
+            ) : (
+              <div ref={mapRef} className="w-full h-full" />
+            )}
+          </div>
           
-          {!showTokenInput && data.length > 0 && (
+          {data.length > 0 && (
             <div className="mt-4 text-sm text-gray-600">
               <p className="flex items-center gap-2">
                 <span className="w-3 h-3 bg-green-500 rounded-full"></span>
