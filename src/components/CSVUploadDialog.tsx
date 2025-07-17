@@ -83,7 +83,7 @@ const CSVUploadDialog = ({ open, onOpenChange, deviceId, onUploadComplete }: CSV
 
       const result = await response.json();
 
-      if (result.tableCreated === true) {
+      if (result.tableUpdated === true) {
         toast({
           title: 'Success',
           description: 'CSV uploaded and processed successfully'

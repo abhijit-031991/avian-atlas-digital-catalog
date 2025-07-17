@@ -41,6 +41,33 @@ const AddDeviceDialog: React.FC<AddDeviceDialogProps> = ({
     setIsLoading(true);
     try {
       await onAddDevice(deviceId.trim(), deviceName.trim(), passkey.trim());
+      
+      // Send HTTP POST request after successful device addition
+      const payload = {
+        id: deviceId.trim(),
+        req: 10,
+      };
+      console.log('Sending POST request to webhook with payload:', payload);
+
+      const response = await fetch('https://n8n.arcturus-telemetry.in/webhook/deviceRequest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log('POST response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to send device data. Response:', errorText);
+        throw new Error('Failed to send device data');
+      } else {
+        const responseData = await response.json().catch(() => null);
+        console.log('POST response data:', responseData);
+      }
+      
       setDeviceId('');
       setDeviceName('');
       setPasskey('');
