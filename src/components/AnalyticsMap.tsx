@@ -1,21 +1,33 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, RotateCcw, MapPin, Route } from 'lucide-react';
-
-interface DataPoint {
-  timestamp: number;
-  latitude: number;
-  longitude: number;
-  speed: number;
-  activity: boolean;
-}
+import { Button } from '@/components/ui/button';
+import { MapPin, RefreshCw, Upload, Database } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import CSVUploadDialog from './CSVUploadDialog';
 
 interface AnalyticsMapProps {
-  deviceId: string | null;
+  deviceId: string;
   deviceName: string;
+}
+
+interface DataPoint {
+  pointid: number;
+  id: number;
+  timestamp: number;
+  locktime: number;
+  latitude: number;
+  longitude: number;
+  hdop: number | null;
+  count: number;
+  satellites: number | null;
+  speed: number | null;
+  activity: boolean | null;
+  ax: number | null;
+  ay: number | null;
+  az: number | null;
+  created_at: string | null;
 }
 
 const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
@@ -24,32 +36,63 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   const markersRef = useRef<google.maps.Marker[]>([]);
   const pathRef = useRef<google.maps.Polyline | null>(null);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [currentPointIndex, setCurrentPointIndex] = useState(0);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [data, setData] = useState<DataPoint[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [tableExists, setTableExists] = useState(false);
+  const { toast } = useToast();
 
-  // Sample data - in real app, this would come from props or API
-  const trackData: DataPoint[] = [
-    { timestamp: Date.now() - 3600000, latitude: 28.6139, longitude: 77.2090, speed: 0, activity: false },
-    { timestamp: Date.now() - 3000000, latitude: 28.6149, longitude: 77.2100, speed: 25, activity: true },
-    { timestamp: Date.now() - 2400000, latitude: 28.6159, longitude: 77.2110, speed: 30, activity: true },
-    { timestamp: Date.now() - 1800000, latitude: 28.6169, longitude: 77.2120, speed: 20, activity: true },
-    { timestamp: Date.now() - 1200000, latitude: 28.6179, longitude: 77.2130, speed: 0, activity: false },
-  ];
+  const fetchData = async () => {
+    if (!deviceId) return;
+    
+    setLoading(true);
+    try {
+      const { data: deviceData, error } = await supabase
+        .from(deviceId)
+        .select('*')
+        .order('timestamp', { ascending: true });
 
-  // Load Google Maps API
-  useEffect(() => {
-    const loadGoogleMaps = () => {
+      if (error) {
+        if (error.code === '42P01') {
+          console.log(`Table ${deviceId} does not exist`);
+          setTableExists(false);
+          setData([]);
+        } else {
+          throw error;
+        }
+      } else {
+        setTableExists(true);
+        setData(deviceData || []);
+        if (deviceData && deviceData.length > 0 && mapInstanceRef.current) {
+          displayDataOnMap(deviceData);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch device data',
+        variant: 'destructive'
+      });
+      setTableExists(false);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadGoogleMaps = () => {
+    return new Promise<void>((resolve, reject) => {
       if (window.google && window.google.maps) {
-        setGoogleMapsLoaded(true);
+        resolve();
         return;
       }
 
-      // Check if script is already loading
       const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
       if (existingScript) {
-        existingScript.addEventListener('load', () => setGoogleMapsLoaded(true));
+        existingScript.addEventListener('load', () => resolve());
+        existingScript.addEventListener('error', reject);
         return;
       }
 
@@ -58,225 +101,162 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        setGoogleMapsLoaded(true);
+        setIsLoaded(true);
+        resolve();
       };
-      script.onerror = () => {
-        console.error('Failed to load Google Maps API');
-      };
+      script.onerror = reject;
       document.head.appendChild(script);
-    };
+    });
+  };
 
-    loadGoogleMaps();
-  }, []);
-
-  useEffect(() => {
-    if (googleMapsLoaded && mapRef.current && !mapInstanceRef.current) {
-      initializeMap();
-      setMapLoaded(true);
-    }
-  }, [googleMapsLoaded]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (animationTimeoutRef.current) {
-        clearTimeout(animationTimeoutRef.current);
-      }
-      setIsAnimating(false);
-      cleanupMarkers();
-    };
-  }, []);
-
-  const initializeMap = () => {
-    if (!mapRef.current || !window.google || mapInstanceRef.current) return;
-
+  const initMap = async () => {
     try {
-      mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+      await loadGoogleMaps();
+      
+      if (!mapRef.current) return;
+
+      const map = new google.maps.Map(mapRef.current, {
+        zoom: 10,
         center: { lat: 28.6139, lng: 77.2090 },
-        zoom: 15,
-        mapTypeId: 'roadmap',
-        styles: [
-          {
-            featureType: 'poi',
-            stylers: [{ visibility: 'off' }],
-          },
-          {
-            featureType: 'transit',
-            stylers: [{ visibility: 'off' }],
-          },
-        ],
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
       });
 
-      // Draw the complete path
-      drawPath();
+      mapInstanceRef.current = map;
+      
+      if (data.length > 0) {
+        displayDataOnMap(data);
+      }
     } catch (error) {
       console.error('Error initializing map:', error);
+      toast({
+        title: 'Map Error',
+        description: 'Failed to load Google Maps',
+        variant: 'destructive'
+      });
     }
   };
 
-  const cleanupMarkers = () => {
-    // Safely remove all markers
-    markersRef.current.forEach(marker => {
-      try {
-        if (marker && marker.setMap) {
-          marker.setMap(null);
+  const displayDataOnMap = (points: DataPoint[]) => {
+    if (!mapInstanceRef.current || points.length === 0) return;
+
+    clearMapElements();
+
+    const bounds = new google.maps.LatLngBounds();
+    const path: google.maps.LatLng[] = [];
+
+    points.forEach((point, index) => {
+      const position = new google.maps.LatLng(point.latitude, point.longitude);
+      path.push(position);
+      bounds.extend(position);
+
+      const marker = new google.maps.Marker({
+        position,
+        map: mapInstanceRef.current,
+        title: `Point ${point.pointid} - ${new Date(point.timestamp).toLocaleString()}`,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="10" r="8" fill="${point.activity ? '#10B981' : '#EF4444'}" stroke="white" stroke-width="2"/>
+              <text x="10" y="14" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${index + 1}</text>
+            </svg>
+          `),
+          scaledSize: new google.maps.Size(20, 20),
+        },
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `
+          <div style="font-size: 12px;">
+            <strong>Point ${point.pointid}</strong><br/>
+            <strong>Time:</strong> ${new Date(point.timestamp).toLocaleString()}<br/>
+            <strong>Location:</strong> ${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}<br/>
+            <strong>Speed:</strong> ${point.speed || 'N/A'} km/h<br/>
+            <strong>Activity:</strong> ${point.activity ? 'Active' : 'Inactive'}<br/>
+            <strong>Satellites:</strong> ${point.satellites || 'N/A'}
+          </div>
+        `,
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open(mapInstanceRef.current, marker);
+      });
+
+      markersRef.current.push(marker);
+    });
+
+    if (path.length > 1) {
+      const polyline = new google.maps.Polyline({
+        path,
+        geodesic: true,
+        strokeColor: '#2563EB',
+        strokeOpacity: 1.0,
+        strokeWeight: 3,
+      });
+
+      polyline.setMap(mapInstanceRef.current);
+      pathRef.current = polyline;
+    }
+
+    if (points.length > 0) {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      
+      animationTimeoutRef.current = setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.fitBounds(bounds);
         }
-      } catch (error) {
-        console.warn('Error removing marker:', error);
+      }, 100);
+    }
+  };
+
+  const clearMapElements = () => {
+    markersRef.current.forEach(marker => {
+      if (marker && marker.setMap) {
+        marker.setMap(null);
       }
     });
     markersRef.current = [];
 
-    // Safely remove path
-    if (pathRef.current) {
-      try {
-        pathRef.current.setMap(null);
-      } catch (error) {
-        console.warn('Error removing path:', error);
-      }
+    if (pathRef.current && pathRef.current.setMap) {
+      pathRef.current.setMap(null);
       pathRef.current = null;
     }
   };
 
-  const drawPath = () => {
-    if (!mapInstanceRef.current || trackData.length === 0 || !window.google) return;
+  useEffect(() => {
+    initMap();
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      clearMapElements();
+    };
+  }, []);
 
-    try {
-      // Clear existing markers and path
-      cleanupMarkers();
+  useEffect(() => {
+    fetchData();
+  }, [deviceId]);
 
-      // Create path
-      const pathCoordinates = trackData.map(point => ({
-        lat: point.latitude,
-        lng: point.longitude,
-      }));
-
-      pathRef.current = new window.google.maps.Polyline({
-        path: pathCoordinates,
-        geodesic: true,
-        strokeColor: '#3B82F6',
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-      });
-
-      pathRef.current.setMap(mapInstanceRef.current);
-
-      // Add markers for start and end points
-      const startMarker = new window.google.maps.Marker({
-        position: pathCoordinates[0],
-        map: mapInstanceRef.current,
-        title: 'Start Point',
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          fillColor: '#10B981',
-          fillOpacity: 1,
-          strokeColor: '#065F46',
-          strokeWeight: 2,
-          scale: 8,
-        },
-      });
-
-      const endMarker = new window.google.maps.Marker({
-        position: pathCoordinates[pathCoordinates.length - 1],
-        map: mapInstanceRef.current,
-        title: 'End Point',
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          fillColor: '#EF4444',
-          fillOpacity: 1,
-          strokeColor: '#991B1B',
-          strokeWeight: 2,
-          scale: 8,
-        },
-      });
-
-      markersRef.current = [startMarker, endMarker];
-
-      // Fit bounds to show all points
-      const bounds = new window.google.maps.LatLngBounds();
-      pathCoordinates.forEach(coord => bounds.extend(coord));
-      mapInstanceRef.current.fitBounds(bounds);
-    } catch (error) {
-      console.error('Error drawing path:', error);
-    }
+  const handleUploadComplete = () => {
+    fetchData();
   };
 
-  const startAnimation = () => {
-    if (!mapInstanceRef.current || trackData.length === 0 || !window.google) return;
-
-    setIsAnimating(true);
-    setCurrentPointIndex(0);
-    animateToNextPoint(0);
-  };
-
-  const animateToNextPoint = (index: number) => {
-    if (index >= trackData.length || !isAnimating || !window.google || !mapInstanceRef.current) {
-      setIsAnimating(false);
-      return;
-    }
-
-    try {
-      const point = trackData[index];
-      const position = { lat: point.latitude, lng: point.longitude };
-
-      // Create animated marker
-      const animatedMarker = new window.google.maps.Marker({
-        position,
-        map: mapInstanceRef.current,
-        title: `Point ${index + 1} - Speed: ${point.speed} km/h`,
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          fillColor: point.activity ? '#3B82F6' : '#6B7280',
-          fillOpacity: 1,
-          strokeColor: '#FFFFFF',
-          strokeWeight: 2,
-          scale: 6,
-        },
-        animation: window.google.maps.Animation.DROP,
-      });
-
-      markersRef.current.push(animatedMarker);
-
-      // Pan to the current point
-      mapInstanceRef.current.panTo(position);
-
-      setCurrentPointIndex(index);
-
-      // Continue to next point after delay
-      animationTimeoutRef.current = setTimeout(() => {
-        if (isAnimating) {
-          animateToNextPoint(index + 1);
-        }
-      }, 1000);
-    } catch (error) {
-      console.error('Error animating point:', error);
-      setIsAnimating(false);
-    }
-  };
-
-  const stopAnimation = () => {
-    setIsAnimating(false);
-    if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current);
-      animationTimeoutRef.current = null;
-    }
-  };
-
-  const resetAnimation = () => {
-    stopAnimation();
-    setCurrentPointIndex(0);
-    if (mapInstanceRef.current) {
-      drawPath();
-    }
-  };
-
-  if (!deviceId) {
+  if (!tableExists && !loading) {
     return (
       <Card className="flex-1">
         <CardContent className="flex items-center justify-center h-96">
           <div className="text-center text-gray-500">
-            <MapPin className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-            <p>Select a device to view GPS tracks</p>
+            <Database className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium mb-2">No Data Available</h3>
+            <p className="text-sm mb-4">This device doesn't have any location data yet</p>
+            <Button onClick={() => setShowUploadDialog(true)} className="mt-2">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload CSV Data
+            </Button>
+            <p className="text-xs text-gray-400 mt-2">
+              Upload a properly formatted CSV file to see location data on the map
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -284,73 +264,73 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   }
 
   return (
-    <Card className="flex-1">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Route className="h-5 w-5" />
-              GPS Track Visualization
-            </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">{deviceName}</p>
+    <>
+      <Card className="flex-1">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-green-600" />
+                {deviceName} - Location Map
+              </CardTitle>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="secondary">{data.length} data points</Badge>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchData}
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowUploadDialog(true)}
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                Upload CSV
+              </Button>
+            </div>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">
-              {trackData.length} points
-            </Badge>
-            {isAnimating && (
-              <Badge variant="default">
-                Point {currentPointIndex + 1}/{trackData.length}
-              </Badge>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="w-full h-96 rounded-lg overflow-hidden border">
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+                <span className="ml-2 text-gray-500">Loading map data...</span>
+              </div>
+            ) : (
+              <div ref={mapRef} className="w-full h-full" />
             )}
           </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {!isAnimating ? (
-            <Button size="sm" onClick={startAnimation} disabled={!mapLoaded}>
-              <Play className="h-4 w-4 mr-1" />
-              Animate Track
-            </Button>
-          ) : (
-            <Button size="sm" variant="destructive" onClick={stopAnimation}>
-              <Pause className="h-4 w-4 mr-1" />
-              Stop Animation
-            </Button>
-          )}
           
-          <Button size="sm" variant="outline" onClick={resetAnimation} disabled={!mapLoaded}>
-            <RotateCcw className="h-4 w-4 mr-1" />
-            Reset View
-          </Button>
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div 
-          ref={mapRef} 
-          className="w-full h-96 rounded-lg border bg-gray-100"
-        >
-          {!googleMapsLoaded && (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center text-gray-500">
-                <MapPin className="h-8 w-8 mx-auto mb-2 animate-pulse" />
-                <p className="text-sm">Loading Google Maps...</p>
-              </div>
+          {data.length > 0 && (
+            <div className="mt-4 text-sm text-gray-600">
+              <p className="flex items-center gap-2">
+                <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                Active points
+                <span className="w-3 h-3 bg-red-500 rounded-full ml-4"></span>
+                Inactive points
+              </p>
             </div>
           )}
-          {googleMapsLoaded && !mapLoaded && (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center text-gray-500">
-                <MapPin className="h-8 w-8 mx-auto mb-2 animate-pulse" />
-                <p className="text-sm">Initializing map...</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <CSVUploadDialog 
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+        deviceId={deviceId}
+        onUploadComplete={handleUploadComplete}
+      />
+    </>
   );
 };
 

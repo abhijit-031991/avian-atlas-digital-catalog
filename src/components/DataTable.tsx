@@ -12,11 +12,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, Download, Upload, Filter, RefreshCw } from 'lucide-react';
+import { CalendarIcon, Download, Upload, Filter, RefreshCw, Database, Plus } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import CSVUploadDialog from './CSVUploadDialog';
 
 interface DataPoint {
   pointid: number;
@@ -48,6 +50,8 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [tableExists, setTableExists] = useState(false);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -55,63 +59,25 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
     
     setLoading(true);
     try {
-      // This would typically fetch from your Supabase device table
-      // For now, we'll simulate some data with all fields
-      const simulatedData: DataPoint[] = [
-        {
-          pointid: 1,
-          id: 1001,
-          timestamp: Date.now() - 86400000,
-          locktime: 1234567890,
-          latitude: 28.6139,
-          longitude: 77.2090,
-          hdop: 1.2,
-          count: 100,
-          satellites: 8,
-          speed: 25,
-          activity: true,
-          ax: 0.1,
-          ay: 0.2,
-          az: 9.8,
-          created_at: new Date(Date.now() - 86400000).toISOString()
-        },
-        {
-          pointid: 2,
-          id: 1002,
-          timestamp: Date.now() - 43200000,
-          locktime: 1234567891,
-          latitude: 28.6129,
-          longitude: 77.2080,
-          hdop: 1.5,
-          count: 101,
-          satellites: 7,
-          speed: 30,
-          activity: false,
-          ax: 0.05,
-          ay: 0.15,
-          az: 9.85,
-          created_at: new Date(Date.now() - 43200000).toISOString()
-        },
-        {
-          pointid: 3,
-          id: 1003,
-          timestamp: Date.now() - 21600000,
-          locktime: 1234567892,
-          latitude: 28.6149,
-          longitude: 77.2100,
-          hdop: 0.9,
-          count: 102,
-          satellites: 9,
-          speed: 15,
-          activity: true,
-          ax: -0.02,
-          ay: 0.18,
-          az: 9.79,
-          created_at: new Date(Date.now() - 21600000).toISOString()
+      // Query the device-specific table
+      const { data: deviceData, error } = await supabase
+        .from(deviceId)
+        .select('*')
+        .order('timestamp', { ascending: false });
+
+      if (error) {
+        // Check if error is because table doesn't exist
+        if (error.code === '42P01') {
+          console.log(`Table ${deviceId} does not exist`);
+          setTableExists(false);
+          setData([]);
+        } else {
+          throw error;
         }
-      ];
-      
-      setData(simulatedData);
+      } else {
+        setTableExists(true);
+        setData(deviceData || []);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -119,6 +85,8 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
         description: 'Failed to fetch device data',
         variant: 'destructive'
       });
+      setTableExists(false);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -128,31 +96,21 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
     fetchData();
   }, [deviceId]);
 
-  const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const csv = e.target?.result as string;
-        // Here you would parse the CSV and upload to your backend
-        toast({
-          title: 'Success',
-          description: 'CSV file uploaded successfully'
-        });
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'Failed to process CSV file',
-          variant: 'destructive'
-        });
-      }
-    };
-    reader.readAsText(file);
+  const handleUploadComplete = () => {
+    // Refetch data after upload
+    fetchData();
   };
 
   const exportData = () => {
+    if (data.length === 0) {
+      toast({
+        title: 'No data',
+        description: 'No data available to export',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     const csvContent = [
       ['Point ID', 'ID', 'Timestamp', 'Locktime', 'Latitude', 'Longitude', 'HDOP', 'Count', 'Satellites', 'Speed', 'Activity', 'AX', 'AY', 'AZ', 'Created At'],
       ...data.map(row => [
@@ -201,8 +159,34 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
       <Card className="flex-1">
         <CardContent className="flex items-center justify-center h-96">
           <div className="text-center text-gray-500">
-            <Filter className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-            <p>Select a device to view data</p>
+            <Database className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium mb-2">No Device Selected</h3>
+            <p className="text-sm mb-4">Choose a device from the sidebar to view its data</p>
+            <div className="text-xs text-gray-400">
+              <p>Don't have any devices yet?</p>
+              <p className="mt-1">Create your first project and add a device to get started</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!tableExists && !loading) {
+    return (
+      <Card className="flex-1">
+        <CardContent className="flex items-center justify-center h-96">
+          <div className="text-center text-gray-500">
+            <Database className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium mb-2">No Data Available</h3>
+            <p className="text-sm mb-4">This device doesn't have any data yet</p>
+            <Button onClick={() => setShowUploadDialog(true)} className="mt-2">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload CSV Data
+            </Button>
+            <p className="text-xs text-gray-400 mt-2">
+              Upload a properly formatted CSV file to populate the data table
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -210,169 +194,192 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
   }
 
   return (
-    <Card className="flex-1">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg font-semibold">
-              {deviceName} Data
-            </CardTitle>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="outline">{projectName}</Badge>
-              <Badge variant="secondary">{filteredData.length} records</Badge>
+    <>
+      <Card className="flex-1">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold">
+                {deviceName} Data
+              </CardTitle>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline">{projectName}</Badge>
+                <Badge variant="secondary">{filteredData.length} records</Badge>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchData}
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={exportData}
+                disabled={data.length === 0}
+              >
+                <Download className="h-4 w-4 mr-1" />
+                Export
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowUploadDialog(true)}
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                Upload CSV
+              </Button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchData}
-              disabled={loading}
-            >
-              <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button variant="outline" size="sm" onClick={exportData}>
-              <Download className="h-4 w-4 mr-1" />
-              Export
-            </Button>
-            <label className="cursor-pointer">
-              <Button variant="outline" size="sm" asChild>
-                <span>
-                  <Upload className="h-4 w-4 mr-1" />
-                  Upload CSV
-                </span>
-              </Button>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleCSVUpload}
-                className="hidden"
-              />
-            </label>
+          
+          <div className="flex items-center gap-2 mt-4">
+            <Input
+              placeholder="Search coordinates or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-xs"
+            />
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <CalendarIcon className="h-4 w-4 mr-1" />
+                  {startDate ? format(startDate, 'MMM dd') : 'Start Date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <CalendarIcon className="h-4 w-4 mr-1" />
+                  {endDate ? format(endDate, 'MMM dd') : 'End Date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
-        </div>
+        </CardHeader>
         
-        <div className="flex items-center gap-2 mt-4">
-          <Input
-            placeholder="Search coordinates or ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-xs"
-          />
-          
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
-                <CalendarIcon className="h-4 w-4 mr-1" />
-                {startDate ? format(startDate, 'MMM dd') : 'Start Date'}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-          
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
-                <CalendarIcon className="h-4 w-4 mr-1" />
-                {endDate ? format(endDate, 'MMM dd') : 'End Date'}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={endDate}
-                onSelect={setEndDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="w-full overflow-x-auto">
-          <div className="rounded-md border min-w-[1400px]">
-            <div className="max-h-96 overflow-y-auto">
-              <Table>
-                <TableHeader className="sticky top-0 bg-white z-10">
-                  <TableRow className="h-8">
-                    <TableHead className="w-16 text-xs font-medium">Point ID</TableHead>
-                    <TableHead className="w-20 text-xs font-medium">ID</TableHead>
-                    <TableHead className="w-32 text-xs font-medium">Timestamp</TableHead>
-                    <TableHead className="w-24 text-xs font-medium">Locktime</TableHead>
-                    <TableHead className="w-24 text-xs font-medium">Latitude</TableHead>
-                    <TableHead className="w-24 text-xs font-medium">Longitude</TableHead>
-                    <TableHead className="w-16 text-xs font-medium">HDOP</TableHead>
-                    <TableHead className="w-16 text-xs font-medium">Count</TableHead>
-                    <TableHead className="w-20 text-xs font-medium">Satellites</TableHead>
-                    <TableHead className="w-16 text-xs font-medium">Speed</TableHead>
-                    <TableHead className="w-20 text-xs font-medium">Activity</TableHead>
-                    <TableHead className="w-16 text-xs font-medium">AX</TableHead>
-                    <TableHead className="w-16 text-xs font-medium">AY</TableHead>
-                    <TableHead className="w-16 text-xs font-medium">AZ</TableHead>
-                    <TableHead className="w-32 text-xs font-medium">Created At</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={15} className="text-center py-8">
-                        <div className="flex items-center justify-center">
-                          <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                          Loading data...
-                        </div>
-                      </TableCell>
+        <CardContent>
+          <div className="w-full overflow-x-auto">
+            <div className="rounded-md border min-w-[1400px]">
+              <div className="max-h-96 overflow-y-auto">
+                <Table>
+                  <TableHeader className="sticky top-0 bg-white z-10">
+                    <TableRow className="h-8">
+                      <TableHead className="w-16 text-xs font-medium">Point ID</TableHead>
+                      <TableHead className="w-20 text-xs font-medium">ID</TableHead>
+                      <TableHead className="w-32 text-xs font-medium">Timestamp</TableHead>
+                      <TableHead className="w-24 text-xs font-medium">Locktime</TableHead>
+                      <TableHead className="w-24 text-xs font-medium">Latitude</TableHead>
+                      <TableHead className="w-24 text-xs font-medium">Longitude</TableHead>
+                      <TableHead className="w-16 text-xs font-medium">HDOP</TableHead>
+                      <TableHead className="w-16 text-xs font-medium">Count</TableHead>
+                      <TableHead className="w-20 text-xs font-medium">Satellites</TableHead>
+                      <TableHead className="w-16 text-xs font-medium">Speed</TableHead>
+                      <TableHead className="w-20 text-xs font-medium">Activity</TableHead>
+                      <TableHead className="w-16 text-xs font-medium">AX</TableHead>
+                      <TableHead className="w-16 text-xs font-medium">AY</TableHead>
+                      <TableHead className="w-16 text-xs font-medium">AZ</TableHead>
+                      <TableHead className="w-32 text-xs font-medium">Created At</TableHead>
                     </TableRow>
-                  ) : filteredData.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={15} className="text-center py-8 text-gray-500">
-                        No data found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredData.map((row, index) => (
-                      <TableRow key={index} className="h-6">
-                        <TableCell className="text-xs py-1 px-2">{row.pointid}</TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.id}</TableCell>
-                        <TableCell className="font-mono text-xs py-1 px-2">
-                          {new Date(row.timestamp).toLocaleString()}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs py-1 px-2">{row.locktime}</TableCell>
-                        <TableCell className="font-mono text-xs py-1 px-2">{row.latitude.toFixed(6)}</TableCell>
-                        <TableCell className="font-mono text-xs py-1 px-2">{row.longitude.toFixed(6)}</TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.hdop?.toFixed(2) || 'N/A'}</TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.count}</TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.satellites || 'N/A'}</TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.speed ? `${row.speed} km/h` : 'N/A'}</TableCell>
-                        <TableCell className="py-1 px-2">
-                          <Badge variant={row.activity ? "default" : "secondary"} className="text-xs px-1 py-0">
-                            {row.activity ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.ax?.toFixed(2) || 'N/A'}</TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.ay?.toFixed(2) || 'N/A'}</TableCell>
-                        <TableCell className="text-xs py-1 px-2">{row.az?.toFixed(2) || 'N/A'}</TableCell>
-                        <TableCell className="font-mono text-xs py-1 px-2">
-                          {row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'}
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                      <TableRow>
+                        <TableCell colSpan={15} className="text-center py-8">
+                          <div className="flex items-center justify-center">
+                            <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                            Loading data...
+                          </div>
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : filteredData.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={15} className="text-center py-8 text-gray-500">
+                          {data.length === 0 ? (
+                            <div>
+                              <p>No data found for this device</p>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setShowUploadDialog(true)}
+                                className="mt-2"
+                              >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Upload Data
+                              </Button>
+                            </div>
+                          ) : (
+                            'No data matches your search criteria'
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredData.map((row, index) => (
+                        <TableRow key={index} className="h-6">
+                          <TableCell className="text-xs py-1 px-2">{row.pointid}</TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.id}</TableCell>
+                          <TableCell className="font-mono text-xs py-1 px-2">
+                            {new Date(row.timestamp).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs py-1 px-2">{row.locktime}</TableCell>
+                          <TableCell className="font-mono text-xs py-1 px-2">{row.latitude.toFixed(6)}</TableCell>
+                          <TableCell className="font-mono text-xs py-1 px-2">{row.longitude.toFixed(6)}</TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.hdop?.toFixed(2) || 'N/A'}</TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.count}</TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.satellites || 'N/A'}</TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.speed ? `${row.speed} km/h` : 'N/A'}</TableCell>
+                          <TableCell className="py-1 px-2">
+                            <Badge variant={row.activity ? "default" : "secondary"} className="text-xs px-1 py-0">
+                              {row.activity ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.ax?.toFixed(2) || 'N/A'}</TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.ay?.toFixed(2) || 'N/A'}</TableCell>
+                          <TableCell className="text-xs py-1 px-2">{row.az?.toFixed(2) || 'N/A'}</TableCell>
+                          <TableCell className="font-mono text-xs py-1 px-2">
+                            {row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <CSVUploadDialog 
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+        deviceId={deviceId}
+        onUploadComplete={handleUploadComplete}
+      />
+    </>
   );
 };
 

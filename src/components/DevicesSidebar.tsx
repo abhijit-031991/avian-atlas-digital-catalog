@@ -5,8 +5,9 @@ import { useProjects } from '@/hooks/useProjects';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Smartphone, Database, ChevronDown, ChevronRight } from 'lucide-react';
+import { Smartphone, Database, ChevronDown, ChevronRight, Plus, FolderPlus } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useNavigate } from 'react-router-dom';
 
 interface DevicesSidebarProps {
   selectedDevice: string | null;
@@ -17,6 +18,7 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
   const { currentUser } = useAuth();
   const { projects, loading } = useProjects(currentUser);
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   const toggleProject = (projectId: string) => {
     setExpandedProjects(prev => 
@@ -57,8 +59,16 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {projects.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
-            <Database className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-            <p className="text-sm">No projects with devices found</p>
+            <FolderPlus className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
+            <p className="text-sm mb-4">Get started by creating your first project and adding devices</p>
+            <Button 
+              onClick={() => navigate('/arctrack-central')}
+              className="mt-2"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Project
+            </Button>
           </div>
         ) : (
           projects.map(project => {
@@ -94,7 +104,18 @@ const DevicesSidebar = ({ selectedDevice, onDeviceSelect }: DevicesSidebarProps)
                   <CollapsibleContent>
                     <CardContent className="pt-0">
                       {deviceCount === 0 ? (
-                        <p className="text-xs text-gray-500 italic">No devices in this project</p>
+                        <div className="text-center py-4">
+                          <p className="text-xs text-gray-500 mb-2">No devices in this project</p>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => navigate('/arctrack-central')}
+                            className="text-xs"
+                          >
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add Device
+                          </Button>
+                        </div>
                       ) : (
                         <div className="space-y-1">
                           {Object.keys(project.devices).map(deviceId => (

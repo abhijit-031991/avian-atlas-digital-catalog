@@ -14,7 +14,4543 @@ export type Database = {
   }
   public: {
     Tables: {
+      "10101": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10102": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10103": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10104": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10105": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10106": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10107": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10108": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10201": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10301": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10302": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10303": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10304": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10305": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10306": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10307": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10308": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10309": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10310": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10311": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10312": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10313": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10314": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10315": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10316": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10317": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10318": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10319": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10320": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10331": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10334": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10336": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10338": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10339": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10340": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10343": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10345": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10353": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10354": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10355": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10356": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10357": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10358": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10359": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10360": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10362": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10372": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10373": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10374": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10376": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10398": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10399": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10401": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10402": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10403": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10404": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10405": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10406": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10407": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10408": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10409": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10410": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10411": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10412": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10413": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10414": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "10415": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
       "11111": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20001": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20002": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20003": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20004": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20005": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20006": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20007": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20008": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20009": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20010": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20011": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20012": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20013": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20014": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20015": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20016": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20017": {
         Row: {
           activity: boolean | null
           ax: number | null
