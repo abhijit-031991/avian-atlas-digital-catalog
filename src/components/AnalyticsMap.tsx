@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,9 +63,10 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
         }
       } else {
         setTableExists(true);
-        setData(deviceData || []);
-        if (deviceData && deviceData.length > 0 && mapInstanceRef.current) {
-          displayDataOnMap(deviceData);
+        const typedData = deviceData as DataPoint[] || [];
+        setData(typedData);
+        if (typedData && typedData.length > 0 && mapInstanceRef.current) {
+          displayDataOnMap(typedData);
         }
       }
     } catch (error) {

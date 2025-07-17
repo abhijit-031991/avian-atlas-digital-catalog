@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Table,
@@ -76,7 +75,8 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
         }
       } else {
         setTableExists(true);
-        setData(deviceData || []);
+        const typedData = deviceData as DataPoint[] || [];
+        setData(typedData);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
