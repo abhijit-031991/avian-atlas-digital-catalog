@@ -59,9 +59,9 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
     
     setLoading(true);
     try {
-      // Query the device-specific table
+      // Query the device-specific table using type assertion
       const { data: deviceData, error } = await supabase
-        .from(deviceId)
+        .from(deviceId as any)
         .select('*')
         .order('timestamp', { ascending: false });
 

@@ -28,6 +28,7 @@ declare namespace google {
       setTitle(title: string): void;
       setIcon(icon: string | Icon | Symbol): void;
       setAnimation(animation: Animation | null): void;
+      addListener(eventName: string, handler: Function): void;
     }
 
     class Polyline {
@@ -52,6 +53,22 @@ declare namespace google {
       getArray(): T[];
     }
 
+    class InfoWindow {
+      constructor(opts?: InfoWindowOptions);
+      open(map?: Map, anchor?: Marker): void;
+      close(): void;
+      setContent(content: string | Node): void;
+      getContent(): string | Node;
+      setPosition(position: LatLng | LatLngLiteral): void;
+      getPosition(): LatLng | undefined;
+    }
+
+    class Size {
+      constructor(width: number, height: number);
+      width: number;
+      height: number;
+    }
+
     interface MapOptions {
       center?: LatLng | LatLngLiteral;
       zoom?: number;
@@ -73,6 +90,14 @@ declare namespace google {
       strokeColor?: string;
       strokeOpacity?: number;
       strokeWeight?: number;
+    }
+
+    interface InfoWindowOptions {
+      content?: string | Node;
+      position?: LatLng | LatLngLiteral;
+      pixelOffset?: Size;
+      maxWidth?: number;
+      disableAutoPan?: boolean;
     }
 
     interface LatLngLiteral {
@@ -100,11 +125,6 @@ declare namespace google {
       strokeWeight?: number;
     }
 
-    interface Size {
-      width: number;
-      height: number;
-    }
-
     interface Point {
       x: number;
       y: number;
@@ -114,6 +134,13 @@ declare namespace google {
       elementType?: string;
       featureType?: string;
       stylers?: any[];
+    }
+
+    enum MapTypeId {
+      HYBRID = 'hybrid',
+      ROADMAP = 'roadmap',
+      SATELLITE = 'satellite',
+      TERRAIN = 'terrain'
     }
 
     enum Animation {
