@@ -37,6 +37,7 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
   const markersRef = useRef<google.maps.Marker[]>([]);
   const pathRef = useRef<google.maps.Polyline | null>(null);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [data, setData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,9 +45,66 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
   const [tableExists, setTableExists] = useState(false);
   const { toast } = useToast();
 
+  const loadGoogleMaps = () => {
+    return new Promise<void>((resolve, reject) => {
+      if (window.google && window.google.maps) {
+        resolve();
+        return;
+      }
+
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]') as HTMLScriptElement;
+      if (existingScript) {
+        if (existingScript.getAttribute('data-loaded') === 'true') {
+          resolve();
+        } else {
+          existingScript.addEventListener('load', () => resolve());
+          existingScript.addEventListener('error', reject);
+        }
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCs1PdnjLUuFYdrHCN-xTAW6r3p7BiiMZI&libraries=geometry`;
+      script.async = true;
+      script.defer = true;
+      script.setAttribute('data-loaded', 'true');
+
+      script.onload = () => {
+        resolve();
+      };
+      script.onerror = reject;
+
+      document.head.appendChild(script);
+    });
+  };
+
+  const initMap = async () => {
+    try {
+      await loadGoogleMaps();
+
+      if (!mapRef.current) return;
+
+      const map = new google.maps.Map(mapRef.current, {
+        zoom: 10,
+        center: { lat: 28.6139, lng: 77.2090 },
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+      });
+
+      mapInstanceRef.current = map;
+      setIsLoaded(true);
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      toast({
+        title: 'Map Error',
+        description: 'Failed to load Google Maps',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const fetchData = async () => {
     if (!deviceId) return;
-    
+
     setLoading(true);
     try {
       const { data: deviceData, error } = await supabase
@@ -66,9 +124,6 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
         setTableExists(true);
         const typedData = (deviceData as unknown) as DataPoint[] || [];
         setData(typedData);
-        if (typedData && typedData.length > 0 && mapInstanceRef.current) {
-          displayDataOnMap(typedData);
-        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -81,60 +136,6 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
       setData([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadGoogleMaps = () => {
-    return new Promise<void>((resolve, reject) => {
-      if (window.google && window.google.maps) {
-        resolve();
-        return;
-      }
-
-      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-      if (existingScript) {
-        existingScript.addEventListener('load', () => resolve());
-        existingScript.addEventListener('error', reject);
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCs1PdnjLUuFYdrHCN-xTAW6r3p7BiiMZI&libraries=geometry&loading=async`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        setIsLoaded(true);
-        resolve();
-      };
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  };
-
-  const initMap = async () => {
-    try {
-      await loadGoogleMaps();
-      
-      if (!mapRef.current) return;
-
-      const map = new google.maps.Map(mapRef.current, {
-        zoom: 10,
-        center: { lat: 28.6139, lng: 77.2090 },
-        mapTypeId: google.maps.MapTypeId.SATELLITE,
-      });
-
-      mapInstanceRef.current = map;
-      
-      if (data.length > 0) {
-        displayDataOnMap(data);
-      }
-    } catch (error) {
-      console.error('Error initializing map:', error);
-      toast({
-        title: 'Map Error',
-        description: 'Failed to load Google Maps',
-        variant: 'destructive'
-      });
     }
   };
 
@@ -180,7 +181,7 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
       });
 
       marker.addListener('click', () => {
-        infoWindow.open(mapInstanceRef.current, marker);
+        infoWindow.open(mapInstanceRef.current!, marker);
       });
 
       markersRef.current.push(marker);
@@ -203,24 +204,18 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
       }
-      
+
       animationTimeoutRef.current = setTimeout(() => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.fitBounds(bounds);
-        }
+        mapInstanceRef.current?.fitBounds(bounds);
       }, 100);
     }
   };
 
   const clearMapElements = () => {
-    markersRef.current.forEach(marker => {
-      if (marker && marker.setMap) {
-        marker.setMap(null);
-      }
-    });
+    markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
 
-    if (pathRef.current && pathRef.current.setMap) {
+    if (pathRef.current) {
       pathRef.current.setMap(null);
       pathRef.current = null;
     }
@@ -240,11 +235,17 @@ const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps)
     fetchData();
   }, [deviceId]);
 
-  // Update map when filtered data changes
   useEffect(() => {
-    if (filteredData && filteredData.length > 0 && mapInstanceRef.current) {
+    if (isLoaded && mapInstanceRef.current && data.length > 0) {
+      displayDataOnMap(data);
+    }
+  }, [data, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded || !mapInstanceRef.current) return;
+    if (filteredData && filteredData.length > 0) {
       displayDataOnMap(filteredData);
-    } else if (filteredData && filteredData.length === 0 && mapInstanceRef.current) {
+    } else if (filteredData && filteredData.length === 0) {
       clearMapElements();
     }
   }, [filteredData]);
