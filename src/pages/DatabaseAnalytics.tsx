@@ -9,6 +9,24 @@ import DataTable from '@/components/DataTable';
 import AnalyticsMap from '@/components/AnalyticsMap';
 import StatisticsPanel from '@/components/StatisticsPanel';
 
+interface DataPoint {
+  pointid: number;
+  id: number;
+  timestamp: number;
+  locktime: number;
+  latitude: number;
+  longitude: number;
+  hdop: number | null;
+  count: number;
+  satellites: number | null;
+  speed: number | null;
+  activity: boolean | null;
+  ax: number | null;
+  ay: number | null;
+  az: number | null;
+  created_at: string | null;
+}
+
 const DatabaseAnalytics = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -16,6 +34,7 @@ const DatabaseAnalytics = () => {
   const [selectedDeviceName, setSelectedDeviceName] = useState<string>('');
   const [selectedProjectName, setSelectedProjectName] = useState<string>('');
   const [activeView, setActiveView] = useState<'table' | 'map'>('table');
+  const [filteredData, setFilteredData] = useState<DataPoint[]>([]);
 
   if (!currentUser) {
     navigate('/auth');
@@ -26,6 +45,11 @@ const DatabaseAnalytics = () => {
     setSelectedDevice(deviceId);
     setSelectedDeviceName(deviceName);
     setSelectedProjectName(projectName);
+    setFilteredData([]); // Reset filtered data when device changes
+  };
+
+  const handleDataChange = (data: DataPoint[]) => {
+    setFilteredData(data);
   };
 
   return (
@@ -87,11 +111,13 @@ const DatabaseAnalytics = () => {
                     deviceId={selectedDevice}
                     deviceName={selectedDeviceName}
                     projectName={selectedProjectName}
+                    onDataChange={handleDataChange}
                   />
                 ) : (
                   <AnalyticsMap
                     deviceId={selectedDevice}
                     deviceName={selectedDeviceName}
+                    filteredData={filteredData}
                   />
                 )}
               </div>

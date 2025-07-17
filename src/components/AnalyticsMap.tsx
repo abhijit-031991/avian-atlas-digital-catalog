@@ -10,6 +10,7 @@ import CSVUploadDialog from './CSVUploadDialog';
 interface AnalyticsMapProps {
   deviceId: string;
   deviceName: string;
+  filteredData?: DataPoint[];
 }
 
 interface DataPoint {
@@ -30,7 +31,7 @@ interface DataPoint {
   created_at: string | null;
 }
 
-const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
+const AnalyticsMap = ({ deviceId, deviceName, filteredData }: AnalyticsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -238,6 +239,13 @@ const AnalyticsMap = ({ deviceId, deviceName }: AnalyticsMapProps) => {
   useEffect(() => {
     fetchData();
   }, [deviceId]);
+
+  // Update map when filtered data changes
+  useEffect(() => {
+    if (filteredData && filteredData.length > 0 && mapInstanceRef.current) {
+      displayDataOnMap(filteredData);
+    }
+  }, [filteredData]);
 
   const handleUploadComplete = () => {
     fetchData();

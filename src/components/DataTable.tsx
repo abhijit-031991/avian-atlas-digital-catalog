@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, Download, Upload, Filter, RefreshCw, Database, Plus } from 'lucide-react';
+import { CalendarIcon, Download, Upload, Filter, RefreshCw, Database, Plus, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -41,9 +41,15 @@ interface DataTableProps {
   deviceId: string | null;
   deviceName: string;
   projectName: string;
+  onDataChange?: (data: DataPoint[]) => void;
 }
 
-const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
+type SortConfig = {
+  key: keyof DataPoint;
+  direction: 'asc' | 'desc';
+} | null;
+
+const DataTable = ({ deviceId, deviceName, projectName, onDataChange }: DataTableProps) => {
   const [data, setData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<Date>();
@@ -51,6 +57,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [tableExists, setTableExists] = useState(false);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'pointid', direction: 'asc' });
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -62,7 +69,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
       const { data: deviceData, error } = await supabase
         .from(deviceId as any)
         .select('*')
-        .order('timestamp', { ascending: false });
+        .order('pointid', { ascending: true });
 
       if (error) {
         // Check if error is because table doesn't exist
@@ -77,6 +84,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
         setTableExists(true);
         const typedData = (deviceData as unknown) as DataPoint[] || [];
         setData(typedData);
+        onDataChange?.(typedData);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -99,6 +107,23 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
   const handleUploadComplete = () => {
     // Refetch data after upload
     fetchData();
+  };
+
+  const handleSort = (key: keyof DataPoint) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnKey: keyof DataPoint) => {
+    if (!sortConfig || sortConfig.key !== columnKey) {
+      return <ArrowUpDown className="h-3 w-3 ml-1 text-gray-400" />;
+    }
+    return sortConfig.direction === 'asc' ? 
+      <ArrowUp className="h-3 w-3 ml-1 text-blue-600" /> : 
+      <ArrowDown className="h-3 w-3 ml-1 text-blue-600" />;
   };
 
   const exportData = () => {
@@ -141,18 +166,45 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
     window.URL.revokeObjectURL(url);
   };
 
-  const filteredData = data.filter(item => {
-    const matchesSearch = searchTerm === '' || 
-      item.latitude.toString().includes(searchTerm) ||
-      item.longitude.toString().includes(searchTerm) ||
-      item.id.toString().includes(searchTerm);
-    
-    const itemDate = new Date(item.timestamp);
-    const matchesDateRange = (!startDate || itemDate >= startDate) && 
-                           (!endDate || itemDate <= endDate);
-    
-    return matchesSearch && matchesDateRange;
-  });
+  const filteredAndSortedData = React.useMemo(() => {
+    let filtered = data.filter(item => {
+      const matchesSearch = searchTerm === '' || 
+        item.latitude.toString().includes(searchTerm) ||
+        item.longitude.toString().includes(searchTerm) ||
+        item.id.toString().includes(searchTerm);
+      
+      const itemDate = new Date(item.timestamp);
+      const matchesDateRange = (!startDate || itemDate >= startDate) && 
+                             (!endDate || itemDate <= endDate);
+      
+      return matchesSearch && matchesDateRange;
+    });
+
+    if (sortConfig) {
+      filtered.sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+        
+        if (aValue === null || aValue === undefined) return 1;
+        if (bValue === null || bValue === undefined) return -1;
+        
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [data, searchTerm, startDate, endDate, sortConfig]);
+
+  // Notify parent component when filtered data changes
+  React.useEffect(() => {
+    onDataChange?.(filteredAndSortedData);
+  }, [filteredAndSortedData, onDataChange]);
 
   if (!deviceId) {
     return (
@@ -204,7 +256,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
               </CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline">{projectName}</Badge>
-                <Badge variant="secondary">{filteredData.length} records</Badge>
+                <Badge variant="secondary">{filteredAndSortedData.length} records</Badge>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -288,21 +340,81 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
                 <Table>
                   <TableHeader className="sticky top-0 bg-white z-10">
                     <TableRow className="h-8">
-                      <TableHead className="w-16 text-xs font-medium">Point ID</TableHead>
-                      <TableHead className="w-20 text-xs font-medium">ID</TableHead>
-                      <TableHead className="w-32 text-xs font-medium">Timestamp</TableHead>
-                      <TableHead className="w-24 text-xs font-medium">Locktime</TableHead>
-                      <TableHead className="w-24 text-xs font-medium">Latitude</TableHead>
-                      <TableHead className="w-24 text-xs font-medium">Longitude</TableHead>
-                      <TableHead className="w-16 text-xs font-medium">HDOP</TableHead>
-                      <TableHead className="w-16 text-xs font-medium">Count</TableHead>
-                      <TableHead className="w-20 text-xs font-medium">Satellites</TableHead>
-                      <TableHead className="w-16 text-xs font-medium">Speed</TableHead>
-                      <TableHead className="w-20 text-xs font-medium">Activity</TableHead>
-                      <TableHead className="w-16 text-xs font-medium">AX</TableHead>
-                      <TableHead className="w-16 text-xs font-medium">AY</TableHead>
-                      <TableHead className="w-16 text-xs font-medium">AZ</TableHead>
-                      <TableHead className="w-32 text-xs font-medium">Created At</TableHead>
+                      <TableHead className="w-16 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('pointid')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Point ID {getSortIcon('pointid')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-20 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('id')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          ID {getSortIcon('id')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-32 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('timestamp')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Timestamp {getSortIcon('timestamp')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-24 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('locktime')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Locktime {getSortIcon('locktime')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-24 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('latitude')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Latitude {getSortIcon('latitude')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-24 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('longitude')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Longitude {getSortIcon('longitude')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-16 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('hdop')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          HDOP {getSortIcon('hdop')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-16 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('count')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Count {getSortIcon('count')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-20 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('satellites')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Satellites {getSortIcon('satellites')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-16 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('speed')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Speed {getSortIcon('speed')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-20 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('activity')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Activity {getSortIcon('activity')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-16 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('ax')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          AX {getSortIcon('ax')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-16 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('ay')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          AY {getSortIcon('ay')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-16 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('az')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          AZ {getSortIcon('az')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-32 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('created_at')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          Created At {getSortIcon('created_at')}
+                        </Button>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -315,7 +427,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ) : filteredData.length === 0 ? (
+                    ) : filteredAndSortedData.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={15} className="text-center py-8 text-gray-500">
                           {data.length === 0 ? (
@@ -337,7 +449,7 @@ const DataTable = ({ deviceId, deviceName, projectName }: DataTableProps) => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredData.map((row, index) => (
+                      filteredAndSortedData.map((row, index) => (
                         <TableRow key={index} className="h-6">
                           <TableCell className="text-xs py-1 px-2">{row.pointid}</TableCell>
                           <TableCell className="text-xs py-1 px-2">{row.id}</TableCell>

@@ -4604,6 +4604,60 @@ export type Database = {
         }
         Relationships: []
       }
+      "22222": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
