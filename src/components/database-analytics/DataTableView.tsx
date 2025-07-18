@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
@@ -58,6 +59,15 @@ const DataTableView = ({
     return sortConfig.direction === 'asc' ? 
       <ArrowUp className="h-3 w-3 ml-1 text-blue-600" /> : 
       <ArrowDown className="h-3 w-3 ml-1 text-blue-600" />;
+  };
+
+  const handleUploadComplete = () => {
+    onRefresh();
+    toast({
+      title: 'Upload successful',
+      description: 'CSV data has been uploaded successfully',
+      className: 'bg-green-50 border-green-200 text-green-800'
+    });
   };
 
   const exportData = () => {
@@ -171,7 +181,7 @@ const DataTableView = ({
               </CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline">{device.projectName}</Badge>
-                <Badge variant="secondary">{filteredAndSortedData.length} records</Badge>
+                <Badge variant="secondary">{filteredAndSortedData.length} of {data.length} records</Badge>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -250,12 +260,12 @@ const DataTableView = ({
         
         <CardContent>
           <div className="w-full overflow-x-auto">
-            <div className="rounded-md border min-w-[1400px]">
+            <div className="rounded-md border min-w-[1600px]">
               <div className="max-h-96 overflow-y-auto">
                 <Table>
                   <TableHeader className="sticky top-0 bg-white z-10">
                     <TableRow className="h-8">
-                      <TableHead className="w-16 text-xs font-medium">
+                      <TableHead className="w-20 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('pointid')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Point ID {getSortIcon('pointid')}
                         </Button>
@@ -265,34 +275,49 @@ const DataTableView = ({
                           ID {getSortIcon('id')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-32 text-xs font-medium">
+                      <TableHead className="w-36 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('timestamp')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Timestamp {getSortIcon('timestamp')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-24 text-xs font-medium">
+                      <TableHead className="w-28 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('latitude')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Latitude {getSortIcon('latitude')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-24 text-xs font-medium">
+                      <TableHead className="w-28 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('longitude')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Longitude {getSortIcon('longitude')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-16 text-xs font-medium">
+                      <TableHead className="w-20 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('speed')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Speed {getSortIcon('speed')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-24 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('activity')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Activity {getSortIcon('activity')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-24 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('satellites')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Satellites {getSortIcon('satellites')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-20 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('ax')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          AX {getSortIcon('ax')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-20 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('ay')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          AY {getSortIcon('ay')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="w-20 text-xs font-medium">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('az')} className="p-0 h-auto font-medium text-xs flex items-center">
+                          AZ {getSortIcon('az')}
                         </Button>
                       </TableHead>
                     </TableRow>
@@ -300,7 +325,7 @@ const DataTableView = ({
                   <TableBody>
                     {loading ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8">
+                        <TableCell colSpan={11} className="text-center py-8">
                           <div className="flex items-center justify-center">
                             <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                             Loading data...
@@ -309,7 +334,7 @@ const DataTableView = ({
                       </TableRow>
                     ) : filteredAndSortedData.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                        <TableCell colSpan={11} className="text-center py-8 text-gray-500">
                           {data.length === 0 ? (
                             <div>
                               <p>No data found for this device</p>
@@ -343,6 +368,9 @@ const DataTableView = ({
                             </Badge>
                           </TableCell>
                           <TableCell className="text-xs">{row.satellites || 'N/A'}</TableCell>
+                          <TableCell className="text-xs">{row.ax !== null && row.ax !== undefined ? row.ax.toFixed(2) : 'N/A'}</TableCell>
+                          <TableCell className="text-xs">{row.ay !== null && row.ay !== undefined ? row.ay.toFixed(2) : 'N/A'}</TableCell>
+                          <TableCell className="text-xs">{row.az !== null && row.az !== undefined ? row.az.toFixed(2) : 'N/A'}</TableCell>
                         </TableRow>
                       ))
                     )}
@@ -358,7 +386,7 @@ const DataTableView = ({
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
         deviceId={device.id}
-        onUploadComplete={onRefresh}
+        onUploadComplete={handleUploadComplete}
       />
     </>
   );

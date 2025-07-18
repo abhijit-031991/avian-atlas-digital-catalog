@@ -1,8 +1,9 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, RefreshCw, Upload, Database } from 'lucide-react';
+import { MapPin, RefreshCw, Upload, Database, EyeOff, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import CSVUploadDialog from '@/components/CSVUploadDialog';
 import { DataPoint, DeviceInfo } from '@/types/database-analytics';
@@ -25,6 +26,7 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [skipNullValues, setSkipNullValues] = useState(false);
   const { toast } = useToast();
 
   const loadGoogleMaps = () => {
@@ -89,10 +91,31 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
 
     clearMapElements();
 
+    // Filter out null/invalid coordinates if skipNullValues is enabled
+    const validPoints = skipNullValues 
+      ? points.filter(point => 
+          point.latitude !== null && 
+          point.longitude !== null && 
+          point.latitude !== 0 && 
+          point.longitude !== 0 &&
+          !isNaN(point.latitude) && 
+          !isNaN(point.longitude)
+        )
+      : points;
+
+    if (validPoints.length === 0) {
+      toast({
+        title: 'No Valid Points',
+        description: 'No valid coordinate points to display on the map',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     const bounds = new google.maps.LatLngBounds();
     const path: google.maps.LatLng[] = [];
 
-    points.forEach((point, index) => {
+    validPoints.forEach((point, index) => {
       const position = new google.maps.LatLng(point.latitude, point.longitude);
       path.push(position);
       bounds.extend(position);
@@ -120,7 +143,8 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
             <strong>Location:</strong> ${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}<br/>
             <strong>Speed:</strong> ${point.speed || 'N/A'} km/h<br/>
             <strong>Activity:</strong> ${point.activity ? 'Active' : 'Inactive'}<br/>
-            <strong>Satellites:</strong> ${point.satellites || 'N/A'}
+            <strong>Satellites:</strong> ${point.satellites || 'N/A'}<br/>
+            <strong>Accelerometer:</strong> X:${point.ax?.toFixed(2) || 'N/A'}, Y:${point.ay?.toFixed(2) || 'N/A'}, Z:${point.az?.toFixed(2) || 'N/A'}
           </div>
         `,
       });
@@ -136,16 +160,16 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
       const polyline = new google.maps.Polyline({
         path,
         geodesic: true,
-        strokeColor: '#2563EB',
+        strokeColor: '#FBBF24', // Yellow color
         strokeOpacity: 1.0,
-        strokeWeight: 3,
+        strokeWeight: 2, // Reduced width
       });
 
       polyline.setMap(mapInstanceRef.current);
       pathRef.current = polyline;
     }
 
-    if (points.length > 0) {
+    if (validPoints.length > 0) {
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
       }
@@ -166,6 +190,15 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
     }
   };
 
+  const handleUploadComplete = () => {
+    onRefresh();
+    toast({
+      title: 'Upload successful',
+      description: 'CSV data has been uploaded successfully',
+      className: 'bg-green-50 border-green-200 text-green-800'
+    });
+  };
+
   useEffect(() => {
     initMap();
     return () => {
@@ -180,7 +213,7 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
     if (isLoaded && mapInstanceRef.current && data.length > 0) {
       displayDataOnMap(data);
     }
-  }, [data, isLoaded]);
+  }, [data, isLoaded, skipNullValues]);
 
   useEffect(() => {
     if (!isLoaded || !mapInstanceRef.current) return;
@@ -189,7 +222,7 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
     } else if (filteredData && filteredData.length === 0) {
       clearMapElements();
     }
-  }, [filteredData, isLoaded]);
+  }, [filteredData, isLoaded, skipNullValues]);
 
   if (!tableExists && !loading) {
     return (
@@ -224,6 +257,11 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
               </CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary">{data.length} data points</Badge>
+                {skipNullValues && (
+                  <Badge variant="outline" className="text-xs">
+                    Null values skipped
+                  </Badge>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -235,6 +273,15 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
               >
                 <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSkipNullValues(!skipNullValues)}
+                className={skipNullValues ? 'bg-blue-50 border-blue-200' : ''}
+              >
+                {skipNullValues ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                {skipNullValues ? 'Show All' : 'Skip Nulls'}
               </Button>
               <Button 
                 variant="outline" 
@@ -267,6 +314,8 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
                 Active points
                 <span className="w-3 h-3 bg-red-500 rounded-full ml-4"></span>
                 Inactive points
+                <span className="w-4 h-0.5 bg-yellow-400 ml-4"></span>
+                Path (yellow)
               </p>
             </div>
           )}
@@ -277,7 +326,7 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
         deviceId={device.id}
-        onUploadComplete={onRefresh}
+        onUploadComplete={handleUploadComplete}
       />
     </>
   );
