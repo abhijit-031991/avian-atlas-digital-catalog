@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, Download, Upload, RefreshCw, Database, Plus, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { CalendarIcon, Download, Upload, RefreshCw, Database, Plus, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -42,6 +42,8 @@ const DataTableView = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'pointid', direction: 'asc' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(50);
   const { toast } = useToast();
 
   const handleSort = (key: keyof DataPoint) => {
@@ -145,9 +147,25 @@ const DataTableView = ({
     return filtered;
   }, [data, searchTerm, startDate, endDate, sortConfig]);
 
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredAndSortedData.slice(startIndex, endIndex);
+  }, [filteredAndSortedData, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredAndSortedData.length / itemsPerPage);
+
   useEffect(() => {
     onDataChange?.(filteredAndSortedData);
   }, [filteredAndSortedData, onDataChange]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, startDate, endDate, sortConfig]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   if (!tableExists && !loading) {
     return (
@@ -182,6 +200,7 @@ const DataTableView = ({
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline">{device.projectName}</Badge>
                 <Badge variant="secondary">{filteredAndSortedData.length} of {data.length} records</Badge>
+                <Badge variant="outline">Page {currentPage} of {totalPages}</Badge>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -353,32 +372,89 @@ const DataTableView = ({
                           )}
                         </TableCell>
                       </TableRow>
-                    ) : (
-                      filteredAndSortedData.map((row) => (
-                        <TableRow key={row.pointid} className="h-8">
-                          <TableCell className="text-xs">{row.pointid}</TableCell>
-                          <TableCell className="text-xs">{row.id}</TableCell>
-                          <TableCell className="text-xs">{new Date(row.timestamp).toLocaleString()}</TableCell>
-                          <TableCell className="text-xs">{row.latitude.toFixed(6)}</TableCell>
-                          <TableCell className="text-xs">{row.longitude.toFixed(6)}</TableCell>
-                          <TableCell className="text-xs">{row.speed || 'N/A'}</TableCell>
-                          <TableCell className="text-xs">
-                            <Badge variant={row.activity ? "default" : "secondary"} className="text-xs">
-                              {row.activity ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-xs">{row.satellites || 'N/A'}</TableCell>
-                          <TableCell className="text-xs">{row.ax !== null && row.ax !== undefined ? row.ax.toFixed(2) : 'N/A'}</TableCell>
-                          <TableCell className="text-xs">{row.ay !== null && row.ay !== undefined ? row.ay.toFixed(2) : 'N/A'}</TableCell>
-                          <TableCell className="text-xs">{row.az !== null && row.az !== undefined ? row.az.toFixed(2) : 'N/A'}</TableCell>
-                        </TableRow>
-                      ))
-                    )}
+                     ) : (
+                       paginatedData.map((row) => (
+                         <TableRow key={row.pointid} className="h-8">
+                           <TableCell className="text-xs">{row.pointid}</TableCell>
+                           <TableCell className="text-xs">{row.id}</TableCell>
+                           <TableCell className="text-xs">{new Date(row.timestamp).toLocaleString()}</TableCell>
+                           <TableCell className="text-xs">{row.latitude.toFixed(6)}</TableCell>
+                           <TableCell className="text-xs">{row.longitude.toFixed(6)}</TableCell>
+                           <TableCell className="text-xs">{row.speed || 'N/A'}</TableCell>
+                           <TableCell className="text-xs">
+                             <Badge variant={row.activity ? "default" : "secondary"} className="text-xs">
+                               {row.activity ? 'Active' : 'Inactive'}
+                             </Badge>
+                           </TableCell>
+                           <TableCell className="text-xs">{row.satellites || 'N/A'}</TableCell>
+                           <TableCell className="text-xs">{row.ax !== null && row.ax !== undefined ? row.ax.toFixed(2) : 'N/A'}</TableCell>
+                           <TableCell className="text-xs">{row.ay !== null && row.ay !== undefined ? row.ay.toFixed(2) : 'N/A'}</TableCell>
+                           <TableCell className="text-xs">{row.az !== null && row.az !== undefined ? row.az.toFixed(2) : 'N/A'}</TableCell>
+                         </TableRow>
+                       ))
+                     )}
                   </TableBody>
                 </Table>
               </div>
             </div>
           </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-gray-600">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedData.length)} of {filteredAndSortedData.length} entries
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(pageNum)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

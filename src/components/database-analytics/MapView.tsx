@@ -210,8 +210,12 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
   }, []);
 
   useEffect(() => {
-    if (isLoaded && mapInstanceRef.current && data.length > 0) {
-      displayDataOnMap(data);
+    if (isLoaded && mapInstanceRef.current) {
+      if (filteredData && filteredData.length > 0) {
+        displayDataOnMap(filteredData);
+      } else if (data.length > 0) {
+        displayDataOnMap(data);
+      }
     }
   }, [data, isLoaded, skipNullValues]);
 

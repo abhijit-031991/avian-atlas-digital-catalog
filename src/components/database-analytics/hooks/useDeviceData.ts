@@ -7,35 +7,59 @@ export const useDeviceData = (deviceId: string | null) => {
   const [data, setData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [tableExists, setTableExists] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const { toast } = useToast();
 
-  const fetchData = useCallback(async () => {
+  const fetchAllData = useCallback(async () => {
     if (!deviceId) {
       setData([]);
       setTableExists(false);
+      setTotalCount(0);
       return;
     }
 
     setLoading(true);
     try {
-      const { data: deviceData, error } = await supabase
+      // First get the total count
+      const { count, error: countError } = await supabase
         .from(deviceId as any)
-        .select('*')
-        .order('timestamp', { ascending: true });
+        .select('*', { count: 'exact', head: true });
 
-      if (error) {
-        if (error.code === '42P01') {
+      if (countError) {
+        if (countError.code === '42P01') {
           console.log(`Table ${deviceId} does not exist`);
           setTableExists(false);
           setData([]);
+          setTotalCount(0);
+          return;
         } else {
-          throw error;
+          throw countError;
         }
-      } else {
-        setTableExists(true);
-        const typedData = (deviceData as unknown) as DataPoint[] || [];
-        setData(typedData);
       }
+
+      setTotalCount(count || 0);
+      setTableExists(true);
+
+      // Fetch all data in batches if there are many records
+      const batchSize = 1000;
+      const totalBatches = Math.ceil((count || 0) / batchSize);
+      let allData: DataPoint[] = [];
+
+      for (let i = 0; i < totalBatches; i++) {
+        const { data: batchData, error: batchError } = await supabase
+          .from(deviceId as any)
+          .select('*')
+          .order('timestamp', { ascending: true })
+          .range(i * batchSize, (i + 1) * batchSize - 1);
+
+        if (batchError) {
+          throw batchError;
+        }
+
+        allData = [...allData, ...(batchData as unknown as DataPoint[] || [])];
+      }
+
+      setData(allData);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -45,23 +69,25 @@ export const useDeviceData = (deviceId: string | null) => {
       });
       setTableExists(false);
       setData([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
   }, [deviceId, toast]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchAllData();
+  }, [fetchAllData]);
 
   const refreshData = useCallback(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchAllData();
+  }, [fetchAllData]);
 
   return {
     data,
     loading,
     tableExists,
+    totalCount,
     refreshData
   };
 };

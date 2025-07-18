@@ -17,7 +17,7 @@ const DatabaseAnalyticsLayout = () => {
   const [filteredData, setFilteredData] = useState<DataPoint[]>([]);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
 
-  const { data, loading, tableExists, refreshData } = useDeviceData(selectedDevice?.id || null);
+  const { data, loading, tableExists, totalCount, refreshData } = useDeviceData(selectedDevice?.id || null);
 
   const handleDeviceSelect = (device: DeviceInfo) => {
     setSelectedDevice(device);
