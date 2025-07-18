@@ -1,9 +1,10 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, RefreshCw, Upload, Database, EyeOff, Eye } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { MapPin, RefreshCw, Upload, Database, EyeOff, Eye, Play, Pause, Square, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import CSVUploadDialog from '@/components/CSVUploadDialog';
 import { DataPoint, DeviceInfo } from '@/types/database-analytics';
@@ -20,13 +21,18 @@ interface MapViewProps {
 const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const animatedMarkerRef = useRef<google.maps.Marker | null>(null);
   const pathRef = useRef<google.maps.Polyline | null>(null);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const animationRequestRef = useRef<number | null>(null);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [skipNullValues, setSkipNullValues] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState([500]); // milliseconds between points
+  const [currentPointIndex, setCurrentPointIndex] = useState(0);
+  const [sortedPoints, setSortedPoints] = useState<DataPoint[]>([]);
   const { toast } = useToast();
 
   const loadGoogleMaps = () => {
@@ -86,10 +92,8 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
     }
   };
 
-  const displayDataOnMap = (points: DataPoint[]) => {
-    if (!mapInstanceRef.current || points.length === 0) return;
-
-    clearMapElements();
+  const prepareAnimationData = useCallback((points: DataPoint[]) => {
+    if (!points.length) return;
 
     // Filter out null/invalid coordinates if skipNullValues is enabled
     const validPoints = skipNullValues 
@@ -112,49 +116,81 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
       return;
     }
 
-    const bounds = new google.maps.LatLngBounds();
-    const path: google.maps.LatLng[] = [];
+    // Sort points by timestamp in ascending order
+    const sorted = [...validPoints].sort((a, b) => a.timestamp - b.timestamp);
+    setSortedPoints(sorted);
+    setCurrentPointIndex(0);
 
-    validPoints.forEach((point, index) => {
-      const position = new google.maps.LatLng(point.latitude, point.longitude);
-      path.push(position);
-      bounds.extend(position);
-
-      const marker = new google.maps.Marker({
-        position,
-        map: mapInstanceRef.current,
-        title: `Point ${point.pointid} - ${new Date(point.timestamp).toLocaleString()}`,
-        icon: {
-          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-            <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="10" cy="10" r="8" fill="${point.activity ? '#10B981' : '#EF4444'}" stroke="white" stroke-width="2"/>
-              <text x="10" y="14" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${index + 1}</text>
-            </svg>
-          `),
-          scaledSize: new google.maps.Size(20, 20),
-        },
+    // Fit map to bounds
+    if (mapInstanceRef.current && sorted.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      sorted.forEach(point => {
+        bounds.extend(new google.maps.LatLng(point.latitude, point.longitude));
       });
+      
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      
+      animationTimeoutRef.current = setTimeout(() => {
+        mapInstanceRef.current?.fitBounds(bounds);
+      }, 100);
+    }
+  }, [skipNullValues, toast]);
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `
-          <div style="font-size: 12px;">
-            <strong>Point ${point.pointid}</strong><br/>
-            <strong>Time:</strong> ${new Date(point.timestamp).toLocaleString()}<br/>
-            <strong>Location:</strong> ${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}<br/>
-            <strong>Speed:</strong> ${point.speed || 'N/A'} km/h<br/>
-            <strong>Activity:</strong> ${point.activity ? 'Active' : 'Inactive'}<br/>
-            <strong>Satellites:</strong> ${point.satellites || 'N/A'}<br/>
-            <strong>Accelerometer:</strong> X:${point.ax?.toFixed(2) || 'N/A'}, Y:${point.ay?.toFixed(2) || 'N/A'}, Z:${point.az?.toFixed(2) || 'N/A'}
-          </div>
-        `,
-      });
+  const createAnimatedMarker = useCallback((point: DataPoint, index: number) => {
+    if (!mapInstanceRef.current) return null;
 
-      marker.addListener('click', () => {
-        infoWindow.open(mapInstanceRef.current!, marker);
-      });
-
-      markersRef.current.push(marker);
+    const position = new google.maps.LatLng(point.latitude, point.longitude);
+    
+    const marker = new google.maps.Marker({
+      position,
+      map: mapInstanceRef.current,
+      title: `Point ${point.pointid} - ${new Date(point.timestamp).toLocaleString()}`,
+      icon: {
+        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+          <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="${point.activity ? '#10B981' : '#EF4444'}" stroke="white" stroke-width="3"/>
+            <circle cx="12" cy="12" r="4" fill="white"/>
+          </svg>
+        `),
+        scaledSize: new google.maps.Size(24, 24),
+      },
     });
+
+    const infoWindow = new google.maps.InfoWindow({
+      content: `
+        <div style="font-size: 12px;">
+          <strong>Point ${point.pointid}</strong><br/>
+          <strong>Time:</strong> ${new Date(point.timestamp).toLocaleString()}<br/>
+          <strong>Location:</strong> ${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}<br/>
+          <strong>Speed:</strong> ${point.speed || 'N/A'} km/h<br/>
+          <strong>Activity:</strong> ${point.activity ? 'Active' : 'Inactive'}<br/>
+          <strong>Satellites:</strong> ${point.satellites || 'N/A'}<br/>
+          <strong>Accelerometer:</strong> X:${point.ax?.toFixed(2) || 'N/A'}, Y:${point.ay?.toFixed(2) || 'N/A'}, Z:${point.az?.toFixed(2) || 'N/A'}
+        </div>
+      `,
+    });
+
+    marker.addListener('click', () => {
+      infoWindow.open(mapInstanceRef.current!, marker);
+    });
+
+    return marker;
+  }, []);
+
+  const updatePolyline = useCallback((points: DataPoint[], endIndex: number) => {
+    if (!mapInstanceRef.current || endIndex < 1) return;
+
+    // Clear existing polyline
+    if (pathRef.current) {
+      pathRef.current.setMap(null);
+    }
+
+    // Create path up to current point
+    const path = points.slice(0, endIndex + 1).map(point => 
+      new google.maps.LatLng(point.latitude, point.longitude)
+    );
 
     if (path.length > 1) {
       const polyline = new google.maps.Polyline({
@@ -162,33 +198,93 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
         geodesic: true,
         strokeColor: '#FBBF24', // Yellow color
         strokeOpacity: 1.0,
-        strokeWeight: 2, // Reduced width
+        strokeWeight: 2,
       });
 
       polyline.setMap(mapInstanceRef.current);
       pathRef.current = polyline;
     }
+  }, []);
 
-    if (validPoints.length > 0) {
-      if (animationTimeoutRef.current) {
-        clearTimeout(animationTimeoutRef.current);
-      }
-
-      animationTimeoutRef.current = setTimeout(() => {
-        mapInstanceRef.current?.fitBounds(bounds);
-      }, 100);
+  const animateMarker = useCallback(() => {
+    if (!isAnimating || currentPointIndex >= sortedPoints.length || !mapInstanceRef.current) {
+      setIsAnimating(false);
+      return;
     }
-  };
 
-  const clearMapElements = () => {
-    markersRef.current.forEach(marker => marker.setMap(null));
-    markersRef.current = [];
+    const currentPoint = sortedPoints[currentPointIndex];
+    
+    // Clear previous marker
+    if (animatedMarkerRef.current) {
+      animatedMarkerRef.current.setMap(null);
+    }
+
+    // Create new marker at current position
+    animatedMarkerRef.current = createAnimatedMarker(currentPoint, currentPointIndex);
+    
+    // Update polyline trail
+    updatePolyline(sortedPoints, currentPointIndex);
+
+    // Schedule next animation frame
+    animationTimeoutRef.current = setTimeout(() => {
+      setCurrentPointIndex(prev => prev + 1);
+    }, animationSpeed[0]);
+  }, [isAnimating, currentPointIndex, sortedPoints, animationSpeed, createAnimatedMarker, updatePolyline]);
+
+  const startAnimation = useCallback(() => {
+    if (sortedPoints.length === 0) return;
+    setIsAnimating(true);
+    setCurrentPointIndex(0);
+  }, [sortedPoints.length]);
+
+  const pauseAnimation = useCallback(() => {
+    setIsAnimating(false);
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetAnimation = useCallback(() => {
+    pauseAnimation();
+    setCurrentPointIndex(0);
+    
+    // Clear animated marker
+    if (animatedMarkerRef.current) {
+      animatedMarkerRef.current.setMap(null);
+      animatedMarkerRef.current = null;
+    }
+    
+    // Clear polyline
+    if (pathRef.current) {
+      pathRef.current.setMap(null);
+      pathRef.current = null;
+    }
+  }, [pauseAnimation]);
+
+  const clearMapElements = useCallback(() => {
+    if (animatedMarkerRef.current) {
+      animatedMarkerRef.current.setMap(null);
+      animatedMarkerRef.current = null;
+    }
 
     if (pathRef.current) {
       pathRef.current.setMap(null);
       pathRef.current = null;
     }
-  };
+
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+
+    if (animationRequestRef.current) {
+      cancelAnimationFrame(animationRequestRef.current);
+      animationRequestRef.current = null;
+    }
+
+    setIsAnimating(false);
+  }, []);
 
   const handleUploadComplete = () => {
     onRefresh();
@@ -209,24 +305,24 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
     };
   }, []);
 
+  // Effect to trigger animation step
+  useEffect(() => {
+    if (isAnimating) {
+      animateMarker();
+    }
+  }, [isAnimating, currentPointIndex, animateMarker]);
+
+  // Effect to prepare data when it changes
   useEffect(() => {
     if (isLoaded && mapInstanceRef.current) {
+      clearMapElements();
       if (filteredData && filteredData.length > 0) {
-        displayDataOnMap(filteredData);
+        prepareAnimationData(filteredData);
       } else if (data.length > 0) {
-        displayDataOnMap(data);
+        prepareAnimationData(data);
       }
     }
-  }, [data, isLoaded, skipNullValues]);
-
-  useEffect(() => {
-    if (!isLoaded || !mapInstanceRef.current) return;
-    if (filteredData && filteredData.length > 0) {
-      displayDataOnMap(filteredData);
-    } else if (filteredData && filteredData.length === 0) {
-      clearMapElements();
-    }
-  }, [filteredData, isLoaded, skipNullValues]);
+  }, [data, filteredData, isLoaded, skipNullValues, prepareAnimationData, clearMapElements]);
 
   if (!tableExists && !loading) {
     return (
@@ -300,6 +396,62 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
         </CardHeader>
         
         <CardContent>
+          {/* Animation Controls */}
+          {sortedPoints.length > 0 && (
+            <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={isAnimating ? "default" : "outline"}
+                    size="sm"
+                    onClick={isAnimating ? pauseAnimation : startAnimation}
+                    disabled={currentPointIndex >= sortedPoints.length && !isAnimating}
+                  >
+                    {isAnimating ? (
+                      <>
+                        <Pause className="h-4 w-4 mr-1" />
+                        Pause
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-1" />
+                        {currentPointIndex >= sortedPoints.length ? 'Replay' : 'Start'}
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={resetAnimation}
+                  >
+                    <RotateCcw className="h-4 w-4 mr-1" />
+                    Reset
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Point {currentPointIndex + 1} of {sortedPoints.length}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <label className="text-sm font-medium text-gray-700">Speed:</label>
+                <div className="flex-1 max-w-xs">
+                  <Slider
+                    value={animationSpeed}
+                    onValueChange={setAnimationSpeed}
+                    max={2000}
+                    min={50}
+                    step={50}
+                    className="w-full"
+                  />
+                </div>
+                <span className="text-sm text-gray-600 min-w-[80px]">
+                  {animationSpeed[0]}ms
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="w-full h-96 rounded-lg overflow-hidden border">
             {loading ? (
               <div className="flex items-center justify-center h-full">
@@ -311,15 +463,15 @@ const MapView = ({ device, data, filteredData, loading, tableExists, onRefresh }
             )}
           </div>
           
-          {data.length > 0 && (
+          {sortedPoints.length > 0 && (
             <div className="mt-4 text-sm text-gray-600">
               <p className="flex items-center gap-2">
                 <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                Active points
+                Active marker
                 <span className="w-3 h-3 bg-red-500 rounded-full ml-4"></span>
-                Inactive points
+                Inactive marker
                 <span className="w-4 h-0.5 bg-yellow-400 ml-4"></span>
-                Path (yellow)
+                Animated trail (yellow)
               </p>
             </div>
           )}
