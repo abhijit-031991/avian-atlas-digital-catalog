@@ -28,7 +28,7 @@ export interface DeviceInfo {
   projectName: string;
 }
 
-export type ViewMode = 'table' | 'map';
+export type ViewMode = 'table' | 'map' | 'statistics';
 
 export type SortConfig = {
   key: keyof DataPoint;

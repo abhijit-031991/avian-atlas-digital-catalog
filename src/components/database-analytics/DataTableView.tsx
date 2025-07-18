@@ -259,63 +259,63 @@ const DataTableView = ({
         </CardHeader>
         
         <CardContent>
-          <div className="w-full overflow-x-auto">
-            <div className="rounded-md border min-w-[1600px]">
+          <div className="overflow-x-auto">
+            <div className="rounded-md border">
               <div className="max-h-96 overflow-y-auto">
                 <Table>
                   <TableHeader className="sticky top-0 bg-white z-10">
                     <TableRow className="h-8">
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-16 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('pointid')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Point ID {getSortIcon('pointid')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-16 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('id')} className="p-0 h-auto font-medium text-xs flex items-center">
                           ID {getSortIcon('id')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-36 text-xs font-medium">
+                      <TableHead className="w-32 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('timestamp')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Timestamp {getSortIcon('timestamp')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-28 text-xs font-medium">
+                      <TableHead className="w-24 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('latitude')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Latitude {getSortIcon('latitude')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-28 text-xs font-medium">
+                      <TableHead className="w-24 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('longitude')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Longitude {getSortIcon('longitude')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-16 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('speed')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Speed {getSortIcon('speed')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-24 text-xs font-medium">
+                      <TableHead className="w-20 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('activity')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Activity {getSortIcon('activity')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-24 text-xs font-medium">
+                      <TableHead className="w-20 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('satellites')} className="p-0 h-auto font-medium text-xs flex items-center">
                           Satellites {getSortIcon('satellites')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-16 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('ax')} className="p-0 h-auto font-medium text-xs flex items-center">
                           AX {getSortIcon('ax')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-16 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('ay')} className="p-0 h-auto font-medium text-xs flex items-center">
                           AY {getSortIcon('ay')}
                         </Button>
                       </TableHead>
-                      <TableHead className="w-20 text-xs font-medium">
+                      <TableHead className="w-16 text-xs font-medium">
                         <Button variant="ghost" size="sm" onClick={() => handleSort('az')} className="p-0 h-auto font-medium text-xs flex items-center">
                           AZ {getSortIcon('az')}
                         </Button>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Database, ChevronLeft, ChevronRight, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { ArrowLeft, Database, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceSelector from './DeviceSelector';
 import DataTableView from './DataTableView';
@@ -16,7 +16,6 @@ const DatabaseAnalyticsLayout = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [filteredData, setFilteredData] = useState<DataPoint[]>([]);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
-  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
 
   const { data, loading, tableExists, refreshData } = useDeviceData(selectedDevice?.id || null);
 
@@ -62,6 +61,13 @@ const DatabaseAnalyticsLayout = () => {
               >
                 Map View
               </Button>
+              <Button
+                variant={viewMode === 'statistics' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('statistics')}
+              >
+                Statistics
+              </Button>
             </div>
           )}
         </div>
@@ -101,68 +107,38 @@ const DatabaseAnalyticsLayout = () => {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 flex min-w-0">
-          <div className="flex-1 p-4 min-h-0">
-            {selectedDevice ? (
-              viewMode === 'table' ? (
-                <DataTableView
-                  device={selectedDevice}
-                  data={data}
-                  loading={loading}
-                  tableExists={tableExists}
-                  onRefresh={refreshData}
-                  onDataChange={handleDataChange}
-                />
-              ) : (
-                <MapView
-                  device={selectedDevice}
-                  data={data}
-                  filteredData={filteredData}
-                  loading={loading}
-                  tableExists={tableExists}
-                  onRefresh={refreshData}
-                />
-              )
+        <div className="flex-1 p-4 min-h-0">
+          {selectedDevice ? (
+            viewMode === 'table' ? (
+              <DataTableView
+                device={selectedDevice}
+                data={data}
+                loading={loading}
+                tableExists={tableExists}
+                onRefresh={refreshData}
+                onDataChange={handleDataChange}
+              />
+            ) : viewMode === 'map' ? (
+              <MapView
+                device={selectedDevice}
+                data={data}
+                filteredData={filteredData}
+                loading={loading}
+                tableExists={tableExists}
+                onRefresh={refreshData}
+              />
             ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <Database className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium mb-2">Select a Device</h3>
-                  <p className="text-sm">Choose a device from the sidebar to view its data and analytics</p>
-                </div>
+              <StatsPanel device={selectedDevice} data={filteredData.length > 0 ? filteredData : data} />
+            )
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <Database className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium mb-2">Select a Device</h3>
+                <p className="text-sm">Choose a device from the sidebar to view its data and analytics</p>
               </div>
-            )}
-          </div>
-
-          {/* Right Sidebar - Statistics Panel */}
-          <div className={`${rightSidebarCollapsed ? 'w-12' : 'w-80'} flex-shrink-0 transition-all duration-300 relative`}>
-            {rightSidebarCollapsed ? (
-              <div className="w-12 h-full bg-white border-l border-gray-200 flex flex-col">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setRightSidebarCollapsed(false)}
-                  className="m-2"
-                >
-                  <PanelRightOpen className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <>
-                <div className="w-80 h-full bg-white border-l border-gray-200 overflow-y-auto">
-                  <StatsPanel device={selectedDevice} data={filteredData.length > 0 ? filteredData : data} />
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setRightSidebarCollapsed(true)}
-                  className="absolute top-2 left-2 z-10"
-                >
-                  <PanelRightClose className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
