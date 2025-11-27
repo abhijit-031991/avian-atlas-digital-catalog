@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import DeviceDetailsDialog from './DeviceDetailsDialog';
 import ChangeIconDialog from './ChangeIconDialog';
 import DeviceSettingsDialog from './DeviceSettingsDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 declare global {
   interface Window {
@@ -482,36 +484,71 @@ const MapComponent = () => {
   );
 };
 
-// Global function for download (accessible from info window)
-(window as any).downloadDeviceData = (deviceId: string) => {
-  const url = `https://65.1.242.158:1880/file`;
-  const data = { File: deviceId };
+// Helper function to convert data to CSV
+const convertToCSV = (data: any[]): string => {
+  if (data.length === 0) return '';
+  
+  const headers = Object.keys(data[0]);
+  const csvRows = [
+    headers.join(','),
+    ...data.map(row => 
+      headers.map(header => {
+        const value = row[header];
+        // Handle null/undefined and escape quotes
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        // Escape quotes and wrap in quotes if contains comma or quote
+        if (stringValue.includes(',') || stringValue.includes('"')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      }).join(',')
+    )
+  ];
+  
+  return csvRows.join('\n');
+};
 
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  .then(response => {
-    if (!response.ok) throw new Error('Network response was not ok');
-    return response.blob();
-  })
-  .then(blobData => {
-    const blobUrl = URL.createObjectURL(blobData);
+// Global function for download (accessible from info window)
+(window as any).downloadDeviceData = async (deviceId: string) => {
+  try {
+    // Fetch all data from the device table in Supabase
+    const { data, error } = await supabase
+      .from(deviceId as any)
+      .select('*')
+      .order('timestamp', { ascending: true });
+
+    if (error) {
+      if (error.code === '42P01') {
+        alert(`No data table found for device ${deviceId}`);
+      } else {
+        throw error;
+      }
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      alert(`No data available for device ${deviceId}`);
+      return;
+    }
+
+    // Convert to CSV
+    const csvContent = convertToCSV(data);
+    
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = blobUrl;
-    link.setAttribute('download', `${deviceId}.csv`);
+    link.setAttribute('download', `${deviceId}_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(blobUrl);
-  })
-  .catch(error => {
+  } catch (error) {
     console.error('Download error:', error);
     alert('Failed to download data. Please try again.');
-  });
+  }
 };
 
 export default MapComponent;
