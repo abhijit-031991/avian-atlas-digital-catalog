@@ -4,6 +4,8 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 // Import Firebase authentication modules
 import { signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+// Import Supabase
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -23,6 +25,12 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const database = getDatabase(app);
 const markers = {}; // To store markers for search functionality
+
+// Initialize Supabase
+const supabase = createClient(
+  'https://ppofcmrhlzkokdgrfkye.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwb2ZjbXJobHprb2tkZ3Jma3llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0MTYwNjAsImV4cCI6MjA2Nzk5MjA2MH0.BgmtKoMeh1cCGRgJAFDjtxAsk-wCS0uLu5t0IQM36_Y'
+);
 
 // DOM Elements
 const loginModal = document.getElementById("loginModal");
@@ -238,37 +246,58 @@ function loadGoogleMapsScript() {
   document.body.appendChild(script);
 }
 
-function handleDownloadData(deviceId) {
-  const url = `https://65.1.242.158:1880/file`;
-  const data = { File: deviceId };
+async function handleDownloadData(deviceId) {
+  try {
+    // Fetch data from Supabase table
+    const { data, error } = await supabase
+      .from(deviceId)
+      .select('*')
+      .order('timestamp', { ascending: true });
 
-  fetch(url, {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://65.1.242.158:1880/file',
-      },
-      body: JSON.stringify(data),
-  })
-  .then(response => {
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.blob();
-  })
-  .then(blobData => {
-      // Create object URL for the blob data
-      const blobUrl = URL.createObjectURL(blobData);
-      // Create a link element to trigger the download
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.setAttribute('download', `${deviceId}.csv`);
-      // Append the link to the document body and trigger the click event
-      document.body.appendChild(link);
-      link.click();
-      // Clean up: remove the link and revoke the object URL
-      link.remove();
-      URL.revokeObjectURL(blobUrl);
-  })
-  .catch(error => console.error('Error:', error));
+    if (error) {
+      if (error.code === '42P01') {
+        console.error(`No data table found for device ${deviceId}`);
+        alert(`No data available for device ${deviceId}`);
+        return;
+      }
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      alert(`No data available for device ${deviceId}`);
+      return;
+    }
+
+    // Convert to CSV
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => 
+        headers.map(header => {
+          const value = row[header];
+          if (value === null || value === undefined) return '';
+          if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return value;
+        }).join(',')
+      )
+    ].join('\n');
+
+    // Create and download CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.setAttribute('download', `${deviceId}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error('Download error:', error);
+    alert('Failed to download data. Please try again.');
+  }
 }
 
 function handleDetails(deviceId) {
