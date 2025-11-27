@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -4604,6 +4604,330 @@ export type Database = {
         }
         Relationships: []
       }
+      "20054": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20074": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20103": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20104": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20105": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      "20106": {
+        Row: {
+          activity: boolean | null
+          ax: number | null
+          ay: number | null
+          az: number | null
+          count: number
+          created_at: string | null
+          hdop: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid: number
+          satellites: number | null
+          speed: number | null
+          timestamp: number
+        }
+        Insert: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count: number
+          created_at?: string | null
+          hdop?: number | null
+          id: number
+          latitude: number
+          locktime: number
+          longitude: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp: number
+        }
+        Update: {
+          activity?: boolean | null
+          ax?: number | null
+          ay?: number | null
+          az?: number | null
+          count?: number
+          created_at?: string | null
+          hdop?: number | null
+          id?: number
+          latitude?: number
+          locktime?: number
+          longitude?: number
+          pointid?: number
+          satellites?: number | null
+          speed?: number | null
+          timestamp?: number
+        }
+        Relationships: []
+      }
       "22222": {
         Row: {
           activity: boolean | null
@@ -4663,18 +4987,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_device_table: {
-        Args: { device_id: string }
-        Returns: undefined
-      }
+      create_device_table: { Args: { device_id: string }; Returns: undefined }
       create_table_dynamic: {
         Args: { table_name: string; table_schema: string }
         Returns: Json
       }
-      exec_sql: {
-        Args: { sql: string }
-        Returns: string
-      }
+      exec_sql: { Args: { sql: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
