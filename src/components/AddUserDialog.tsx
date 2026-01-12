@@ -45,7 +45,7 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ open, onOpenChange, proje
         Devices: devices.length > 0 ? devices : null
       };
 
-      const response = await fetch('http://localhost:5678/webhook/addUser', {
+      const response = await fetch('https://n8n.arcturus-telemetry.in/webhook/addUser', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
