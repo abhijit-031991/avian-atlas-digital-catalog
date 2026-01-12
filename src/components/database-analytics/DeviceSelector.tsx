@@ -20,6 +20,9 @@ const DeviceSelector = ({ selectedDevice, onDeviceSelect }: DeviceSelectorProps)
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
   const navigate = useNavigate();
 
+  // Filter to show only projects owned by the current user
+  const ownedProjects = projects.filter(project => currentUser && project.uuid === currentUser.uid);
+
   const toggleProject = (projectId: string) => {
     setExpandedProjects(prev => 
       prev.includes(projectId) 
@@ -65,7 +68,7 @@ const DeviceSelector = ({ selectedDevice, onDeviceSelect }: DeviceSelectorProps)
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {projects.length === 0 ? (
+        {ownedProjects.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
             <FolderPlus className="h-16 w-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
@@ -79,7 +82,7 @@ const DeviceSelector = ({ selectedDevice, onDeviceSelect }: DeviceSelectorProps)
             </Button>
           </div>
         ) : (
-          projects.map(project => {
+          ownedProjects.map(project => {
             const deviceCount = getDeviceCount(project.devices);
             const isExpanded = expandedProjects.includes(project.id);
             
