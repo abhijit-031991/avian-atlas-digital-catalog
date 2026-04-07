@@ -1,25 +1,20 @@
-
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAtOmcCPkeoMyZq_rhB7LsuB1CakLYwCEQ",
-  authDomain: "arctrack-main.firebaseapp.com",
-  projectId: "arctrack-main",
-  storageBucket: "arctrack-main.appspot.com",
-  messagingSenderId: "280162320438",
-  appId: "1:280162320438:web:d61a95eca202a80e45d897",
-  databaseURL: "https://arctrack-main.firebaseio.com/"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID as string,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID as string,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL as string,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
-
-// Initialize Firebase Realtime Database and get a reference to the service
 export const database = getDatabase(app);
 
 export default app;

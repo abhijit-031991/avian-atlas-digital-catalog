@@ -1,22 +1,20 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, User, Mail, Calendar } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { User, Mail, Calendar, KeyRound, LogOut } from 'lucide-react';
 
 const MyArcTrack = () => {
-  const { currentUser, logout, updateUserProfile } = useAuth();
+  const { currentUser, logout, updateUserProfile, resetPassword } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
   const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   if (!currentUser) {
     navigate('/auth');
@@ -25,145 +23,128 @@ const MyArcTrack = () => {
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    const trimmed = displayName.trim();
+    if (!trimmed) return;
+    setProfileLoading(true);
     try {
-      setMessage('');
-      setError('');
-      setLoading(true);
-      await updateUserProfile(displayName);
-      setMessage('Profile updated successfully');
-    } catch (error: any) {
-      setError('Failed to update profile: ' + error.message);
+      await updateUserProfile(trimmed);
+      toast({ title: 'Profile updated', description: 'Your display name has been saved.' });
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err.message, variant: 'destructive' });
     }
-    
-    setLoading(false);
+    setProfileLoading(false);
+  };
+
+  const handleResetPassword = async () => {
+    if (!currentUser.email) return;
+    setResetLoading(true);
+    try {
+      await resetPassword(currentUser.email);
+      toast({ title: 'Reset email sent', description: `Check ${currentUser.email} for the password reset link.` });
+    } catch (err: any) {
+      toast({ title: 'Failed to send reset email', description: err.message, variant: 'destructive' });
+    }
+    setResetLoading(false);
   };
 
   const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Failed to log out', error);
-    }
+    try { await logout(); } catch (err) { console.error('Failed to log out', err); }
   };
 
+  const memberSince = currentUser.metadata.creationTime
+    ? new Date(currentUser.metadata.creationTime).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    : 'Unknown';
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Button 
-            onClick={() => navigate('/arctrack-central')}
-            variant="outline"
-            size="icon"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-3">
-            <User className="h-8 w-8 text-orange-600" />
-            <h1 className="text-3xl font-bold text-gray-900">My ArcTrack</h1>
+    <div className="min-h-[calc(100vh-52px)] bg-background px-6 py-10">
+      <div className="max-w-2xl mx-auto space-y-6">
+
+        {/* Header card */}
+        <div className="bg-card border border-border rounded-lg px-5 py-4 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
+            <User className="h-6 w-6 text-sky-600 dark:text-[#00d4ff]" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              {currentUser.displayName || currentUser.email?.split('@')[0] || 'Account'}
+            </p>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+              <Mail className="h-3 w-3" />
+              {currentUser.email}
+            </p>
+            <p className="text-xs text-muted-foreground/60 flex items-center gap-1 mt-0.5">
+              <Calendar className="h-3 w-3" />
+              Member since {memberSince}
+            </p>
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Profile Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Profile Information
-              </CardTitle>
-              <CardDescription>
-                View and update your personal information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Email Address
-                </Label>
-                <Input value={currentUser.email || ''} disabled />
-                <p className="text-sm text-gray-500">Email cannot be changed</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Member Since
-                </Label>
-                <Input 
-                  value={currentUser.metadata.creationTime ? 
-                    new Date(currentUser.metadata.creationTime).toLocaleDateString() : 'Unknown'} 
-                  disabled 
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Update Profile */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Update Profile</CardTitle>
-              <CardDescription>
-                Change your display name and other profile settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUpdateProfile} className="space-y-4">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                
-                {message && (
-                  <Alert>
-                    <AlertDescription>{message}</AlertDescription>
-                  </Alert>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
-                  <Input
-                    id="displayName"
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="Your display name"
-                  />
-                </div>
-
-                <Button disabled={loading} type="submit" className="w-full">
-                  {loading ? 'Updating...' : 'Update Profile'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Account Actions */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Account Actions</CardTitle>
-            <CardDescription>
-              Manage your account settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">Sign Out</h3>
-                  <p className="text-sm text-gray-500">Sign out of your account</p>
-                </div>
-                <Button variant="destructive" onClick={handleLogout}>
-                  Sign Out
-                </Button>
-              </div>
+        {/* Profile section */}
+        <section className="bg-card border border-border rounded-lg overflow-hidden">
+          <div className="px-5 py-3 border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Profile</p>
+          </div>
+          <form onSubmit={handleUpdateProfile} className="px-5 py-4 flex items-end gap-3">
+            <div className="flex-1 space-y-1.5">
+              <Label htmlFor="displayName" className="text-xs text-muted-foreground">Display Name</Label>
+              <Input
+                id="displayName"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Your display name"
+              />
             </div>
-          </CardContent>
-        </Card>
+            <Button type="submit" disabled={profileLoading || !displayName.trim()}>
+              {profileLoading ? 'Saving...' : 'Save'}
+            </Button>
+          </form>
+        </section>
+
+        {/* Security section */}
+        <section className="bg-card border border-border rounded-lg overflow-hidden">
+          <div className="px-5 py-3 border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Security</p>
+          </div>
+          <div className="px-5 py-4 space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Email Address</Label>
+              <Input value={currentUser.email || ''} disabled />
+              <p className="text-xs text-muted-foreground/60">Email address cannot be changed.</p>
+            </div>
+            <div className="flex items-center justify-between py-1">
+              <div>
+                <p className="text-sm text-foreground flex items-center gap-2">
+                  <KeyRound className="h-4 w-4 text-muted-foreground" />
+                  Password
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5 ml-6">Send a reset link to your email address.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleResetPassword} disabled={resetLoading}>
+                {resetLoading ? 'Sending...' : 'Send Reset Email'}
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Danger zone */}
+        <section className="bg-card border border-border rounded-lg overflow-hidden">
+          <div className="px-5 py-3 border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Danger Zone</p>
+          </div>
+          <div className="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-foreground flex items-center gap-2">
+                <LogOut className="h-4 w-4 text-muted-foreground" />
+                Sign Out
+              </p>
+              <p className="text-xs text-muted-foreground/60 mt-0.5 ml-6">You will be returned to the home page.</p>
+            </div>
+            <Button variant="destructive" size="sm" onClick={handleLogout}>
+              Sign Out
+            </Button>
+          </div>
+        </section>
+
       </div>
     </div>
   );

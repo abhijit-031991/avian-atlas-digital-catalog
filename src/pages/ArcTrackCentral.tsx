@@ -1,96 +1,123 @@
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Monitor, Database, Users, User, LogOut } from 'lucide-react';
+import { useProjects } from '@/hooks/useProjects';
+import { useLiveStats } from '@/hooks/useLiveStats';
+import { Monitor, Database, FolderKanban, ArrowRight, Satellite, Radio } from 'lucide-react';
+
+
+function getGreeting(name: string): string {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  return `${greeting}, ${name}`;
+}
 
 const ArcTrackCentral = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const { projects } = useProjects(currentUser);
+  const stats = useLiveStats();
 
   if (!currentUser) {
     navigate('/auth');
     return null;
   }
 
-  const handleSignOut = async () => {
-    await logout();
-    navigate('/');
-  };
+  const displayName = currentUser.displayName || currentUser.email?.split('@')[0] || 'there';
 
-  const menuItems = [
+  const collaboratorCount = useMemo(() => {
+    const uids = new Set<string>();
+    projects.forEach((p) => {
+      if (p.users) p.users.forEach((uid) => { if (uid !== currentUser.uid) uids.add(uid); });
+    });
+    return uids.size;
+  }, [projects, currentUser.uid]);
+
+  const sections = [
     {
       title: 'Tracking Console',
-      description: 'Real-time device tracking and monitoring',
+      description: 'Real-time device positions on a live satellite map.',
       icon: Monitor,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      route: '/tracking-console'
+      route: '/tracking-console',
+      meta: 'Live positions streamed via ArcTrack Servers',
     },
     {
-      title: 'Database and Analytics',
-      description: 'Data insights and analytics dashboard',
+      title: 'Database & Analytics',
+      description: 'Explore historical telemetry, tables, and playback.',
       icon: Database,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      route: '/database-analytics'
+      route: '/database-analytics',
+      meta: stats.loading ? 'Loading...' : `${stats.totalDevices} device${stats.totalDevices !== 1 ? 's' : ''} provisioned`,
     },
     {
-      title: 'Projects, Users and Devices',
-      description: 'Manage projects, users and device onboarding',
-      icon: Users,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      route: '/projects-users-devices'
+      title: 'Projects-Users-Devices',
+      description: 'Manage projects, collaborators, and device provisioning.',
+      icon: FolderKanban,
+      route: '/projects-users-devices',
+      meta: `${projects.length} project${projects.length !== 1 ? 's' : ''} · ${collaboratorCount} collaborator${collaboratorCount !== 1 ? 's' : ''}`,
     },
-    {
-      title: 'My ArcTrack',
-      description: 'Personal account settings and preferences',
-      icon: User,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      route: '/my-arctrack'
-    }
+  ];
+
+  const statItems = [
+    { label: 'Total Devices',  value: stats.loading ? '—' : stats.totalDevices,     icon: Satellite,    color: 'text-sky-600 dark:text-[#00d4ff]' },
+    { label: 'Base Stations',  value: stats.loading ? '—' : stats.baseStationCount, icon: Radio,        color: 'text-violet-500 dark:text-violet-400' },
+    { label: 'Total Projects', value: projects.length,                               icon: FolderKanban, color: 'text-amber-500 dark:text-amber-400' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">ArcTrack Central</h1>
-            <p className="mt-2 text-gray-600">Welcome back, {currentUser.email}</p>
-          </div>
-          <Button onClick={handleSignOut} variant="outline" className="flex items-center gap-2">
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </Button>
+    <div className="min-h-[calc(100vh-52px)] bg-background px-6 py-10">
+      <div className="max-w-4xl mx-auto">
+
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold text-foreground">
+            {getGreeting(displayName)}
+          </h1>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {menuItems.map((item, index) => (
-            <Card 
-              key={index} 
-              className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-              onClick={() => navigate(item.route)}
+
+        {/* Live stats bar */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          {statItems.map(({ label, value, icon: Icon, color }) => (
+            <div key={label} className="bg-card border-[2.5px] border-border rounded-lg px-4 py-3 flex items-center gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+              <div className="h-8 w-8 rounded bg-muted flex items-center justify-center shrink-0">
+                <Icon className={`h-4 w-4 ${color}`} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="text-lg font-semibold text-foreground font-mono">{value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Section cards */}
+        <div className="flex flex-col gap-3">
+          {sections.map(({ title, description, icon: Icon, route, meta }) => (
+            <button
+              key={route}
+              onClick={() => navigate(route)}
+              className="group w-full text-left bg-card border-[2.5px] border-border rounded-lg px-5 py-4 flex items-center gap-4
+                         shadow-[0_2px_8px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
+                         hover:border-sky-300 dark:hover:border-[#00d4ff55]
+                         hover:bg-sky-50/50 dark:hover:bg-[#161d2e]
+                         hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_0_0_1px_#00d4ff22,0_4px_24px_#00d4ff18]
+                         transition-all duration-200"
             >
-              <CardHeader className="pb-4">
-                <div className={`w-12 h-12 rounded-lg ${item.bgColor} flex items-center justify-center mb-4`}>
-                  <item.icon className={`h-6 w-6 ${item.color}`} />
-                </div>
-                <CardTitle className="text-xl">{item.title}</CardTitle>
-                <CardDescription className="text-gray-600">
-                  {item.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" className="w-full justify-start text-sm">
-                  Access {item.title} →
-                </Button>
-              </CardContent>
-            </Card>
+              <div className="h-10 w-10 rounded bg-muted border border-border flex items-center justify-center shrink-0
+                              group-hover:border-sky-300 dark:group-hover:border-[#00d4ff33]
+                              group-hover:bg-sky-50 dark:group-hover:bg-[#00d4ff0d] transition-colors">
+                <Icon className="h-5 w-5 text-sky-600 dark:text-[#00d4ff]" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground tracking-wide uppercase">
+                  {title}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+                <p className="text-xs text-muted-foreground/60 mt-1 font-mono">{meta}</p>
+              </div>
+
+              <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-sky-600 dark:group-hover:text-[#00d4ff] group-hover:translate-x-0.5 transition-all shrink-0" />
+            </button>
           ))}
         </div>
       </div>
