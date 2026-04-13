@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import CSVUploadDialog from '@/components/CSVUploadDialog';
 import { DataPoint, DeviceInfo, SortConfig } from '@/types/database-analytics';
+import { DeploymentRange } from '@/types/deployments';
 
 interface DataTableViewProps {
   device: DeviceInfo;
@@ -23,6 +24,7 @@ interface DataTableViewProps {
   tableExists: boolean;
   onRefresh: () => void;
   onDataChange?: (data: DataPoint[]) => void;
+  deploymentRange?: DeploymentRange | null;
 }
 
 const COLUMNS: { key: keyof DataPoint; label: string; mono?: boolean; width?: string }[] = [
@@ -39,7 +41,7 @@ const COLUMNS: { key: keyof DataPoint; label: string; mono?: boolean; width?: st
   { key: 'az',        label: 'AZ',         mono: true,  width: 'w-12'  },
 ];
 
-const DataTableView = ({ device, data, loading, tableExists, onRefresh, onDataChange }: DataTableViewProps) => {
+const DataTableView = ({ device, data, loading, tableExists, onRefresh, onDataChange, deploymentRange }: DataTableViewProps) => {
   const [startDate, setStartDate]   = useState<Date>();
   const [endDate, setEndDate]       = useState<Date>();
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +50,18 @@ const DataTableView = ({ device, data, loading, tableExists, onRefresh, onDataCh
   const [currentPage, setCurrentPage]   = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(100);
   const { toast } = useToast();
+
+  // Sync date filters when a deployment is selected / cleared
+  useEffect(() => {
+    if (deploymentRange) {
+      setStartDate(deploymentRange.start);
+      setEndDate(deploymentRange.end);
+    } else {
+      setStartDate(undefined);
+      setEndDate(undefined);
+    }
+    setCurrentPage(1);
+  }, [deploymentRange]);
 
   /* ── Sort ───────────────────────────────────────────────────── */
   const handleSort = (key: keyof DataPoint) => {

@@ -5,21 +5,33 @@ import { Button } from '@/components/ui/button';
 import DeviceSelector from './DeviceSelector';
 import DataTableView from './DataTableView';
 import StatsPanel from './StatsPanel';
+import DeploymentSelector from './DeploymentSelector';
 import { useDeviceData } from './hooks/useDeviceData';
 import { DeviceInfo, DataPoint } from '@/types/database-analytics';
+import { Deployment, DeploymentRange } from '@/types/deployments';
 
 type ViewMode = 'table' | 'statistics';
 
 const DatabaseAnalyticsLayout = () => {
-  const [selectedDevice, setSelectedDevice] = useState<DeviceInfo | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [filteredData, setFilteredData] = useState<DataPoint[]>([]);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedDevice, setSelectedDevice]         = useState<DeviceInfo | null>(null);
+  const [viewMode, setViewMode]                     = useState<ViewMode>('table');
+  const [filteredData, setFilteredData]             = useState<DataPoint[]>([]);
+  const [sidebarCollapsed, setSidebarCollapsed]     = useState(false);
+  const [activeDeployment, setActiveDeployment]     = useState<Deployment | null>(null);
+  const [deploymentRange, setDeploymentRange]       = useState<DeploymentRange | null>(null);
 
   const { data, loading, tableExists, refreshData } = useDeviceData(selectedDevice?.id || null);
 
   const handleDeviceSelect = (device: DeviceInfo) => {
     setSelectedDevice(device);
+    setFilteredData([]);
+    setActiveDeployment(null);
+    setDeploymentRange(null);
+  };
+
+  const handleDeploymentSelect = (deployment: Deployment | null, range: DeploymentRange | null) => {
+    setActiveDeployment(deployment);
+    setDeploymentRange(range);
     setFilteredData([]);
   };
 
@@ -69,7 +81,7 @@ const DatabaseAnalyticsLayout = () => {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {selectedDevice ? (
           <>
-            {/* Sub-nav: view toggle */}
+            {/* Sub-nav: view toggle + deployment selector */}
             <div className="px-5 py-2.5 border-b border-border flex items-center gap-3 shrink-0 bg-background">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 font-mono text-sm font-semibold text-primary tracking-wide">
                 <Database className="h-3.5 w-3.5" />
@@ -95,6 +107,13 @@ const DatabaseAnalyticsLayout = () => {
                   </button>
                 ))}
               </div>
+              <div className="ml-auto">
+                <DeploymentSelector
+                  device={selectedDevice}
+                  selected={activeDeployment}
+                  onSelect={handleDeploymentSelect}
+                />
+              </div>
             </div>
 
             {/* View content */}
@@ -107,6 +126,7 @@ const DatabaseAnalyticsLayout = () => {
                   tableExists={tableExists}
                   onRefresh={refreshData}
                   onDataChange={setFilteredData}
+                  deploymentRange={deploymentRange}
                 />
               )}
               {viewMode === 'statistics' && (
