@@ -45,7 +45,7 @@ export interface BaseStationData {
   stationId: string;
   lat: number;
   lng: number;
-  lastHeartbeat: number;
+  lastHeartbeat: string | number;
   signal?: number;
   status?: string;
   // Extended heartbeat fields
@@ -56,6 +56,7 @@ export interface BaseStationData {
   flashUnsent?: number;
   lastRxAgoMs?: number;
   uniqueDevices?: number;
+  batteryPct?: number;
 }
 
 interface MapComponentProps {
@@ -293,11 +294,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
         const hb = child.child('heartBeat').val() || {};
         bsData[stationId] = {
           stationId, lat: hb.Lat ?? hb.lat ?? 0, lng: hb.Lng ?? hb.lng ?? 0,
-          lastHeartbeat: hb.timestamp ?? hb.tts ?? 0,
+          lastHeartbeat: hb.timestamp ?? hb.ts ?? 0,
           signal: hb.Signal ?? hb.signal, status: hb.status ?? 'unknown',
           lteStatus: hb.lte_status, uptimeS: hb.uptime_s, fwVersion: hb.fw_version,
           flashUsedPct: hb.flash_used_pct, flashUnsent: hb.flash_unsent,
           lastRxAgoMs: hb.last_rx_ago_ms, uniqueDevices: hb.unique_devices,
+          batteryPct: hb.battery_pct,
         };
       });
       const list = Object.values(bsData);
@@ -343,11 +345,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
         const lat = hb.Lat ?? hb.lat ?? 0, lng = hb.Lng ?? hb.lng ?? 0;
         if (lat === 0 && lng === 0) return;
         const station: BaseStationData = {
-          stationId, lat, lng, lastHeartbeat: hb.timestamp ?? hb.tts ?? 0,
+          stationId, lat, lng, lastHeartbeat: hb.timestamp ?? hb.ts ?? 0,
           signal: hb.Signal ?? hb.signal, status: hb.status ?? 'unknown',
           lteStatus: hb.lte_status, uptimeS: hb.uptime_s, fwVersion: hb.fw_version,
           flashUsedPct: hb.flash_used_pct, flashUnsent: hb.flash_unsent,
           lastRxAgoMs: hb.last_rx_ago_ms, uniqueDevices: hb.unique_devices,
+          batteryPct: hb.battery_pct,
         };
         const marker = new window.google.maps.Marker({
           position: { lat, lng }, map: mapInstanceRef.current, title: `Base Station: ${stationId}`,
@@ -703,60 +706,75 @@ const MapComponent: React.FC<MapComponentProps> = ({
     const lteConnected = station.lteStatus === 'true' || station.lteStatus === true as any;
     const lteColor  = lteConnected ? '#22c55e' : '#ef4444';
     const lteLabel  = lteConnected ? 'Connected' : 'Disconnected';
-    const lastHbStr = station.lastHeartbeat ? new Date(station.lastHeartbeat * 1000).toLocaleString() : 'Never';
+    const parseHeartbeat = (val: string | number): string => {
+      if (!val) return 'Never';
+      const n = Number(val);
+      if (!isNaN(n) && n > 0) {
+        // Unix seconds (< 1e10) or Unix milliseconds (>= 1e10)
+        const ms = n < 1e10 ? n * 1000 : n;
+        return new Date(ms).toLocaleString();
+      }
+      // Formatted date string
+      const d = new Date(val as string);
+      return isNaN(d.getTime()) ? String(val) : d.toLocaleString();
+    };
+    const lastHbStr = parseHeartbeat(station.lastHeartbeat);
 
-    const row = (label: string, value: string) =>
-      `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">
-        <span style="color:${t.muted};font-size:11px;">${label}</span>
-        <span style="color:${t.text};font-size:11px;font-family:monospace;font-weight:500;">${value}</span>
+    // ── Tile helpers ──────────────────────────────────────────────────────────
+    const tile = (label: string, value: string, valueColor?: string) =>
+      `<div style="background:${t.bg};border-radius:6px;padding:9px 11px;border:1px solid ${t.border};">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.06em;color:${t.muted};text-transform:uppercase;margin-bottom:5px;">${label}</div>
+        <div style="font-size:13px;font-family:monospace;font-weight:600;color:${valueColor ?? t.text};">${value}</div>
       </div>`;
 
-    const section = (title: string, rows: string) =>
-      `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${t.border};">
-        <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;color:${t.muted};text-transform:uppercase;margin-bottom:4px;">${title}</div>
-        ${rows}
+    const lteTile = () =>
+      `<div style="background:${t.bg};border-radius:6px;padding:9px 11px;border:1px solid ${t.border};">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.06em;color:${t.muted};text-transform:uppercase;margin-bottom:5px;">LTE Status</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-family:monospace;font-weight:600;color:${lteColor};">
+          <span style="width:8px;height:8px;border-radius:50%;background:${lteColor};flex-shrink:0;"></span>
+          ${lteLabel}
+        </div>
+      </div>`;
+
+    const section = (title: string, cols: string, tiles: string) =>
+      `<div style="margin-top:10px;">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:${t.muted};text-transform:uppercase;margin-bottom:5px;">${title}</div>
+        <div style="background:${t.badge};border-radius:8px;padding:6px;display:grid;grid-template-columns:${cols};gap:5px;">
+          ${tiles}
+        </div>
       </div>`;
 
     const content = `
-      <div style="font-family:system-ui,sans-serif;min-width:260px;padding:10px;background:${t.bg};color:${t.text};border-radius:8px;">
+      <div style="font-family:system-ui,sans-serif;min-width:290px;padding:12px;background:${t.bg};color:${t.text};border-radius:8px;">
 
         <!-- Header -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
-          <img src="${BASE_STATION_ICON}" style="width:20px;height:20px;object-fit:contain;" />
-          <h3 style="margin:0;color:#7c3aed;font-weight:700;font-size:14px;font-family:monospace;">${id}</h3>
-          <span style="margin-left:auto;font-size:10px;background:#7c3aed22;color:#7c3aed;padding:2px 7px;border-radius:10px;border:1px solid #7c3aed44;">Base Station</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <img src="${BASE_STATION_ICON}" style="width:22px;height:22px;object-fit:contain;" />
+          <h3 style="margin:0;color:#7c3aed;font-weight:700;font-size:16px;font-family:monospace;">${id}</h3>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:5px;">
+            <span style="font-size:11px;background:#7c3aed22;color:#7c3aed;padding:2px 9px;border-radius:10px;border:1px solid #7c3aed44;">Base Station</span>
+            ${station.fwVersion != null ? `<span style="font-size:11px;background:#7c3aed22;color:#7c3aed;padding:2px 9px;border-radius:10px;border:1px solid #7c3aed44;">v${station.fwVersion}</span>` : ''}
+          </div>
         </div>
-        <div style="font-size:10px;color:${t.muted};margin-bottom:2px;">Last heartbeat: ${escapeHtml(lastHbStr)}</div>
 
-        <!-- Connectivity -->
-        ${section('Connectivity',
-          `<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;">
-            <span style="color:${t.muted};font-size:11px;">LTE Status</span>
-            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:${lteColor};">
-              <span style="width:7px;height:7px;border-radius:50%;background:${lteColor};display:inline-block;"></span>
-              ${lteLabel}
-            </span>
-          </div>` +
-          row('Uptime', formatUptime(station.uptimeS)) +
-          row('Firmware', station.fwVersion != null ? `v${station.fwVersion}` : 'N/A')
+        <!-- Connectivity: 2×2 grid -->
+        ${section('Connectivity', '1fr 1fr',
+          lteTile() +
+          tile('Battery', station.batteryPct != null ? `${station.batteryPct}%` : 'N/A') +
+          tile('Uptime', formatUptime(station.uptimeS)) +
+          tile('Last heartbeat', lastHbStr)
         )}
 
-        <!-- Devices -->
-        ${section('Devices',
-          row('Unique devices seen', station.uniqueDevices != null ? String(station.uniqueDevices) : 'N/A') +
-          row('Last device RX', formatRxAgo(station.lastRxAgoMs))
+        <!-- Devices: 1×2 row -->
+        ${section('Devices', '1fr 1fr',
+          tile('Unique seen', station.uniqueDevices != null ? String(station.uniqueDevices) : 'N/A') +
+          tile('Last signal', formatRxAgo(station.lastRxAgoMs))
         )}
 
-        <!-- Storage -->
-        ${section('Storage',
-          row('Flash used', station.flashUsedPct != null ? `${station.flashUsedPct}%` : 'N/A') +
-          row('Unsent records', station.flashUnsent != null ? String(station.flashUnsent) : 'N/A')
-        )}
-
-        <!-- Location -->
-        ${section('Location',
-          row('Latitude',  station.lat ? station.lat.toFixed(5) : 'N/A') +
-          row('Longitude', station.lng ? station.lng.toFixed(5) : 'N/A')
+        <!-- Storage: 1×2 row -->
+        ${section('Storage', '1fr 1fr',
+          tile('Flash used', station.flashUsedPct != null ? `${station.flashUsedPct}%` : 'N/A') +
+          tile('Unsent records', station.flashUnsent != null ? String(station.flashUnsent) : 'N/A')
         )}
       </div>`;
 

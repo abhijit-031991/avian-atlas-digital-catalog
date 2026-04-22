@@ -18,9 +18,9 @@ const NAV_LINKS = [
 ];
 
 const LiveDot = () => (
-  <span className="relative flex h-2 w-2 mr-2">
-    <span className="animate-ping absolute h-full w-full rounded-full bg-cyan-500 opacity-75" />
-    <span className="relative rounded-full h-2 w-2 bg-cyan-500" />
+  <span className="relative flex h-2 w-2 shrink-0">
+    <span className="animate-ping absolute h-full w-full rounded-full bg-emerald-500 opacity-75" />
+    <span className="relative rounded-full h-2 w-2 bg-emerald-500" />
   </span>
 );
 
@@ -35,33 +35,27 @@ const AppShell: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Top Nav Bar */}
-      <header className="h-[52px] bg-background border-b border-border flex items-center px-6 shrink-0 z-50">
-        {/* Logo */}
+      <header className="h-[52px] bg-slate-50 dark:bg-background border-b border-border flex items-center px-6 shrink-0 z-50 relative shadow-[0_1px_4px_0_rgba(0,0,0,0.08)] dark:shadow-[0_1px_6px_0_rgba(0,0,0,0.4)]">
+        {/* Logo — left */}
         <button
           onClick={() => navigate('/arctrack-central')}
-          className="flex items-center gap-1 mr-8 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-1 hover:opacity-80 transition-opacity shrink-0"
         >
           <span className="text-sky-600 dark:text-[#00d4ff] font-semibold text-base tracking-tight">Arc</span>
-          <span className="text-foreground font-semibold text-base tracking-tight">Track</span>
+          <span className="text-foreground font-semibold text-base tracking-tight">Track Central</span>
         </button>
 
-        {/* Live indicator */}
-        <div className="flex items-center mr-8">
-          <LiveDot />
-          <span className="text-xs text-muted-foreground">Live</span>
-        </div>
-
-        {/* Nav links */}
-        <nav className="flex items-center gap-1 flex-1">
+        {/* Nav links — absolutely centred, MD3 pill style */}
+        <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-0.5">
           {NAV_LINKS.map(({ label, icon: Icon, route }) => (
             <button
               key={route}
               onClick={() => navigate(route)}
               className={[
-                'flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors',
+                'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all',
                 isActive(route)
-                  ? 'text-sky-600 dark:text-[#00d4ff] bg-sky-50 dark:bg-[#00d4ff0d] border-b-2 border-sky-600 dark:border-[#00d4ff] rounded-b-none'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted',
+                  ? 'bg-sky-100 dark:bg-[#00d4ff15] text-sky-700 dark:text-[#00d4ff]'
+                  : 'text-muted-foreground hover:bg-slate-100 dark:hover:bg-muted hover:text-foreground',
               ].join(' ')}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -70,49 +64,60 @@ const AppShell: React.FC = () => {
           ))}
         </nav>
 
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors mr-2"
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          {theme === 'dark'
-            ? <Sun className="h-4 w-4" />
-            : <Moon className="h-4 w-4" />
-          }
-        </button>
+        {/* Right group — Live · theme toggle · avatar */}
+        <div className="ml-auto flex items-center gap-1.5">
 
-        {/* Avatar dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 px-3 py-1.5 rounded text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-              <div className="h-6 w-6 rounded-full bg-muted border border-border flex items-center justify-center">
-                <User className="h-3.5 w-3.5 text-sky-600 dark:text-[#00d4ff]" />
+          {/* Live indicator — MD3 tonal chip */}
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+            <LiveDot />
+            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Live</span>
+          </div>
+
+          {/* Theme toggle — MD3 circular icon button */}
+          <button
+            onClick={toggleTheme}
+            className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 dark:hover:bg-muted hover:text-foreground transition-all"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark'
+              ? <Sun className="h-4 w-4" />
+              : <Moon className="h-4 w-4" />
+            }
+          </button>
+
+          {/* Avatar dropdown — MD3 tonal button */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:bg-slate-100 dark:hover:bg-muted hover:text-foreground transition-all">
+                <div className="h-6 w-6 rounded-full bg-sky-100 dark:bg-[#00d4ff15] border border-sky-200 dark:border-[#00d4ff30] flex items-center justify-center">
+                  <User className="h-3.5 w-3.5 text-sky-600 dark:text-[#00d4ff]" />
+                </div>
+                <span className="max-w-[140px] truncate text-xs font-medium">
+                  {currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Account'}
+                </span>
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <div className="px-3 py-2 border-b border-border">
+                <p className="text-xs text-muted-foreground truncate">{currentUser?.email}</p>
               </div>
-              <span className="max-w-[140px] truncate text-xs">
-                {currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Account'}
-              </span>
-              <ChevronDown className="h-3 w-3" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <div className="px-3 py-2 border-b border-border">
-              <p className="text-xs text-muted-foreground truncate">{currentUser?.email}</p>
-            </div>
-            <DropdownMenuItem onClick={() => navigate('/my-arctrack')} className="cursor-pointer">
-              <User className="h-4 w-4 mr-2" />
-              My Account
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={logout}
-              className="cursor-pointer text-destructive focus:text-destructive"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem onClick={() => navigate('/my-arctrack')} className="cursor-pointer">
+                <User className="h-4 w-4 mr-2" />
+                My Account
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={logout}
+                className="cursor-pointer text-destructive focus:text-destructive"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+        </div>
       </header>
 
       {/* Page content */}

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,6 +61,16 @@ function StatusDot({ isActive }: { isActive: boolean }) {
     <span className="h-2 w-2 rounded-full bg-muted-foreground/30 shrink-0" />
   );
 }
+
+// ─── Cycling accent palette ───────────────────────────────────────────────────
+
+const PROJECT_ACCENTS = [
+  { leftBorder: 'border-l-sky-500',     badge: 'bg-sky-500/10 text-sky-400 border border-sky-500/20' },
+  { leftBorder: 'border-l-amber-500',   badge: 'bg-amber-500/10 text-amber-400 border border-amber-500/20' },
+  { leftBorder: 'border-l-violet-500',  badge: 'bg-violet-500/10 text-violet-400 border border-violet-500/20' },
+  { leftBorder: 'border-l-emerald-500', badge: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' },
+  { leftBorder: 'border-l-rose-500',    badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
+];
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -218,18 +226,19 @@ const ProjectsUsersDevices = () => {
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Projects</span>
           <div className="flex gap-1">
-            <Button size="sm" variant="ghost" onClick={() => setCreateDialogOpen(true)}
-              className="h-7 px-2 text-xs text-primary hover:bg-primary/5 hover:text-primary">
-              <Plus className="h-3 w-3 mr-1" />New
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setJoinDialogOpen(true)}
-              className="h-7 px-2 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground">
+            {/* Material filled tonal button */}
+            <button onClick={() => setCreateDialogOpen(true)}
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-primary/15 text-primary hover:bg-primary/25 transition-all">
+              <Plus className="h-3 w-3" />New
+            </button>
+            <button onClick={() => setJoinDialogOpen(true)}
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-all">
               Join
-            </Button>
+            </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto py-2 px-2 space-y-1">
           {loading ? (
             <div className="px-4 py-6 text-center text-muted-foreground/60 text-sm flex flex-col items-center gap-2">
               <Loader2 className="h-5 w-5 animate-spin" />Loading...
@@ -242,45 +251,52 @@ const ProjectsUsersDevices = () => {
               <p className="text-xs text-muted-foreground/60">No projects yet</p>
             </div>
           ) : (
-            projects.map((project) => {
+            projects.map((project, idx) => {
               const selected = selectedProject?.id === project.id;
               const owner = isOwner(project);
+              const accent = PROJECT_ACCENTS[idx % PROJECT_ACCENTS.length];
               return (
-                <button
+                <div
                   key={project.id}
                   onClick={() => setSelectedProject(project)}
                   className={[
-                    'w-full text-left px-4 py-3 border-b border-border transition-colors group',
-                    selected ? 'bg-primary/5 border-l-2 border-l-primary' : 'hover:bg-muted/50',
+                    'rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden cursor-pointer group',
+                    accent.leftBorder,
+                    selected ? 'bg-muted/30' : '',
                   ].join(' ')}
                 >
-                  <div className="flex items-center justify-between">
-                    <p className={`text-sm font-medium truncate ${selected ? 'text-primary' : 'text-foreground'}`}>
+                  <div className="px-4 py-3 flex items-center justify-between hover:bg-muted/40 transition-colors">
+                    <span className="text-sm font-medium text-foreground truncate">
                       {project.name}
-                    </p>
-                    {owner && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setProjectToDelete(project); setDeleteDialogOpen(true); }}
-                        className="opacity-0 group-hover:opacity-100 h-5 w-5 flex items-center justify-center rounded text-muted-foreground/60 hover:text-red-400 hover:bg-destructive/10 transition-all"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    )}
+                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${accent.badge}`}>
+                        {project.users.length}
+                      </span>
+                      {owner && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setProjectToDelete(project); setDeleteDialogOpen(true); }}
+                          className="opacity-0 group-hover:opacity-100 h-5 w-5 flex items-center justify-center rounded-full text-muted-foreground/50 hover:text-red-400 hover:bg-destructive/10 transition-all"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-muted-foreground/60">
+                  <div className="px-4 pb-2.5 flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground/60">
                       {project.users.length} user{project.users.length !== 1 ? 's' : ''}
                     </span>
-                    <span className="text-xs text-muted-foreground/60">·</span>
-                    <span className="text-xs text-muted-foreground/60">
+                    <span className="text-muted-foreground/30 text-[10px]">·</span>
+                    <span className="text-[10px] text-muted-foreground/60">
                       {Object.keys(project.devices || {}).length} device{Object.keys(project.devices || {}).length !== 1 ? 's' : ''}
                     </span>
                     {owner
-                      ? <span className="ml-auto text-[10px] font-mono text-primary bg-primary/5 px-1.5 py-0.5 rounded">Owner</span>
-                      : <span className="ml-auto text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Member</span>
+                      ? <span className="ml-auto text-[10px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">Owner</span>
+                      : <span className="ml-auto text-[10px] font-semibold text-muted-foreground bg-muted rounded-full px-2 py-0.5">Member</span>
                     }
                   </div>
-                </button>
+                </div>
               );
             })
           )}
@@ -309,39 +325,37 @@ const ProjectsUsersDevices = () => {
                 )}
               </div>
               {isOwner(selectedProject) && (
-                <Button
-                  size="sm"
-                  variant="destructive"
+                <button
                   onClick={() => { setProjectToDelete(selectedProject); setDeleteDialogOpen(true); }}
-                  className="shrink-0 text-xs"
+                  className="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-all"
                 >
-                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                  <Trash2 className="h-3.5 w-3.5" />
                   Delete Project
-                </Button>
+                </button>
               )}
             </div>
 
-            {/* ── Meta row ───────────────────────────────────────────────── */}
+            {/* ── Meta row — Material surface cards ──────────────────────── */}
             <div className="grid grid-cols-4 gap-3">
-              <div className="bg-card border border-border rounded-lg px-3 py-2.5">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Project ID</p>
+              <div className="bg-card border border-border/60 rounded-2xl px-4 py-3 shadow-sm">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Project ID</p>
                 <p className="text-xs font-mono text-primary truncate">{selectedProject.id}</p>
               </div>
-              <div className="bg-card border border-border rounded-lg px-3 py-2.5">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Created</p>
+              <div className="bg-card border border-border/60 rounded-2xl px-4 py-3 shadow-sm">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Created</p>
                 <p className="text-xs text-foreground">
                   {new Date(selectedProject.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                 </p>
               </div>
-              <div className="bg-card border border-border rounded-lg px-3 py-2.5">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Your Role</p>
-                <p className={`text-xs font-semibold ${isOwner(selectedProject) ? 'text-primary' : 'text-muted-foreground'}`}>
+              <div className="bg-card border border-border/60 rounded-2xl px-4 py-3 shadow-sm">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Your Role</p>
+                <span className={`inline-block text-[10px] font-semibold rounded-full px-2.5 py-0.5 ${isOwner(selectedProject) ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'}`}>
                   {isOwner(selectedProject) ? 'Owner' : 'Member'}
-                </p>
+                </span>
               </div>
-              <div className="bg-card border border-border rounded-lg px-3 py-2.5">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Active Devices</p>
-                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <div className="bg-card border border-border/60 rounded-2xl px-4 py-3 shadow-sm">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Active Devices</p>
+                <p className="text-xs font-semibold text-emerald-500">
                   {deviceIds.filter(id => deviceStatuses[id]?.isActive).length} / {deviceIds.length}
                 </p>
               </div>
@@ -351,33 +365,33 @@ const ProjectsUsersDevices = () => {
             <div className="grid grid-cols-2 gap-5">
 
               {/* Users panel */}
-              <section className="bg-card border border-border rounded-lg overflow-hidden flex flex-col">
-                <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
+              <section className="bg-card border border-border/60 rounded-2xl overflow-hidden flex flex-col shadow-sm">
+                <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
                     <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                      Users
-                    </span>
-                    <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Users</span>
+                    {/* Material filled chip */}
+                    <span className="rounded-full bg-muted/70 text-muted-foreground text-[10px] font-semibold px-2 py-0.5 min-w-[20px] text-center">
                       {selectedProject.users.length}
                     </span>
                   </div>
                   {isOwner(selectedProject) && (
-                    <Button size="sm" onClick={() => setAddUserSheetOpen(true)}
-                      className="h-7 px-2.5 text-xs font-semibold">
-                      <UserPlus className="h-3 w-3 mr-1" />Add User
-                    </Button>
+                    <button onClick={() => setAddUserSheetOpen(true)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/15 text-primary hover:bg-primary/25 transition-all">
+                      <UserPlus className="h-3 w-3" />Add User
+                    </button>
                   )}
                 </div>
 
-                <div className="px-3 py-2 border-b border-border shrink-0">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60" />
-                    <Input
-                      placeholder="Search users..."
+                {/* Pill search bar */}
+                <div className="px-3 py-2.5 border-b border-border/50 shrink-0">
+                  <div className="flex items-center gap-2 rounded-full bg-muted/50 border border-border/50 px-3 py-1.5">
+                    <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                    <input
+                      placeholder="Search users…"
                       value={userSearch}
                       onChange={(e) => setUserSearch(e.target.value)}
-                      className="pl-8 h-7 text-xs"
+                      className="bg-transparent text-xs outline-none flex-1 placeholder:text-muted-foreground/50 text-foreground"
                     />
                   </div>
                 </div>
@@ -396,25 +410,27 @@ const ProjectsUsersDevices = () => {
                       const name = userNames[userId] || userId;
                       return (
                         <div key={userId}
-                          className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors"
                         >
-                          <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                            <span className="text-xs text-muted-foreground font-semibold uppercase">{name[0] || '?'}</span>
+                          {/* Avatar */}
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <span className="text-xs text-primary font-semibold uppercase">{name[0] || '?'}</span>
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium text-foreground truncate">
                               {name}{isMe && <span className="text-muted-foreground font-normal ml-1">(you)</span>}
                             </p>
-                            <p className="text-[10px] font-mono text-muted-foreground/60 truncate">{userId}</p>
+                            <p className="text-[10px] font-mono text-muted-foreground/50 truncate">{userId}</p>
                           </div>
+                          {/* Role chip — rounded-full */}
                           {isProjectOwner
-                            ? <span className="text-[10px] font-mono text-primary bg-primary/5 border border-primary/15 px-1.5 py-0.5 rounded shrink-0">Owner</span>
-                            : <span className="text-[10px] font-mono text-muted-foreground bg-muted border border-border px-1.5 py-0.5 rounded shrink-0">Member</span>
+                            ? <span className="text-[10px] font-semibold text-primary bg-primary/15 rounded-full px-2.5 py-0.5 shrink-0">Owner</span>
+                            : <span className="text-[10px] font-semibold text-muted-foreground bg-muted rounded-full px-2.5 py-0.5 shrink-0">Member</span>
                           }
                           {isOwner(selectedProject) && !isProjectOwner && !isMe && (
                             <button
                               onClick={() => { setUserToRemove(userId); setRemoveUserDialogOpen(true); }}
-                              className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground/40 hover:text-red-500 hover:bg-destructive/10 transition-colors shrink-0"
+                              className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground/40 hover:text-red-400 hover:bg-destructive/10 transition-all shrink-0"
                               title="Remove user"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -428,33 +444,32 @@ const ProjectsUsersDevices = () => {
               </section>
 
               {/* Devices panel */}
-              <section className="bg-card border border-border rounded-lg overflow-hidden flex flex-col">
-                <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
+              <section className="bg-card border border-border/60 rounded-2xl overflow-hidden flex flex-col shadow-sm">
+                <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
                     <Smartphone className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                      Devices
-                    </span>
-                    <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Devices</span>
+                    <span className="rounded-full bg-muted/70 text-muted-foreground text-[10px] font-semibold px-2 py-0.5 min-w-[20px] text-center">
                       {Object.keys(selectedProject.devices || {}).length}
                     </span>
                   </div>
                   {isOwner(selectedProject) && (
-                    <Button size="sm" onClick={() => setAddDeviceDialogOpen(true)}
-                      className="h-7 px-2.5 text-xs font-semibold">
-                      <Plus className="h-3 w-3 mr-1" />Add Device
-                    </Button>
+                    <button onClick={() => setAddDeviceDialogOpen(true)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/15 text-primary hover:bg-primary/25 transition-all">
+                      <Plus className="h-3 w-3" />Add Device
+                    </button>
                   )}
                 </div>
 
-                <div className="px-3 py-2 border-b border-border shrink-0">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60" />
-                    <Input
-                      placeholder="Search devices..."
+                {/* Pill search bar */}
+                <div className="px-3 py-2.5 border-b border-border/50 shrink-0">
+                  <div className="flex items-center gap-2 rounded-full bg-muted/50 border border-border/50 px-3 py-1.5">
+                    <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                    <input
+                      placeholder="Search devices…"
                       value={deviceSearch}
                       onChange={(e) => setDeviceSearch(e.target.value)}
-                      className="pl-8 h-7 text-xs"
+                      className="bg-transparent text-xs outline-none flex-1 placeholder:text-muted-foreground/50 text-foreground"
                     />
                   </div>
                 </div>
@@ -471,33 +486,35 @@ const ProjectsUsersDevices = () => {
                       const status = deviceStatuses[device.id];
                       return (
                         <div key={device.id}
-                          className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors"
                         >
-                          <div className="h-7 w-7 rounded bg-muted flex items-center justify-center shrink-0">
+                          {/* Icon avatar — rounded-full */}
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                             <Radio className="h-3.5 w-3.5 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium text-foreground truncate">{device.name}</p>
-                            <p className="text-[10px] font-mono text-muted-foreground/60 truncate">{device.id}</p>
+                            <p className="text-[10px] font-mono text-muted-foreground/50 truncate">{device.id}</p>
                           </div>
 
-                          {/* Live status */}
-                          <div className="flex items-center gap-2 shrink-0 text-[10px] text-muted-foreground font-mono">
+                          {/* Live status chips */}
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <StatusDot isActive={status?.isActive ?? false} />
                             {status?.battery != null && (
-                              <span className="flex items-center gap-0.5">
-                                <Battery className="h-3 w-3" />{status.battery}%
+                              <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-muted-foreground bg-muted/60 rounded-full px-2 py-0.5">
+                                <Battery className="h-2.5 w-2.5" />{status.battery}%
                               </span>
                             )}
-                            <span className="flex items-center gap-0.5">
-                              <Clock className="h-3 w-3" />{formatLastSeen(status?.lastContact)}
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-muted-foreground bg-muted/60 rounded-full px-2 py-0.5">
+                              <Clock className="h-2.5 w-2.5" />{formatLastSeen(status?.lastContact)}
                             </span>
                           </div>
 
                           {isOwner(selectedProject) && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <button className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-colors shrink-0">
+                                {/* Material icon button — circular */}
+                                <button className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground/40 hover:text-foreground hover:bg-muted/70 transition-all shrink-0">
                                   <MoreHorizontal className="h-4 w-4" />
                                 </button>
                               </DropdownMenuTrigger>
