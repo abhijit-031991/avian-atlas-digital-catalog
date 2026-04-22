@@ -2,12 +2,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  CalendarIcon, Download, Upload, RefreshCw, Database,
+  CalendarIcon, Download, Upload, RefreshCw, Database, Search,
   ArrowUpDown, ArrowUp, ArrowDown,
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, X,
 } from 'lucide-react';
@@ -26,6 +25,8 @@ interface DataTableViewProps {
   onDataChange?: (data: DataPoint[]) => void;
   deploymentRange?: DeploymentRange | null;
 }
+
+const toMs = (ts: number) => ts < 32503680000 ? ts * 1000 : ts;
 
 const COLUMNS: { key: keyof DataPoint; label: string; mono?: boolean; width?: string }[] = [
   { key: 'pointid',   label: '#',          mono: true,  width: 'w-12'  },
@@ -109,7 +110,7 @@ const DataTableView = ({ device, data, loading, tableExists, onRefresh, onDataCh
         item.latitude.toString().includes(q) ||
         item.longitude.toString().includes(q) ||
         item.id.toString().includes(q);
-      const d = new Date(item.timestamp);
+      const d = new Date(toMs(item.timestamp));
       const matchDate = (!startDate || d >= startDate) && (!endDate || d <= endDate);
       return matchSearch && matchDate;
     });
@@ -162,42 +163,55 @@ const DataTableView = ({ device, data, loading, tableExists, onRefresh, onDataCh
       <div className="flex flex-col h-full overflow-hidden">
 
         {/* ── Toolbar ─────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-border shrink-0 bg-card flex-wrap">
+        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border shrink-0 bg-card flex-wrap">
 
-          {/* Search */}
-          <div className="relative">
-            <Input
+          {/* Material search bar — rounded-full pill */}
+          <div className="flex items-center gap-2 rounded-full bg-muted/50 border border-border/60 px-3 py-1.5 min-w-[180px]">
+            <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <input
               placeholder="Search…"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="h-7 w-40 text-xs pl-2 pr-6 bg-background border-border"
+              className="bg-transparent text-xs outline-none flex-1 placeholder:text-muted-foreground/60 text-foreground"
             />
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <button onClick={() => setSearchTerm('')} className="text-muted-foreground hover:text-foreground shrink-0">
                 <X className="h-3 w-3" />
               </button>
             )}
           </div>
 
-          {/* Date pickers */}
+          {/* Material filter chips — date range */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={`h-7 text-xs gap-1.5 border-border ${startDate ? 'text-primary border-primary/40' : ''}`}>
+              <button className={[
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
+                startDate
+                  ? 'bg-primary/15 border-primary/30 text-primary'
+                  : 'border-border/60 text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+              ].join(' ')}>
                 <CalendarIcon className="h-3 w-3" />
                 {startDate ? format(startDate, 'dd MMM yy') : 'From'}
-              </Button>
+              </button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
             </PopoverContent>
           </Popover>
 
+          <span className="text-muted-foreground/30 text-xs">→</span>
+
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={`h-7 text-xs gap-1.5 border-border ${endDate ? 'text-primary border-primary/40' : ''}`}>
+              <button className={[
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
+                endDate
+                  ? 'bg-primary/15 border-primary/30 text-primary'
+                  : 'border-border/60 text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+              ].join(' ')}>
                 <CalendarIcon className="h-3 w-3" />
                 {endDate ? format(endDate, 'dd MMM yy') : 'To'}
-              </Button>
+              </button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
@@ -207,35 +221,46 @@ const DataTableView = ({ device, data, loading, tableExists, onRefresh, onDataCh
           {isFiltered && (
             <button
               onClick={() => { setSearchTerm(''); setStartDate(undefined); setEndDate(undefined); }}
-              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/20 transition-all"
             >
               <X className="h-3 w-3" /> Clear
             </button>
           )}
 
-          {/* Record count */}
-          <span className="text-xs text-muted-foreground ml-1">
+          {/* Record count chip */}
+          <span className="px-3 py-1 rounded-full bg-muted/40 text-xs text-muted-foreground whitespace-nowrap">
             {isFiltered
-              ? <>{filteredAndSortedData.length} <span className="opacity-50">of</span> {data.length} records</>
-              : <>{data.length} records</>
+              ? <><span className="text-foreground font-medium">{filteredAndSortedData.length}</span> of {data.length}</>
+              : <><span className="text-foreground font-medium">{data.length}</span> records</>
             }
           </span>
 
           <div className="flex-1" />
 
-          {/* Actions */}
-          <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5" onClick={onRefresh} disabled={loading}>
-            <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5" onClick={exportData} disabled={!data.length}>
-            <Download className="h-3 w-3" />
-            Export
-          </Button>
-          <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5" onClick={() => setShowUpload(true)}>
-            <Upload className="h-3 w-3" />
-            Upload CSV
-          </Button>
+          {/* Material icon buttons — circular */}
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            title="Refresh"
+            className="h-8 w-8 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-all disabled:opacity-40"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={exportData}
+            disabled={!data.length}
+            title="Export CSV"
+            className="h-8 w-8 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-all disabled:opacity-40"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setShowUpload(true)}
+            title="Upload CSV"
+            className="h-8 w-8 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-all"
+          >
+            <Upload className="h-4 w-4" />
+          </button>
         </div>
 
         {/* ── Table ───────────────────────────────────────────── */}
@@ -284,7 +309,7 @@ const DataTableView = ({ device, data, loading, tableExists, onRefresh, onDataCh
                     <td className="px-3 py-1.5 font-mono text-muted-foreground">{row.pointid}</td>
                     <td className="px-3 py-1.5 font-mono text-primary/80">{row.id}</td>
                     <td className="px-3 py-1.5 text-muted-foreground whitespace-nowrap">
-                      {new Date(row.timestamp).toLocaleString()}
+                      {new Date(toMs(row.timestamp)).toLocaleString()}
                     </td>
                     <td className="px-3 py-1.5 font-mono">{row.latitude.toFixed(6)}</td>
                     <td className="px-3 py-1.5 font-mono">{row.longitude.toFixed(6)}</td>

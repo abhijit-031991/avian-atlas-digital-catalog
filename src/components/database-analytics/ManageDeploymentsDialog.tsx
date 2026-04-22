@@ -177,11 +177,12 @@ const ManageDeploymentsDialog = ({ open, onOpenChange, device }: Props) => {
 
     setSaving(true);
     try {
+      const trimmedNotes = form.notes.trim();
       const payload = {
         name:      form.name.trim(),
         startDate: form.startDate.toISOString(),
         endDate:   form.endDate ? form.endDate.toISOString() : null,
-        notes:     form.notes.trim() || undefined,
+        ...(trimmedNotes ? { notes: trimmedNotes } : {}),
       };
       if (editingId) {
         await updateDeployment(editingId, payload);
