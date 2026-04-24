@@ -749,9 +749,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
         <!-- Header -->
         <div style="display:flex;align-items:center;gap:8px;">
-          <img src="${BASE_STATION_ICON}" style="width:22px;height:22px;object-fit:contain;" />
-          <h3 style="margin:0;color:#7c3aed;font-weight:700;font-size:16px;font-family:monospace;">${id}</h3>
-          <div style="margin-left:auto;display:flex;align-items:center;gap:5px;">
+          <img src="${BASE_STATION_ICON}" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;" />
+          <div style="flex:1;min-width:0;">
+            <h3 style="margin:0;color:#7c3aed;font-weight:700;font-size:16px;font-family:monospace;line-height:1.2;">${id}</h3>
+            <div style="font-size:11px;color:${t.muted};margin-top:2px;">Last heartbeat: ${escapeHtml(lastHbStr)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
             <span style="font-size:11px;background:#7c3aed22;color:#7c3aed;padding:2px 9px;border-radius:10px;border:1px solid #7c3aed44;">Base Station</span>
             ${station.fwVersion != null ? `<span style="font-size:11px;background:#7c3aed22;color:#7c3aed;padding:2px 9px;border-radius:10px;border:1px solid #7c3aed44;">v${station.fwVersion}</span>` : ''}
           </div>
@@ -762,11 +765,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
           lteTile() +
           tile('Battery', station.batteryPct != null ? `${station.batteryPct}%` : 'N/A') +
           tile('Uptime', formatUptime(station.uptimeS)) +
-          tile('Last heartbeat', lastHbStr)
+          tile('Signal', station.signal != null ? String(station.signal) : 'N/A')
         )}
 
-        <!-- Devices: 1×2 row -->
-        ${section('Devices', '1fr 1fr',
+        <!-- Signals Received: 1×2 row -->
+        ${section('Signals Received', '1fr 1fr',
           tile('Unique seen', station.uniqueDevices != null ? String(station.uniqueDevices) : 'N/A') +
           tile('Last signal', formatRxAgo(station.lastRxAgoMs))
         )}

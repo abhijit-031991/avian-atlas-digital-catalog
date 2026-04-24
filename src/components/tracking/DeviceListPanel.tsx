@@ -22,9 +22,18 @@ function getStatus(lastContact: number): 'active' | 'stale' | 'offline' {
   return 'offline';
 }
 
-function formatLastSeen(ts: number): string {
+function formatLastSeen(ts: number | string): string {
   if (!ts) return 'Never';
-  const diff = Date.now() - ts * 1000;
+  // Resolve to a ms timestamp — handles Unix-s, Unix-ms, and formatted date strings
+  let ms: number;
+  const n = Number(ts);
+  if (!isNaN(n) && n > 0) {
+    ms = n < 1e10 ? n * 1000 : n; // Unix seconds vs milliseconds
+  } else {
+    ms = new Date(ts as string).getTime();
+  }
+  if (isNaN(ms)) return 'Never';
+  const diff = Date.now() - ms;
   const secs = Math.floor(diff / 1000);
   if (secs < 60) return `${secs}s ago`;
   const mins = Math.floor(secs / 60);
