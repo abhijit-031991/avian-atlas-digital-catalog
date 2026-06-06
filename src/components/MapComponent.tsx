@@ -554,25 +554,33 @@ const MapComponent: React.FC<MapComponentProps> = ({
     );
     if (validPts.length === 0) return;
 
-    // ── Build a custom OverlayView that owns a heatmap.js canvas ──────────────
+    const mapDiv = map.getDiv();
+
+    // ── OverlayView: canvas appended directly to the map div (not a pane)
+    // so it is never shifted by Google Maps' pane translation on pan/zoom.
+    // fromLatLngToContainerPixel gives coords relative to the map container,
+    // which matches our canvas anchor point exactly.
     class HeatmapOverlay extends window.google.maps.OverlayView {
       private container: HTMLDivElement;
       private heatmap: any;
       private points: DataPoint[];
+      private mapDiv: HTMLElement;
 
-      constructor(pts: DataPoint[]) {
+      constructor(points: DataPoint[], mapDiv: HTMLElement) {
         super();
-        this.points = pts;
+        this.points = points;
+        this.mapDiv = mapDiv;
         this.container = document.createElement('div');
-        this.container.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+        this.container.style.cssText =
+          'position:absolute;top:0;left:0;pointer-events:none;z-index:1;';
       }
 
       onAdd() {
-        const panes = this.getPanes()!;
-        panes.overlayLayer.appendChild(this.container);
-        const mapDiv = (this.getMap() as google.maps.Map).getDiv();
-        this.container.style.width  = mapDiv.clientWidth  + 'px';
-        this.container.style.height = mapDiv.clientHeight + 'px';
+        this.mapDiv.appendChild(this.container);
+        const w = this.mapDiv.clientWidth;
+        const h = this.mapDiv.clientHeight;
+        this.container.style.width  = w + 'px';
+        this.container.style.height = h + 'px';
         this.heatmap = h337.create({
           container: this.container,
           radius: 25,
@@ -587,8 +595,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
       draw() {
         if (!this.heatmap) return;
         const proj = this.getProjection();
-        const mapDiv = (this.getMap() as google.maps.Map).getDiv();
-        const w = mapDiv.clientWidth, h = mapDiv.clientHeight;
+        if (!proj) return;
+        const w = this.mapDiv.clientWidth;
+        const h = this.mapDiv.clientHeight;
         this.container.style.width  = w + 'px';
         this.container.style.height = h + 'px';
         this.heatmap.configure({ width: w, height: h });
@@ -610,7 +619,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       }
     }
 
-    const overlay = new HeatmapOverlay(validPts);
+    const overlay = new HeatmapOverlay(validPts, mapDiv);
     overlay.setMap(map);
     heatmapOverlayRef.current = overlay;
   };
