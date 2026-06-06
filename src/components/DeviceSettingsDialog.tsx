@@ -53,7 +53,7 @@ const DeviceSettingsDialog: React.FC<DeviceSettingsDialogProps> = ({
   };
 
   // Keys to hide from display
-  const hiddenKeys = ["NEW", "id"];
+  const hiddenKeys = ["NEW", "id", "Lat", "lat", "Lng", "lng"];
 
   useEffect(() => {
     if (open && deviceId) {
