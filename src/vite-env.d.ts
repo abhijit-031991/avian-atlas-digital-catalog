@@ -1,6 +1,29 @@
 
 /// <reference types="vite/client" />
 
+declare module 'heatmap.js' {
+  interface HeatmapConfiguration {
+    container: HTMLElement;
+    radius?: number;
+    maxOpacity?: number;
+    minOpacity?: number;
+    blur?: number;
+    gradient?: Record<string, string>;
+    width?: number;
+    height?: number;
+  }
+  interface HeatmapData {
+    max: number;
+    data: { x: number; y: number; value: number }[];
+  }
+  interface HeatmapInstance {
+    setData(data: HeatmapData): void;
+    configure(config: Partial<HeatmapConfiguration>): void;
+  }
+  function create(config: HeatmapConfiguration): HeatmapInstance;
+  export default { create };
+}
+
 declare global {
   interface Window {
     google: typeof google;

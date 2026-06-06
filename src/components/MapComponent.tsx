@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import h337 from 'heatmap.js';
 import {
   Route, Layers, Target, Clock, Zap, SlidersHorizontal,
   Flame, Hexagon, Star, MapPin, Tag, Loader2, ArrowRight,
@@ -186,7 +187,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const hdopCirclesRef = useRef<any[]>([]);
   const lockMarkersRef = useRef<any[]>([]);
   const gapMarkersRef = useRef<any[]>([]);
-  const heatmapRef = useRef<any>(null);
+  const heatmapOverlayRef = useRef<any>(null); // google.maps.OverlayView
+
   const convexRef = useRef<any>(null);
   const concaveRef = useRef<any>(null);
   const pointMarkersRef = useRef<any[]>([]);
@@ -216,7 +218,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (window.google) { setMapLoaded(true); return; }
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}&libraries=geometry,visualization`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}&libraries=geometry`;
     script.async = true;
     script.defer = true;
     script.onload = () => setMapLoaded(true);
@@ -459,7 +461,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     hdopCirclesRef.current.forEach(c => c.setMap(null)); hdopCirclesRef.current = [];
     lockMarkersRef.current.forEach(m => m.setMap(null)); lockMarkersRef.current = [];
     gapMarkersRef.current.forEach(m => m.setMap(null)); gapMarkersRef.current = [];
-    heatmapRef.current?.setMap(null); heatmapRef.current = null;
+    heatmapOverlayRef.current?.setMap(null); heatmapOverlayRef.current = null;
     convexRef.current?.setMap(null); convexRef.current = null;
     concaveRef.current?.setMap(null); concaveRef.current = null;
     pointMarkersRef.current.forEach(m => m.setMap(null)); pointMarkersRef.current = [];
@@ -543,13 +545,74 @@ const MapComponent: React.FC<MapComponentProps> = ({
     }
   };
 
+
   const renderHeatmap = (pts: DataPoint[]) => {
     const map = mapInstanceRef.current;
-    if (!map || !window.google?.maps?.visualization) return;
-    heatmapRef.current = new window.google.maps.visualization.HeatmapLayer({
-      data: pts.map(p => new window.google.maps.LatLng(p.latitude, p.longitude)),
-      map, radius: 30, opacity: 0.7,
-    });
+    if (!map) return;
+    const validPts = pts.filter(
+      p => p.latitude != null && p.longitude != null && isFinite(p.latitude) && isFinite(p.longitude)
+    );
+    if (validPts.length === 0) return;
+
+    // ── Build a custom OverlayView that owns a heatmap.js canvas ──────────────
+    class HeatmapOverlay extends window.google.maps.OverlayView {
+      private container: HTMLDivElement;
+      private heatmap: any;
+      private points: DataPoint[];
+
+      constructor(pts: DataPoint[]) {
+        super();
+        this.points = pts;
+        this.container = document.createElement('div');
+        this.container.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+      }
+
+      onAdd() {
+        const panes = this.getPanes()!;
+        panes.overlayLayer.appendChild(this.container);
+        const mapDiv = (this.getMap() as google.maps.Map).getDiv();
+        this.container.style.width  = mapDiv.clientWidth  + 'px';
+        this.container.style.height = mapDiv.clientHeight + 'px';
+        this.heatmap = h337.create({
+          container: this.container,
+          radius: 25,
+          maxOpacity: 0.7,
+          minOpacity: 0,
+          blur: 0.85,
+          gradient: { '0.2': '#3b82f6', '0.5': '#f59e0b', '0.8': '#ef4444', '1.0': '#7c3aed' },
+        });
+        this.draw();
+      }
+
+      draw() {
+        if (!this.heatmap) return;
+        const proj = this.getProjection();
+        const mapDiv = (this.getMap() as google.maps.Map).getDiv();
+        const w = mapDiv.clientWidth, h = mapDiv.clientHeight;
+        this.container.style.width  = w + 'px';
+        this.container.style.height = h + 'px';
+        this.heatmap.configure({ width: w, height: h });
+
+        const data = this.points
+          .map(p => {
+            const pt = proj.fromLatLngToContainerPixel(
+              new window.google.maps.LatLng(p.latitude, p.longitude)
+            );
+            return pt ? { x: Math.round(pt.x), y: Math.round(pt.y), value: 1 } : null;
+          })
+          .filter(Boolean) as { x: number; y: number; value: number }[];
+
+        this.heatmap.setData({ max: 5, data });
+      }
+
+      onRemove() {
+        this.container.parentNode?.removeChild(this.container);
+      }
+    }
+
+    const overlay = new HeatmapOverlay(validPts);
+    overlay.setMap(map);
+    heatmapOverlayRef.current = overlay;
   };
 
   const renderConvexHull = (pts: DataPoint[]) => {
@@ -627,17 +690,21 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     clearAllHistoricalLayers();
     if (!mapLoaded || displayPoints.length === 0) return;
-    if (layers.trail) renderTrail(displayPoints);
-    if (layers.sessions) renderSessions(displayPoints);
-    if (layers.hdopCircles) renderHdopCircles(displayPoints);
-    if (layers.lockTimeColor) renderLockTimeMarkers(displayPoints);
-    if (layers.gapMarkers) renderGapMarkers(displayPoints);
-    if (layers.heatmap) renderHeatmap(displayPoints);
-    if (layers.convexHull) renderConvexHull(displayPoints);
-    if (layers.concaveHull) renderConcaveHull(displayPoints);
-    if (layers.pointMarkers) renderPointMarkers(displayPoints);
-    if (layers.pointLabels) renderPointLabels(displayPoints);
-    renderEndpoints(displayPoints);
+    try {
+      if (layers.trail) renderTrail(displayPoints);
+      if (layers.sessions) renderSessions(displayPoints);
+      if (layers.hdopCircles) renderHdopCircles(displayPoints);
+      if (layers.lockTimeColor) renderLockTimeMarkers(displayPoints);
+      if (layers.gapMarkers) renderGapMarkers(displayPoints);
+      if (layers.heatmap) renderHeatmap(displayPoints);
+      if (layers.convexHull) renderConvexHull(displayPoints);
+      if (layers.concaveHull) renderConcaveHull(displayPoints);
+      if (layers.pointMarkers) renderPointMarkers(displayPoints);
+      if (layers.pointLabels) renderPointLabels(displayPoints);
+      renderEndpoints(displayPoints);
+    } catch (err) {
+      console.error('[MapComponent] Layer render error:', err);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayPoints, layers, mapLoaded]);
 
