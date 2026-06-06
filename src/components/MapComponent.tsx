@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import h337 from 'heatmap.js';
 import {
   Route, Layers, Target, Clock, Zap, SlidersHorizontal,
-  Flame, Hexagon, Star, MapPin, Tag, Loader2, ArrowRight,
+  Hexagon, Star, MapPin, Tag, Loader2, ArrowRight,
 } from 'lucide-react';
 import { database } from '@/config/firebase';
 import { ref, onValue } from 'firebase/database';
@@ -76,7 +75,6 @@ interface LayerState {
   lockTimeColor: boolean;
   gapMarkers: boolean;
   timeFilter: boolean;
-  heatmap: boolean;
   convexHull: boolean;
   concaveHull: boolean;
   pointMarkers: boolean;
@@ -90,7 +88,6 @@ const DEFAULT_LAYERS: LayerState = {
   lockTimeColor: false,
   gapMarkers: false,
   timeFilter: false,
-  heatmap: false,
   convexHull: false,
   concaveHull: false,
   pointMarkers: false,
@@ -187,7 +184,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const hdopCirclesRef = useRef<any[]>([]);
   const lockMarkersRef = useRef<any[]>([]);
   const gapMarkersRef = useRef<any[]>([]);
-  const heatmapOverlayRef = useRef<any>(null); // google.maps.OverlayView
 
   const convexRef = useRef<any>(null);
   const concaveRef = useRef<any>(null);
@@ -461,7 +457,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
     hdopCirclesRef.current.forEach(c => c.setMap(null)); hdopCirclesRef.current = [];
     lockMarkersRef.current.forEach(m => m.setMap(null)); lockMarkersRef.current = [];
     gapMarkersRef.current.forEach(m => m.setMap(null)); gapMarkersRef.current = [];
-    heatmapOverlayRef.current?.setMap(null); heatmapOverlayRef.current = null;
     convexRef.current?.setMap(null); convexRef.current = null;
     concaveRef.current?.setMap(null); concaveRef.current = null;
     pointMarkersRef.current.forEach(m => m.setMap(null)); pointMarkersRef.current = [];
@@ -546,84 +541,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
   };
 
 
-  const renderHeatmap = (pts: DataPoint[]) => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-    const validPts = pts.filter(
-      p => p.latitude != null && p.longitude != null && isFinite(p.latitude) && isFinite(p.longitude)
-    );
-    if (validPts.length === 0) return;
-
-    const mapDiv = map.getDiv();
-
-    // ── OverlayView: canvas appended directly to the map div (not a pane)
-    // so it is never shifted by Google Maps' pane translation on pan/zoom.
-    // fromLatLngToContainerPixel gives coords relative to the map container,
-    // which matches our canvas anchor point exactly.
-    class HeatmapOverlay extends window.google.maps.OverlayView {
-      private container: HTMLDivElement;
-      private heatmap: any;
-      private points: DataPoint[];
-      private mapDiv: HTMLElement;
-
-      constructor(points: DataPoint[], mapDiv: HTMLElement) {
-        super();
-        this.points = points;
-        this.mapDiv = mapDiv;
-        this.container = document.createElement('div');
-        this.container.style.cssText =
-          'position:absolute;top:0;left:0;pointer-events:none;z-index:1;';
-      }
-
-      onAdd() {
-        this.mapDiv.appendChild(this.container);
-        const w = this.mapDiv.clientWidth;
-        const h = this.mapDiv.clientHeight;
-        this.container.style.width  = w + 'px';
-        this.container.style.height = h + 'px';
-        this.heatmap = h337.create({
-          container: this.container,
-          radius: 25,
-          maxOpacity: 0.7,
-          minOpacity: 0,
-          blur: 0.85,
-          gradient: { '0.2': '#3b82f6', '0.5': '#f59e0b', '0.8': '#ef4444', '1.0': '#7c3aed' },
-        });
-        this.draw();
-      }
-
-      draw() {
-        if (!this.heatmap) return;
-        const proj = this.getProjection();
-        if (!proj) return;
-        const w = this.mapDiv.clientWidth;
-        const h = this.mapDiv.clientHeight;
-        this.container.style.width  = w + 'px';
-        this.container.style.height = h + 'px';
-        this.heatmap.configure({ width: w, height: h });
-
-        const data = this.points
-          .map(p => {
-            const pt = proj.fromLatLngToContainerPixel(
-              new window.google.maps.LatLng(p.latitude, p.longitude)
-            );
-            return pt ? { x: Math.round(pt.x), y: Math.round(pt.y), value: 1 } : null;
-          })
-          .filter(Boolean) as { x: number; y: number; value: number }[];
-
-        this.heatmap.setData({ max: 5, data });
-      }
-
-      onRemove() {
-        this.container.parentNode?.removeChild(this.container);
-      }
-    }
-
-    const overlay = new HeatmapOverlay(validPts, mapDiv);
-    overlay.setMap(map);
-    heatmapOverlayRef.current = overlay;
-  };
-
   const renderConvexHull = (pts: DataPoint[]) => {
     const map = mapInstanceRef.current;
     if (!map || pts.length < 3) return;
@@ -705,7 +622,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
       if (layers.hdopCircles) renderHdopCircles(displayPoints);
       if (layers.lockTimeColor) renderLockTimeMarkers(displayPoints);
       if (layers.gapMarkers) renderGapMarkers(displayPoints);
-      if (layers.heatmap) renderHeatmap(displayPoints);
       if (layers.convexHull) renderConvexHull(displayPoints);
       if (layers.concaveHull) renderConcaveHull(displayPoints);
       if (layers.pointMarkers) renderPointMarkers(displayPoints);
@@ -875,7 +791,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
     { key: 'lockTimeColor', icon: <Clock className="h-4 w-4" />,             label: 'Lock',     color: '#22c55e' },
     { key: 'gapMarkers',    icon: <Zap className="h-4 w-4" />,               label: 'Gaps',     color: '#f59e0b' },
     { key: 'timeFilter',    icon: <SlidersHorizontal className="h-4 w-4" />, label: 'Filter',   color: '#a855f7' },
-    { key: 'heatmap',       icon: <Flame className="h-4 w-4" />,             label: 'Heat',     color: '#ef4444' },
     { key: 'convexHull',    icon: <Hexagon className="h-4 w-4" />,           label: 'Convex',   color: '#00d4ff' },
     { key: 'concaveHull',   icon: <Star className="h-4 w-4" />,              label: 'Concave',  color: '#a855f7' },
     { key: 'pointMarkers',  icon: <MapPin className="h-4 w-4" />,            label: 'Points',   color: '#94a3b8' },
